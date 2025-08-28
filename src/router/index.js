@@ -46,13 +46,35 @@ export const constantRoutes = [
   {
     path: "/",
     component: Layout,
-    redirect: "/dashboard",
+    redirect: "/three",
+    meta: {
+      title: "three.js",
+      icon: "dashboard"
+    },
     children: [
       {
-        path: "dashboard",
-        name: "Dashboard",
-        component: () => import("@/views/dashboard/index"),
-        meta: { title: "Dashboard", icon: "dashboard" }
+        path: "three",
+        name: "three",
+        component: () => import("@/views/three/index"),
+        meta: { title: "three" }
+      },
+      {
+        path: "importThree",
+        name: "importThree",
+        component: () => import("@/views/three/importThree"),
+        meta: { title: "importThree导入glb" }
+      },
+      {
+        path: "canClickThree",
+        name: "canClickThree",
+        component: () => import("@/views/three/canClickThree"),
+        meta: { title: "canClickThree点击glb" }
+      },
+      {
+        path: "bottomThreeBtn",
+        name: "bottomThreeBtn",
+        component: () => import("@/views/three/bottomThreeBtn"),
+        meta: { title: "底部的按钮" }
       }
     ]
   },

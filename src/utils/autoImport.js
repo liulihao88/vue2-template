@@ -20,6 +20,5 @@ requireComponent.keys().forEach((fileName) => {
     .toLowerCase();
 
   // 全局注册组件
-  console.log(`59 componentName`, componentName);
   Vue.component(componentName, componentConfig.default || componentConfig);
 });

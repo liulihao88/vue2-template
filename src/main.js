@@ -30,6 +30,12 @@ if (process.env.NODE_ENV === "production") {
 
 import "@/utils/autoImport.js";
 
+import * as utils from "@/utils/gFunc.js";
+
+for (const key in utils) {
+  Vue.config[key] = utils[key];
+}
+
 // set ElementUI lang to EN
 Vue.use(ElementUI, { locale });
 // 如果想要中文版 element-ui，按如下方式声明
@@ -39,8 +45,6 @@ Vue.config.productionTip = false;
 
 import Avue from "@smallwei/avue";
 Vue.use(Avue);
-
-
 
 new Vue({
   el: "#app",
