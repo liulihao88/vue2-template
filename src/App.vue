@@ -1,11 +1,18 @@
 <template>
   <div id="app">
-    <router-view />
+    <router-view v-if="showRouterView.showRouterView" />
+    <!-- <div style="position: fixed; bottom: 60px; right: 20px; color: red">showRouterView: {{ showRouterView }}
+    </div> -->
+    <quick-refresh-button />
   </div>
 </template>
 
 <script>
 export default {
-  name: 'App'
-}
+  name: "App",
+  data() {
+
+  },
+  methods: {}
+};
 </script>

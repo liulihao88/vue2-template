@@ -43,6 +43,9 @@ Vue.use(ElementUI, { locale });
 
 Vue.config.productionTip = false;
 
+import QuickRefreshPlugin from "@/plugins/quickRefresh";
+Vue.use(QuickRefreshPlugin);
+
 import Avue from "@smallwei/avue";
 Vue.use(Avue);
 
