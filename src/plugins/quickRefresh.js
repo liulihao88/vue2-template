@@ -6,14 +6,14 @@ const QuickRefreshPlugin = {
   install(Vue, options = {}) {
     // 创建一个响应式对象
     const sharedState = Vue.observable({
-      showRouterView: true
+      $refresh: true
     });
-    Vue.prototype.showRouterView = sharedState;
+    Vue.prototype.$refresh = sharedState;
     // 通过事件总线触发刷新
     Vue.prototype.$quickRefresh = function () {
-      sharedState.showRouterView = false;
+      sharedState.$refresh = false;
       setTimeout(() => {
-        sharedState.showRouterView = true;
+        sharedState.$refresh = true;
       }, 0);
     };
 

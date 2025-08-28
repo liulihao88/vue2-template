@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <router-view v-if="showRouterView.showRouterView" />
+    <router-view v-if="$refresh.$refresh" />
     <!-- <div style="position: fixed; bottom: 60px; right: 20px; color: red">showRouterView: {{ showRouterView }}
     </div> -->
     <quick-refresh-button />
