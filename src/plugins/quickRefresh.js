@@ -12,9 +12,10 @@ const QuickRefreshPlugin = {
     // 通过事件总线触发刷新
     Vue.prototype.$quickRefresh = function () {
       sharedState.$refresh = false;
-      setTimeout(() => {
+      console.clear();
+      this.$nextTick(() => {
         sharedState.$refresh = true;
-      }, 0);
+      });
     };
 
     // 监听全局刷新事件
