@@ -1,6 +1,16 @@
 <template>
-  <div class="box">
-    <div class="title">元素属性</div>
+  <div class="box" :style="{ ...customStyle }">
+    <section class="lm_header" style="height: 30px">
+      <section class="lm_tabs">
+        <div class="lm_tab" style="z-index: auto">
+          <span class="lm_title">{{ title }}</span>
+        </div>
+      </section>
+      <section class="lm_controls">
+        <slot name="right"> </slot>
+      </section>
+      <section class="lm_tabdropdown_list" style="display: none"></section>
+    </section>
     <div class="box-container">
       <slot></slot>
     </div>
@@ -11,7 +21,16 @@
 export default {
   name: "GAbsoluteBox",
   components: {},
-  props: {},
+  props: {
+    title: {
+      type: String,
+      default: ""
+    },
+    customStyle: {
+      type: Object,
+      default: () => {}
+    }
+  },
   data() {
     return {};
   },
@@ -27,14 +46,62 @@ export default {
   position: absolute;
   overflow: hidden;
   z-index: auto;
-  left: 0;
-  top: 50%;
-  // padding: 16px;
   color: #fff;
   width: 20%;
   height: 50vh;
   background: #000;
   font-size: 12px;
+  .lm_header {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    user-select: none;
+    align-items: center;
+    overflow: visible;
+    height: 100px;
+    border-bottom: 3px solid rgb(59, 68, 83);
+    .lm_tabs {
+      position: absolute;
+      display: flex;
+
+      .lm_tab {
+        box-shadow: rgba(0, 0, 0, 0.8) 0px -2px 3px;
+        padding-bottom: 5px;
+        border-bottom: none;
+        display: flex;
+        align-items: center;
+
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        color: #fff;
+        box-shadow: rgba(0, 0, 0, 0.5) 2px -2px 2px;
+        margin-right: 2px;
+        padding-bottom: 2px;
+        padding-top: 2px;
+        cursor: pointer;
+        float: left;
+        height: 100%;
+        margin-top: 1px;
+        position: relative;
+        touch-action: none;
+        padding: 2px 25px 2px 10px;
+        margin-left: 4px;
+        background: #333;
+        border-radius: 4px 4px 0px 0px;
+      }
+    }
+    .lm_controls {
+      position: absolute;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      > * {
+        cursor: pointer;
+        text-align: center;
+      }
+    }
+  }
   .title {
     font-size: 14px;
     font-weight: 600;
@@ -46,7 +113,7 @@ export default {
   }
   .box-container {
     background: #3b4453;
-    padding: 16px 4px;
+    padding: 8px;
     height: 100%;
   }
 }

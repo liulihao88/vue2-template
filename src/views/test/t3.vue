@@ -1,6 +1,6 @@
 <template>
   <div>
-    <g-import-three-test></g-import-three-test>
+    
   </div>
 </template>
 
