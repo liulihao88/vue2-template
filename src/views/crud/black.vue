@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import { tableOption } from "./crud.js";
+import { tableOption } from "./blackCrud.js";
 export default {
   name: "T2",
   components: {},

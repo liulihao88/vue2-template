@@ -86,23 +86,23 @@ export const constantRoutes = [
   },
 
   {
-    path: "/example",
+    path: "/crud",
     component: Layout,
-    redirect: "/example/table",
-    name: "Example",
-    meta: { title: "Example", icon: "el-icon-s-help" },
+    redirect: "/crud/base",
+    name: "crud",
+    meta: { title: "crud", icon: "el-icon-s-help" },
     children: [
       {
-        path: "table",
-        name: "Table",
-        component: () => import("@/views/table/index"),
-        meta: { title: "Table", icon: "table" }
+        path: "base",
+        name: "base",
+        component: () => import("@/views/crud/base"),
+        meta: { title: "base基础使用" }
       },
       {
-        path: "tree",
-        name: "Tree",
-        component: () => import("@/views/tree/index"),
-        meta: { title: "Tree", icon: "tree" }
+        path: "black",
+        name: "black",
+        component: () => import("@/views/crud/black"),
+        meta: { title: "black黑色" }
       }
     ]
   },
