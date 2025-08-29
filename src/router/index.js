@@ -106,6 +106,27 @@ export const constantRoutes = [
       }
     ]
   },
+  {
+    path: "/element",
+    component: Layout,
+    redirect: "/element/table",
+    name: "element",
+    meta: { title: "element", icon: "el-icon-s-help" },
+    children: [
+      {
+        path: "base",
+        name: "base",
+        component: () => import("@/views/element/table"),
+        meta: { title: "el-table基础使用" }
+      },
+      {
+        path: "tableBlack",
+        name: "tableBlack",
+        component: () => import("@/views/element/tableBlack"),
+        meta: { title: "el-table黑色主题" }
+      }
+    ]
+  },
 
   {
     path: "/form",
