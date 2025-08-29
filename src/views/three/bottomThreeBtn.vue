@@ -1,11 +1,11 @@
 <template>
   <div class="toolbar">
     <div data-v-78bdb7f6="" class="toolbar-buttons">
-      <div class="image-button-checkbox">
+      <div class="image-button-checkbox" @click="clipboardHandler">
         <svg-icon icon-class="clipboard" class="icon-dom" />
         <span data-v-6fec4127="" class="text">剪切</span>
       </div>
-      <div class="image-button-checkbox">
+      <div class="image-button-checkbox" @click="reviewHandler">
         <svg-icon icon-class="review" class="icon-dom" />
         <span data-v-6fec4127="" class="text">审查</span>
       </div>
@@ -25,12 +25,19 @@ export default {
   watch: {},
   created() {},
   mounted() {},
-  methods: {}
+  methods: {
+    clipboardHandler(){
+      this.$emit('clipboardHandler')
+    },
+    reviewHandler(){
+      this.$emit('reviewHandler')
+    }
+  }
 };
 </script>
 <style scoped lang="scss">
 .toolbar {
-  bottom: 40px;
+  bottom: 80px;
   position: absolute;
   text-align: center;
   width: 100%;

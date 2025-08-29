@@ -71,6 +71,12 @@ export const constantRoutes = [
         meta: { title: "canClickThree点击glb" }
       },
       {
+        path: "completeThreePage",
+        name: "completeThreePage",
+        component: () => import("@/views/three/completeThreePage"),
+        meta: { title: "completeThreePage完整页面" }
+      },
+      {
         path: "bottomThreeBtn",
         name: "bottomThreeBtn",
         component: () => import("@/views/three/bottomThreeBtn"),

@@ -1,7 +1,9 @@
 <template>
   <div class="box">
     <div class="title">元素属性</div>
-    <div class="box-container">你好</div>
+    <div class="box-container">
+      <slot></slot>
+    </div>
   </div>
 </template>
 

@@ -1,10 +1,10 @@
 <template>
   <div class="parent-container">
-    <el-button type="primary" @click="clipboardPhoto">截图</el-button>
+    <!-- <el-button type="primary" @click="clipboardPhoto">截图</el-button> -->
+    <el-button type="primary" @click="innerClip">调用内部的截图</el-button>
     <!-- <g-three-scene class="scene-component" ref="threeSceneRef" /> -->
     <!-- <g-three-url></g-three-url> -->
     <g-check-photo ref="checkPhotoRef"></g-check-photo>
-    <el-button type="primary" @click="innerClip">调用内部的截图</el-button>
     <!-- <ThreeBtn></ThreeBtn> -->
   </div>
 </template>

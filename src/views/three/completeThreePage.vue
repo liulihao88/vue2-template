@@ -6,32 +6,41 @@
     </div>
 
     <div ref="sceneContainer" class="scene-container" v-if="modelLoaded"></div>
+    <g-absolute-box v-if="modelLoaded">
+      <div v-if="selectedPart">
+        <div class="part-name">
+          选中部件: <strong>{{ selectedPart }}</strong>
+        </div>
+        <el-button @click="resetScene" type="primary" size="small">取消选择</el-button>
 
-    <div class="info-panel" v-if="selectedPart">
-      <div class="part-name">
-        选中部件: <strong>{{ selectedPart }}</strong>
+        <div v-if="selectedPartMesh" class="part-meta">
+          <div>位置: {{ selectedPartMesh.position.toArray().map((v) => v.toFixed(2)) }}</div>
+          <div>uuid: {{ selectedPartMesh.uuid }}</div>
+          <div>id: {{ selectedPartMesh.id }}</div>
+        </div>
       </div>
-      <button @click="resetScene" class="reset-btn">取消选择</button>
+    </g-absolute-box>
 
-      <!-- 扩展：显示部件元数据 -->
-      <div v-if="selectedPartMesh" class="part-meta">
-        <div>位置: {{ selectedPartMesh.position.toArray().map((v) => v.toFixed(2)) }}</div>
-        <div>uuid: {{ selectedPartMesh.uuid }}</div>
-        <div>id: {{ selectedPartMesh.id }}</div>
-      </div>
-    </div>
+    <BottomThreeBtn v-if="modelLoaded" @clipboardHandler="clipboardHandler"></BottomThreeBtn>
+    <ClipboardPhoto :scene="scene" :renderer="renderer" :container="$refs.sceneContainer" ref="clipboardPhotoRef"></ClipboardPhoto>
   </div>
 </template>
 
 <script>
 import * as THREE from "three";
+import BottomThreeBtn from "@/views/three/bottomThreeBtn.vue";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { sleep } from "@/utils/gFunc";
+import ClipboardPhoto from "@/views/form/clipboardPhoto.vue";
 
 export default {
   name: "ModelViewer",
+  components: {
+    BottomThreeBtn,
+    ClipboardPhoto
+  },
   data() {
     return {
       modelLoaded: false,
@@ -49,7 +58,10 @@ export default {
   },
   async mounted() {
     // 初始化渲染器
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      preserveDrawingBuffer: true // 关键修复！允许读取像素数据
+    });
     this.animate();
 
     // 预创建场景容器
@@ -63,6 +75,9 @@ export default {
     this.cleanupScene();
   },
   methods: {
+    clipboardHandler() {
+      this.$refs.clipboardPhotoRef.startSelection();
+    },
     async initDracoLoader() {
       // 仅在开发环境下加载本地DRACO库（生产环境建议使用CDN）
       if (process.env.NODE_ENV === "development") {
@@ -119,7 +134,7 @@ export default {
       this.scene = new THREE.Scene();
       this.scene.background = new THREE.Color(0x000000);
 
-      this.camera = new THREE.PerspectiveCamera(60, this.$refs.sceneContainer.clientWidth / this.$refs.sceneContainer.clientHeight, 0.1, 1000);
+      this.camera = new THREE.PerspectiveCamera(90, this.$refs.sceneContainer.clientWidth / this.$refs.sceneContainer.clientHeight, 0.5, 1000);
       this.camera.position.set(0, 5, 10);
 
       // 光源设置
@@ -374,13 +389,7 @@ export default {
 .part-name {
   margin-bottom: 8px;
 }
-.reset-btn {
-  background: #ff4757;
-  border: none;
-  padding: 4px 8px;
-  color: white;
-  cursor: pointer;
-}
+
 .scene-container canvas {
   cursor: pointer;
 }
