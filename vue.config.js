@@ -1,4 +1,5 @@
-"use strict";
+const { codeInspectorPlugin } = require("code-inspector-plugin");
+("use strict");
 const path = require("path");
 const defaultSettings = require("./src/settings.js");
 
@@ -17,6 +18,7 @@ const port = process.env.port || process.env.npm_config_port || 9528; // dev por
 
 // All configuration item explanations can be find in https://cli.vuejs.org/config/
 module.exports = {
+
   /**
    * You will need to set publicPath if you plan to deploy your site under a sub path,
    * for example GitHub Pages. If you plan to deploy your site to https://foo.github.io/bar/,
@@ -49,6 +51,11 @@ module.exports = {
     }
   },
   chainWebpack(config) {
+     config.plugin("code-inspector-plugin").use(
+       codeInspectorPlugin({
+         bundler: "webpack"
+       })
+     );
     // it can improve the speed of the first screen, it is recommended to turn on preload
     config.plugin("preload").tap(() => [
       {
