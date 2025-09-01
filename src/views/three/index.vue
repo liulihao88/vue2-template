@@ -10,40 +10,40 @@
 </template>
 
 <script>
-import ThreeBtn from "@/views/form/threeBtn.vue";
+import ThreeBtn from '@/views/form/threeBtn.vue'
 export default {
   components: {
-    ThreeBtn
+    ThreeBtn,
   },
   data() {
-    return {};
+    return {}
   },
   methods: {
     innerClip() {
-      this.$refs.checkPhotoRef.$refs.clipboardPhotoRef.startSelection();
+      this.$refs.checkPhotoRef.$refs.clipboardPhotoRef.startSelection()
     },
     clipboardPhoto() {
       // 获取Three.js渲染器的Canvas元素
       // 代码触发截图
-      console.log(`59 this.$refs`, this.$refs);
-      console.log(`95 this.$refs.threeSceneRef`, this.$refs.threeSceneRef);
-      let renderer = this.$refs.threeSceneRef.scene;
-      console.log(`74 renderer`, renderer);
+      console.log(`59 this.$refs`, this.$refs)
+      console.log(`95 this.$refs.threeSceneRef`, this.$refs.threeSceneRef)
+      let renderer = this.$refs.threeSceneRef.scene
+      console.log(`74 renderer`, renderer)
 
       // 1. 将渲染器的Canvas转为DataURL（PNG格式）
-      const renderContext = renderer.getContext();
-      console.log(`49 renderContext`, renderContext);
-      const canvas = renderer.domElement;
-      console.log(`07 canvas`, canvas);
-      const dataURL = canvas.toDataURL("image/png");
+      const renderContext = renderer.getContext()
+      console.log(`49 renderContext`, renderContext)
+      const canvas = renderer.domElement
+      console.log(`07 canvas`, canvas)
+      const dataURL = canvas.toDataURL('image/png')
       // 2. 创建一个下载链接
-      const link = document.createElement("a");
-      link.href = dataURL;
-      link.download = "screenshot.png"; // 下载文件名
-      link.click();
-    }
-  }
-};
+      const link = document.createElement('a')
+      link.href = dataURL
+      link.download = 'screenshot.png' // 下载文件名
+      link.click()
+    },
+  },
+}
 </script>
 
 <style>

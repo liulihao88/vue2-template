@@ -1,59 +1,59 @@
 // src/plugins/quickRefresh.js
-import QuickRefreshButton from "@/components/QuickRefreshButton";
-import { EventBus } from "@/utils/event-bus";
+import QuickRefreshButton from '@/components/QuickRefreshButton'
+import { EventBus } from '@/utils/event-bus'
 
 const QuickRefreshPlugin = {
   install(Vue, options = {}) {
     // 创建一个响应式对象
     const sharedState = Vue.observable({
-      $refresh: true
-    });
-    Vue.prototype.$refresh = sharedState;
+      $refresh: true,
+    })
+    Vue.prototype.$refresh = sharedState
     // 通过事件总线触发刷新
     Vue.prototype.$quickRefresh = function () {
-      sharedState.$refresh = false;
-      console.clear();
+      sharedState.$refresh = false
+      console.clear()
       this.$nextTick(() => {
-        sharedState.$refresh = true;
-      });
-    };
+        sharedState.$refresh = true
+      })
+    }
 
     // 监听全局刷新事件
-    EventBus.$on("quick-refresh", () => {
-      const app = document.getElementById("app");
+    EventBus.$on('quick-refresh', () => {
+      const app = document.getElementById('app')
       if (app && app.__vue__) {
-        app.__vue__.$quickRefresh();
+        app.__vue__.$quickRefresh()
       }
-    });
+    })
 
     // 注册键盘快捷键
     const handleKeyDown = (event) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
-        EventBus.$emit("quick-refresh");
+      if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+        EventBus.$emit('quick-refresh')
       }
-    };
-    window.addEventListener("keydown", handleKeyDown);
+    }
+    window.addEventListener('keydown', handleKeyDown)
 
     // 注册按钮组件
-    Vue.component("quick-refresh-button", {
+    Vue.component('quick-refresh-button', {
       ...QuickRefreshButton,
       props: {
         position: {
           type: Object,
-          default: () => options.position || { bottom: "20px", right: "20px" }
+          default: () => options.position || { bottom: '20px', right: '20px' },
         },
         buttonText: {
           type: String,
-          default: options.buttonText || "快速刷新"
-        }
+          default: options.buttonText || '快速刷新',
+        },
       },
       methods: {
         handleRefresh() {
-          EventBus.$emit("quick-refresh");
-        }
-      }
-    });
-  }
-};
+          EventBus.$emit('quick-refresh')
+        },
+      },
+    })
+  },
+}
 
-export default QuickRefreshPlugin;
+export default QuickRefreshPlugin

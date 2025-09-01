@@ -1,11 +1,11 @@
-import { cloneDeep } from "lodash-es";
+import { cloneDeep } from 'lodash-es'
 export function sleep(delay = 0, fn) {
   return new Promise((resolve) =>
     setTimeout(() => {
-      fn?.();
-      resolve();
-    }, delay)
-  );
+      fn?.()
+      resolve()
+    }, delay),
+  )
 }
 
 /**
@@ -19,11 +19,11 @@ export function sleep(delay = 0, fn) {
  * getType(123) number
  */
 export function getType(type) {
-  if (typeof type === "object") {
-    const objType = Object.prototype.toString.call(type).slice(8, -1).toLowerCase();
-    return objType;
+  if (typeof type === 'object') {
+    const objType = Object.prototype.toString.call(type).slice(8, -1).toLowerCase()
+    return objType
   } else {
-    return typeof type;
+    return typeof type
   }
 }
 
@@ -37,14 +37,14 @@ export function getType(type) {
  */
 export function clone(data, times = 1) {
   // Check if the data is not an array
-  if (getType(data) !== "array") {
+  if (getType(data) !== 'array') {
     // If not an array, return a deep clone of the data
-    return cloneDeep(data);
+    return cloneDeep(data)
   }
-  const clonedData = cloneDeep(data);
-  const result = [];
+  const clonedData = cloneDeep(data)
+  const result = []
   for (let i = 0; i < times; i++) {
-    result.push(...clonedData);
+    result.push(...clonedData)
   }
-  return result;
+  return result
 }

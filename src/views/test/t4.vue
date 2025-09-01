@@ -9,23 +9,23 @@
 
 <script>
 export default {
-  name: "T4",
+  name: 'T4',
   components: {},
   props: {},
   data() {
     return {
       obj: {
-        name: "andy",
+        name: 'andy',
         age: 19,
-        height: 180
-      }
-    };
+        height: 180,
+      },
+    }
   },
   computed: {},
   watch: {},
   created() {},
   mounted() {},
-  methods: {}
-};
+  methods: {},
+}
 </script>
 <style scoped lang="scss"></style>

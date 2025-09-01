@@ -15,25 +15,25 @@
 
 <script>
 export default {
-  name: "T3",
+  name: 'T3',
   components: {},
   props: {},
   data() {
-    return {};
+    return {}
   },
   computed: {},
   watch: {},
   created() {},
   mounted() {},
   methods: {
-    clipboardHandler(){
+    clipboardHandler() {
       this.$emit('clipboardHandler')
     },
-    reviewHandler(){
+    reviewHandler() {
       this.$emit('reviewHandler')
-    }
-  }
-};
+    },
+  },
+}
 </script>
 <style scoped lang="scss">
 .toolbar {

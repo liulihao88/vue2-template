@@ -5,11 +5,17 @@
       <el-button type="primary" @click="preview" size="small">审查</el-button>
     </div>
 
-   
-
     <div class="right">
       <div class="table-box">
-        <avue-crud :data="tableData" :option="tableOption" ref="crud" class="menu-top0" @row-save="handleSave" @row-update="handleUpdate" @row-del="handleDelete"> </avue-crud>
+        <avue-crud
+          :data="tableData"
+          :option="tableOption"
+          ref="crud"
+          class="menu-top0"
+          @row-save="handleSave"
+          @row-update="handleUpdate"
+          @row-del="handleDelete"
+        ></avue-crud>
       </div>
 
       <!-- <div class="form-box">我是form</div> -->
@@ -18,20 +24,20 @@
 </template>
 
 <script>
-import { tableOption } from "./crud";
-import clipboardPhoto from "./clipboardPhoto.vue";
+import { tableOption } from './crud'
+import clipboardPhoto from './clipboardPhoto.vue'
 export default {
-  name: "ThreeBtn",
+  name: 'ThreeBtn',
   components: {
-    clipboardPhoto
+    clipboardPhoto,
   },
   props: {},
   data() {
     return {
       page: [],
       tableData: [],
-      tableOption: tableOption
-    };
+      tableOption: tableOption,
+    }
   },
   computed: {},
   watch: {},
@@ -39,22 +45,22 @@ export default {
   mounted() {},
   methods: {
     handleSave(row, done) {
-      console.log(`74 row`, row);
-      this.tableData.push(row);
-      done();
+      console.log(`74 row`, row)
+      this.tableData.push(row)
+      done()
     },
     handleUpdate(row, index, done) {
-      console.log(`23 row`, row);
-      this.tableData.splice(index, 1, row);
-      done();
+      console.log(`23 row`, row)
+      this.tableData.splice(index, 1, row)
+      done()
     },
     handleDelete(row, index, done) {
-      console.log(`46 row`, row);
-      this.tableData.splice(index, 1);
-      done();
-    }
-  }
-};
+      console.log(`46 row`, row)
+      this.tableData.splice(index, 1)
+      done()
+    },
+  },
+}
 </script>
 <style scoped lang="scss">
 .box {

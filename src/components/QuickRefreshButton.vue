@@ -1,9 +1,5 @@
 <template>
-  <button
-    @click="handleRefresh"
-    class="refresh-btn"
-    :style="buttonStyle"
-  >
+  <button @click="handleRefresh" class="refresh-btn" :style="buttonStyle">
     {{ buttonText }}
   </button>
 </template>
@@ -13,12 +9,12 @@ export default {
   props: {
     position: {
       type: Object,
-      default: () => ({ bottom: '20px', right: '20px' })
+      default: () => ({ bottom: '20px', right: '20px' }),
     },
     buttonText: {
       type: String,
-      default: '快速刷新'
-    }
+      default: '快速刷新',
+    },
   },
   computed: {
     buttonStyle() {
@@ -32,9 +28,9 @@ export default {
         border: 'none',
         borderRadius: '4px',
         cursor: 'pointer',
-        zIndex: '9999'
+        zIndex: '9999',
       }
-    }
+    },
   },
   methods: {
     handleRefresh() {
@@ -46,7 +42,7 @@ export default {
       } else {
         console.error('QuickRefresh method not found')
       }
-    }
-  }
+    },
+  },
 }
 </script>

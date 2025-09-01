@@ -1,6 +1,12 @@
 <template>
   <div class="box">
-    <avue-crud :data="tableData" :option="tableOption" ref="crud" class="custom-dark-crud" :highlight-current-row="false">
+    <avue-crud
+      :data="tableData"
+      :option="tableOption"
+      ref="crud"
+      class="custom-dark-crud"
+      :highlight-current-row="false"
+    >
       <template #operation="{ row }">
         <div class="custom-operation-column">
           <el-dropdown>
@@ -21,89 +27,89 @@
 </template>
 
 <script>
-import { tableOption } from "./crud.js";
+import { tableOption } from './crud.js'
 export default {
-  name: "T2",
+  name: 'T2',
   components: {},
   props: {},
   data() {
     return {
       tableOption: tableOption,
-      tableData: []
-    };
+      tableData: [],
+    }
   },
   computed: {},
   watch: {},
   created() {
-    this.init();
+    this.init()
   },
   methods: {
     init() {
       this.tableData = [
         {
-          creator: "4",
-          fileName: "BTDS_F4-F10_CD_A-20220505.rvt",
-          standardName: "检查模型几何尺寸准确性",
-          standardId: "fbad4c6fd21540de8b3833477eb8db1d",
-          updateTime: "2025-08-27 11:38:14",
-          prjName: "北京城市副中心行政办公区道路网2017配套道路",
-          updater: "4",
-          auditContent: "fff1111321321",
-          createTime: "2025-08-26 17:49:46",
-          bimId: "abe9f8ad366c11edbd96f46b8c5c9508",
-          auditPics: "/admin/sys-file/prjfilebimauditdetail/aab35ae6ba034d62b950fe68868ac528.png",
+          creator: '4',
+          fileName: 'BTDS_F4-F10_CD_A-20220505.rvt',
+          standardName: '检查模型几何尺寸准确性',
+          standardId: 'fbad4c6fd21540de8b3833477eb8db1d',
+          updateTime: '2025-08-27 11:38:14',
+          prjName: '北京城市副中心行政办公区道路网2017配套道路',
+          updater: '4',
+          auditContent: 'fff1111321321',
+          createTime: '2025-08-26 17:49:46',
+          bimId: 'abe9f8ad366c11edbd96f46b8c5c9508',
+          auditPics: '/admin/sys-file/prjfilebimauditdetail/aab35ae6ba034d62b950fe68868ac528.png',
           tenantId: 5,
-          auditStatus: "1",
-          id: "51f08d88c28f4315b70b43f041f6823c",
-          status: "0"
+          auditStatus: '1',
+          id: '51f08d88c28f4315b70b43f041f6823c',
+          status: '0',
         },
         {
-          creator: "4",
-          fileName: "BTDS_F4-F10_CD_A-20220505.rvt",
-          standardName: "检查模型几何尺寸准确性",
-          standardId: "fbad4c6fd21540de8b3833477eb8db1d",
-          updateTime: "2025-08-27 14:26:31",
-          prjName: "北京城市副中心行政办公区道路网2017配套道路",
-          updater: "4",
-          auditContent: "2",
-          createTime: "2025-08-26 17:49:38",
-          bimId: "abe9f8ad366c11edbd96f46b8c5c9508",
-          auditPics: "/admin/sys-file/prjfilebimauditdetail/aab35ae6ba034d62b950fe68868ac528.png",
+          creator: '4',
+          fileName: 'BTDS_F4-F10_CD_A-20220505.rvt',
+          standardName: '检查模型几何尺寸准确性',
+          standardId: 'fbad4c6fd21540de8b3833477eb8db1d',
+          updateTime: '2025-08-27 14:26:31',
+          prjName: '北京城市副中心行政办公区道路网2017配套道路',
+          updater: '4',
+          auditContent: '2',
+          createTime: '2025-08-26 17:49:38',
+          bimId: 'abe9f8ad366c11edbd96f46b8c5c9508',
+          auditPics: '/admin/sys-file/prjfilebimauditdetail/aab35ae6ba034d62b950fe68868ac528.png',
           tenantId: 5,
-          auditStatus: "1",
-          id: "5297e2f58e1142a399495ac7f53394a3",
-          status: "0"
+          auditStatus: '1',
+          id: '5297e2f58e1142a399495ac7f53394a3',
+          status: '0',
         },
         {
-          creator: "4",
-          fileName: "BTDS_F4-F10_CD_A-20220505.rvt",
-          standardName: "检查模型几何尺寸准确性",
-          standardId: "fbad4c6fd21540de8b3833477eb8db1d",
-          updateTime: "2025-08-14 16:48:16",
-          prjName: "北京城市副中心行政办公区道路网2017配套道路",
-          updater: "4",
-          auditContent: "fff",
-          createTime: "2025-08-12 14:56:21",
-          bimId: "abe9f8ad366c11edbd96f46b8c5c9508",
-          auditPics: "/admin/sys-file/prjfilebimauditdetail/aab35ae6ba034d62b950fe68868ac528.png",
+          creator: '4',
+          fileName: 'BTDS_F4-F10_CD_A-20220505.rvt',
+          standardName: '检查模型几何尺寸准确性',
+          standardId: 'fbad4c6fd21540de8b3833477eb8db1d',
+          updateTime: '2025-08-14 16:48:16',
+          prjName: '北京城市副中心行政办公区道路网2017配套道路',
+          updater: '4',
+          auditContent: 'fff',
+          createTime: '2025-08-12 14:56:21',
+          bimId: 'abe9f8ad366c11edbd96f46b8c5c9508',
+          auditPics: '/admin/sys-file/prjfilebimauditdetail/aab35ae6ba034d62b950fe68868ac528.png',
           tenantId: 5,
-          auditStatus: "1",
-          id: "a27ef1cde2a240f9b971bdf997ed8676",
-          status: "0"
-        }
-      ];
+          auditStatus: '1',
+          id: 'a27ef1cde2a240f9b971bdf997ed8676',
+          status: '0',
+        },
+      ]
     },
     handleSave(row) {
-      console.log(`07 row`, row);
+      console.log(`07 row`, row)
     },
     handleUpdate(row) {
-      console.log(`07 row`, row);
+      console.log(`07 row`, row)
     },
     handleDelete(row) {
-      console.log(`07 row`, row);
-    }
-  }
-};
+      console.log(`07 row`, row)
+    },
+  },
+}
 </script>
 <style scoped lang="scss">
 .box {

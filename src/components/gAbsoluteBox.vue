@@ -7,7 +7,7 @@
         </div>
       </section>
       <section class="lm_controls">
-        <slot name="right"> </slot>
+        <slot name="right"></slot>
       </section>
       <section class="lm_tabdropdown_list" style="display: none"></section>
     </section>
@@ -21,27 +21,27 @@
 
 <script>
 export default {
-  name: "GAbsoluteBox",
+  name: 'GAbsoluteBox',
   components: {},
   props: {
     title: {
       type: String,
-      default: ""
+      default: '',
     },
     customStyle: {
       type: Object,
-      default: () => {}
-    }
+      default: () => {},
+    },
   },
   data() {
-    return {};
+    return {}
   },
   computed: {},
   watch: {},
   created() {},
   mounted() {},
-  methods: {}
-};
+  methods: {},
+}
 </script>
 <style scoped lang="scss">
 .box {

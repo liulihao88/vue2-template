@@ -31,26 +31,31 @@
     </template>
 
     <BottomThreeBtn v-if="modelLoaded" @clipboardHandler="clipboardHandler"></BottomThreeBtn>
-    <ClipboardPhoto :scene="scene" :renderer="renderer" :container="$refs.sceneContainer" ref="clipboardPhotoRef"></ClipboardPhoto>
+    <ClipboardPhoto
+      :scene="scene"
+      :renderer="renderer"
+      :container="$refs.sceneContainer"
+      ref="clipboardPhotoRef"
+    ></ClipboardPhoto>
   </div>
 </template>
 
 <script>
-import * as THREE from "three";
-import TableBlack from "@/views/element/tableBlack.vue";
-import BottomThreeBtn from "@/views/three/bottomThreeBtn.vue";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { sleep } from "@/utils/gFunc";
-import ClipboardPhoto from "@/views/form/clipboardPhoto.vue";
+import * as THREE from 'three'
+import TableBlack from '@/views/element/tableBlack.vue'
+import BottomThreeBtn from '@/views/three/bottomThreeBtn.vue'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { sleep } from '@/utils/gFunc'
+import ClipboardPhoto from '@/views/form/clipboardPhoto.vue'
 
 export default {
-  name: "ModelViewer",
+  name: 'ModelViewer',
   components: {
     BottomThreeBtn,
     ClipboardPhoto,
-    TableBlack
+    TableBlack,
   },
   data() {
     return {
@@ -66,270 +71,276 @@ export default {
       intersectedObject: null,
       originalMaterials: new WeakMap(),
       selectedPartMesh: null,
+      materialMeshMap: new Map(), // 材质ID => 对应的Mesh数组
       materialMap: new Map(), // 用于去重
       partLists: [], //最终结果
-    };
+    }
   },
   async mounted() {
     // 初始化渲染器
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
-      preserveDrawingBuffer: true // 关键修复！允许读取像素数据
-    });
-    this.animate();
+      preserveDrawingBuffer: true, // 关键修复！允许读取像素数据
+    })
+    this.animate()
 
     // 预创建场景容器
     this.$nextTick(() => {
       if (this.$refs.sceneContainer) {
-        this.$refs.sceneContainer.appendChild(this.renderer.domElement);
+        this.$refs.sceneContainer.appendChild(this.renderer.domElement)
       }
-    });
+    })
   },
   beforeDestroy() {
-    this.cleanupScene();
+    this.cleanupScene()
   },
   methods: {
     clipboardHandler() {
-      this.$refs.clipboardPhotoRef.startSelection();
+      this.$refs.clipboardPhotoRef.startSelection()
     },
     async initDracoLoader() {
       // 仅在开发环境下加载本地DRACO库（生产环境建议使用CDN）
-      if (process.env.NODE_ENV === "development") {
-        const dracoLoader = new DRACOLoader();
-        dracoLoader.setDecoderPath("https://www.gstatic.com/draco/versioned/decoders/1.5.6/");
-        return dracoLoader;
+      if (process.env.NODE_ENV === 'development') {
+        const dracoLoader = new DRACOLoader()
+        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/')
+        return dracoLoader
       }
 
       // 生产环境默认使用three.js内置的DRACO支持
-      return null;
+      return null
     },
 
     triggerFileInput() {
-      this.$refs.fileInput.click();
+      this.$refs.fileInput.click()
     },
 
     async handleFileUpload(event) {
-      const file = event.target.files[0];
-      if (!file) return;
+      const file = event.target.files[0]
+      if (!file) return
 
       try {
-        this.modelLoaded = true;
-        await this.$nextTick();
-        const arrayBuffer = await this.readFileAsArrayBuffer(file);
-        await this.initScene();
-        await this.loadModel(arrayBuffer);
+        this.modelLoaded = true
+        await this.$nextTick()
+        const arrayBuffer = await this.readFileAsArrayBuffer(file)
+        await this.initScene()
+        await this.loadModel(arrayBuffer)
       } catch (error) {
-        console.error("加载模型出错:", error);
-        alert("模型加载失败: " + error.message);
+        console.error('加载模型出错:', error)
+        alert('模型加载失败: ' + error.message)
       }
     },
 
     readFileAsArrayBuffer(file) {
       return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = (e) => resolve(e.target.result);
-        reader.onerror = (e) => reject(new Error("文件读取失败"));
-        reader.readAsArrayBuffer(file);
-      });
+        const reader = new FileReader()
+        reader.onload = (e) => resolve(e.target.result)
+        reader.onerror = (e) => reject(new Error('文件读取失败'))
+        reader.readAsArrayBuffer(file)
+      })
     },
 
     async initScene() {
-      await this.$nextTick();
+      await this.$nextTick()
 
-      const container = this.$refs.sceneContainer;
+      const container = this.$refs.sceneContainer
       if (container.clientWidth === 0) {
         // 临时强制显示容器
-        container.style.display = "block";
-        const width = container.clientWidth;
-        const height = container.clientHeight;
-        container.style.display = ""; // 恢复原始状态
+        container.style.display = 'block'
+        const width = container.clientWidth
+        const height = container.clientHeight
+        container.style.display = '' // 恢复原始状态
       }
-      this.cleanupScene();
-      this.scene = new THREE.Scene();
-      this.scene.background = new THREE.Color(0x000000);
+      this.cleanupScene()
+      this.scene = new THREE.Scene()
+      this.scene.background = new THREE.Color(0x000000)
 
-      this.camera = new THREE.PerspectiveCamera(90, this.$refs.sceneContainer.clientWidth / this.$refs.sceneContainer.clientHeight, 0.5, 1000);
-      this.camera.position.set(0, 5, 10);
+      this.camera = new THREE.PerspectiveCamera(
+        90,
+        this.$refs.sceneContainer.clientWidth / this.$refs.sceneContainer.clientHeight,
+        0.5,
+        1000,
+      )
+      this.camera.position.set(0, 5, 10)
 
       // 光源设置
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-      this.scene.add(ambientLight);
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
+      this.scene.add(ambientLight)
 
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-      directionalLight.position.set(10, 20, 0);
-      this.scene.add(directionalLight);
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8)
+      directionalLight.position.set(10, 20, 0)
+      this.scene.add(directionalLight)
 
-      console.log(`15 his.$refs.sceneContainer.clientWidth`, this.$refs.sceneContainer.clientWidth);
-      console.log(`56 this.$refs.sceneContainer.clientHeight`, this.$refs.sceneContainer.clientHeight);
-      this.renderer.setSize(this.$refs.sceneContainer.clientWidth, this.$refs.sceneContainer.clientHeight);
-      this.renderer.shadowMap.enabled = true;
+      console.log(`15 his.$refs.sceneContainer.clientWidth`, this.$refs.sceneContainer.clientWidth)
+      console.log(`56 this.$refs.sceneContainer.clientHeight`, this.$refs.sceneContainer.clientHeight)
+      this.renderer.setSize(this.$refs.sceneContainer.clientWidth, this.$refs.sceneContainer.clientHeight)
+      this.renderer.shadowMap.enabled = true
 
-      this.$refs.sceneContainer.appendChild(this.renderer.domElement);
+      this.$refs.sceneContainer.appendChild(this.renderer.domElement)
 
-      this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-      this.controls.enableDamping = true;
+      this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+      this.controls.enableDamping = true
 
       // 添加事件监听
-      this.renderer.domElement.addEventListener("pointerdown", this.onPointerDown);
-      this.renderer.domElement.addEventListener("pointermove", this.onPointerMove);
-      window.addEventListener("resize", this.onWindowResize);
+      this.renderer.domElement.addEventListener('pointerdown', this.onPointerDown)
+      this.renderer.domElement.addEventListener('pointermove', this.onPointerMove)
+      window.addEventListener('resize', this.onWindowResize)
 
       // 在 mounted 或 initScene 方法中加入调试代码：
-      console.log("DOM容器:", this.$refs.sceneContainer);
-      console.log("渲染器DOM:", this.renderer.domElement);
+      console.log('DOM容器:', this.$refs.sceneContainer)
+      console.log('渲染器DOM:', this.renderer.domElement)
 
       // ✅ 添加射线检测
-      this.raycaster = new THREE.Raycaster();
-      this.pointer = new THREE.Vector2();
+      this.raycaster = new THREE.Raycaster()
+      this.pointer = new THREE.Vector2()
 
       // 监听canvas点击事件
-      this.renderer.domElement.addEventListener("click", (event) => {
-        if (!this.model) return;
+      this.renderer.domElement.addEventListener('click', (event) => {
+        if (!this.model) return
 
         // 计算点击位置归一化坐标
-        this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-        this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1
+        this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
 
         // 发射射线检测
-        this.raycaster.setFromCamera(this.pointer, this.camera);
-        const intersects = this.raycaster.intersectObject(this.model, true);
+        this.raycaster.setFromCamera(this.pointer, this.camera)
+        const intersects = this.raycaster.intersectObject(this.model, true)
 
         if (intersects.length > 0) {
           // 触发mesh的点击事件
-          intersects[0].object.dispatchEvent({ type: "click", event });
+          intersects[0].object.dispatchEvent({ type: 'click', event })
         } else {
-          this.resetScene(); // 点击空白处重置选择
+          this.resetScene() // 点击空白处重置选择
         }
-      });
+      })
     },
 
     async loadModel(arrayBuffer) {
-      const loader = new GLTFLoader();
+      const loader = new GLTFLoader()
 
       // 设置DRACO解码器
-      const dracoLoader = await this.initDracoLoader();
-      console.log(`66 dracoLoader`, dracoLoader);
+      const dracoLoader = await this.initDracoLoader()
+      console.log(`66 dracoLoader`, dracoLoader)
       if (dracoLoader) {
-        loader.setDRACOLoader(dracoLoader);
+        loader.setDRACOLoader(dracoLoader)
       }
 
       return new Promise((resolve, reject) => {
         loader.parse(
           arrayBuffer,
-          "",
+          '',
           (gltf) => {
-            this.partLists = [];
-            this.model = gltf.scene;
+            this.partLists = []
+            this.model = gltf.scene
             // 打印场景结构
-            console.log("场景对象:", this.model);
+            console.log('场景对象:', this.model)
             // ✅ 为所有部件添加点击事件
             this.model.traverse((obj) => {
               if (obj.isMesh) {
-                obj.userData.originalMaterial = obj.material;
+                obj.userData.originalMaterial = obj.material
 
                 // 使用 Map 去重（以 material.id 为唯一键）
                 if (!this.materialMap.has(obj.material.id)) {
                   this.materialMap.set(obj.material.id, {
                     name: obj.material.name || `未命名材质_${obj.material.id}`,
-                    id: obj.material.id
-                  });
+                    id: obj.material.id,
+                  })
                 }
               }
-            });
+            })
             // 转存到 partLists（去重后）
-            this.partLists = Array.from(this.materialMap.values());
-            this.scene.add(this.model);
-            this.prepareModelForInteraction(this.model);
-            this.fitCameraToModel();
+            this.partLists = Array.from(this.materialMap.values())
+            this.scene.add(this.model)
+            this.prepareModelForInteraction(this.model)
+            this.fitCameraToModel()
 
             // 设置点击事件监听（在容器上）
-            this.setupClickHandler();
+            this.setupClickHandler()
             // 强制重渲染
-            this.renderer.render(this.scene, this.camera);
+            this.renderer.render(this.scene, this.camera)
 
-            resolve();
+            resolve()
           },
           (error) => {
-            console.error("模型解析错误:", error);
-            reject(new Error("GLB文件解析失败"));
-          }
-        );
-      });
+            console.error('模型解析错误:', error)
+            reject(new Error('GLB文件解析失败'))
+          },
+        )
+      })
     },
 
     setupClickHandler() {
-      const container = this.$refs.sceneContainer;
-      const mouse = new THREE.Vector2();
+      const container = this.$refs.sceneContainer
+      const mouse = new THREE.Vector2()
 
-      container.addEventListener("click", (event) => {
+      container.addEventListener('click', (event) => {
         // 计算鼠标标准化坐标
-        const rect = container.getBoundingClientRect();
-        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        const rect = container.getBoundingClientRect()
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
 
         // 执行射线检测
-        this.raycaster.setFromCamera(mouse, this.camera);
-        const intersects = this.raycaster.intersectObjects(this.model.children, true);
+        this.raycaster.setFromCamera(mouse, this.camera)
+        const intersects = this.raycaster.intersectObjects(this.model.children, true)
 
         if (intersects.length > 0) {
-          const clickedObj = intersects[0].object;
-          this.handlePartClick(event, clickedObj);
+          const clickedObj = intersects[0].object
+          this.handlePartClick(event, clickedObj)
         }
-      });
+      })
     },
 
     handlePartClick(event, obj) {
       // 恢复之前高亮的部分
       if (this.currentHighlight) {
-        this.currentHighlight.material = this.currentHighlight.userData.originalMaterial;
+        this.currentHighlight.material = this.currentHighlight.userData.originalMaterial
       }
 
       // 高亮当前选中部分
-      console.log(`45 obj`, obj);
-      this.currentHighlight = obj;
-      this.selectedPartMesh = obj; // 保存选中的mesh对象
-      console.log(`72 this.selectedPartMesh`, this.selectedPartMesh);
+      console.log(`45 obj`, obj)
+      this.currentHighlight = obj
+      this.selectedPartMesh = obj // 保存选中的mesh对象
+      console.log(`72 this.selectedPartMesh`, this.selectedPartMesh)
       obj.material = new THREE.MeshBasicMaterial({
         color: 0xffff00,
         transparent: true,
         opacity: 0.7,
-        wireframe: false
-      });
+        wireframe: false,
+      })
 
       // 3. 更新显示信息
-      this.selectedPart = obj.name || "未命名部件";
-      console.log("选中部件:", this.selectedPart);
-      console.log("位置信息:", obj.position.toArray());
+      this.selectedPart = obj.name || '未命名部件'
+      console.log('选中部件:', this.selectedPart)
+      console.log('位置信息:', obj.position.toArray())
     },
 
     resetScene() {
       // 清除选中状态
       if (this.selectedPartMesh) {
-        this.scene.remove(this.selectedPartMesh);
-        this.selectedPartMesh = null;
+        this.scene.remove(this.selectedPartMesh)
+        this.selectedPartMesh = null
       }
-      this.selectedPart = null;
+      this.selectedPart = null
     },
 
     prepareModelForInteraction(model) {
       model.traverse((child) => {
         if (child.isMesh) {
-          child.userData.selectable = true;
-          child.castShadow = true;
-          child.receiveShadow = true;
+          child.userData.selectable = true
+          child.castShadow = true
+          child.receiveShadow = true
         }
-      });
+      })
     },
 
     fitCameraToModel() {
-      const box = new THREE.Box3().setFromObject(this.model);
-      const size = box.getSize(new THREE.Vector3()).length();
-      const center = box.getCenter(new THREE.Vector3());
+      const box = new THREE.Box3().setFromObject(this.model)
+      const size = box.getSize(new THREE.Vector3()).length()
+      const center = box.getCenter(new THREE.Vector3())
 
-      this.controls.target.copy(center);
-      this.camera.position.copy(center);
-      this.camera.position.z += size;
-      this.controls.update();
+      this.controls.target.copy(center)
+      this.camera.position.copy(center)
+      this.camera.position.z += size
+      this.controls.update()
     },
 
     // 以下是交互方法保持不变（onPointerDown, onPointerMove等）
@@ -337,51 +348,51 @@ export default {
 
     onWindowResize() {
       if (this.$refs.sceneContainer && this.camera && this.renderer) {
-        this.camera.aspect = this.$refs.sceneContainer.clientWidth / this.$refs.sceneContainer.clientHeight;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(this.$refs.sceneContainer.clientWidth, this.$refs.sceneContainer.clientHeight);
+        this.camera.aspect = this.$refs.sceneContainer.clientWidth / this.$refs.sceneContainer.clientHeight
+        this.camera.updateProjectionMatrix()
+        this.renderer.setSize(this.$refs.sceneContainer.clientWidth, this.$refs.sceneContainer.clientHeight)
       }
     },
 
     animate() {
-      requestAnimationFrame(this.animate);
-      if (this.controls) this.controls.update();
+      requestAnimationFrame(this.animate)
+      if (this.controls) this.controls.update()
       if (this.renderer && this.scene && this.camera) {
-        this.renderer.render(this.scene, this.camera);
+        this.renderer.render(this.scene, this.camera)
       }
       // 在animate()中添加脉冲动画
       if (this.selectedPartMesh) {
-        this.selectedPartMesh.material.opacity = 0.5 + 0.3 * Math.sin(Date.now() * 0.005);
+        this.selectedPartMesh.material.opacity = 0.5 + 0.3 * Math.sin(Date.now() * 0.005)
       }
     },
 
     cleanupScene() {
       if (this.renderer?.domElement) {
-        this.renderer.domElement.removeEventListener("pointerdown", this.onPointerDown);
-        this.renderer.domElement.removeEventListener("pointermove", this.onPointerMove);
+        this.renderer.domElement.removeEventListener('pointerdown', this.onPointerDown)
+        this.renderer.domElement.removeEventListener('pointermove', this.onPointerMove)
       }
-      window.removeEventListener("resize", this.onWindowResize);
+      window.removeEventListener('resize', this.onWindowResize)
 
       if (this.model && this.scene) {
-        this.scene.remove(this.model);
+        this.scene.remove(this.model)
         this.model.traverse((child) => {
           if (child.isMesh) {
-            child.geometry?.dispose();
+            child.geometry?.dispose()
             if (child.material) {
-              Array.isArray(child.material) ? child.material.forEach((m) => m.dispose()) : child.material.dispose();
+              Array.isArray(child.material) ? child.material.forEach((m) => m.dispose()) : child.material.dispose()
             }
           }
-        });
-        this.model = null;
+        })
+        this.model = null
       }
 
       if (this.controls) {
-        this.controls.dispose();
-        this.controls = null;
+        this.controls.dispose()
+        this.controls = null
       }
-    }
-  }
-};
+    },
+  },
+}
 </script>
 
 <style scoped>

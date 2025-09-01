@@ -9,10 +9,8 @@
 
 <script>
 export default {
-  name: "App",
-  data() {
-
-  },
-  methods: {}
-};
+  name: 'App',
+  data() {},
+  methods: {},
+}
 </script>

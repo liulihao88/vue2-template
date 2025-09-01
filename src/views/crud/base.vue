@@ -1,12 +1,18 @@
 <template>
   <div>
-    <avue-crud :data="tableData" :option="tableOption" ref="crud" class="custom-dark-crud" :highlight-current-row="false"></avue-crud>
+    <avue-crud
+      :data="tableData"
+      :option="tableOption"
+      ref="crud"
+      class="custom-dark-crud"
+      :highlight-current-row="false"
+    ></avue-crud>
   </div>
 </template>
 
 <script>
 export default {
-  name: "Base",
+  name: 'Base',
   components: {},
   props: {},
   data() {
@@ -15,26 +21,26 @@ export default {
       tableOption: {
         column: [
           {
-            type: "select",
-            label: "标准名称",
-            prop: "standardId"
+            type: 'select',
+            label: '标准名称',
+            prop: 'standardId',
           },
 
           {
-            label: "操作",
+            label: '操作',
             width: 60,
-            prop: "operation",
-            align: "center"
-          }
-        ]
-      }
-    };
+            prop: 'operation',
+            align: 'center',
+          },
+        ],
+      },
+    }
   },
   computed: {},
   watch: {},
   created() {},
   mounted() {},
-  methods: {}
-};
+  methods: {},
+}
 </script>
 <style scoped lang="scss"></style>

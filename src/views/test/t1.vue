@@ -16,21 +16,23 @@
 </template>
 
 <script>
-import TableBlack from "@/views/element/tableBlack.vue";
+import TableBlack from '@/views/element/tableBlack.vue'
 export default {
-  name: "T1",
+  name: 'T1',
   components: {
-    TableBlack
+    TableBlack,
   },
   props: {},
   data() {
-    return {};
+    return {
+      name: 123,
+    }
   },
   computed: {},
   watch: {},
   created() {},
   mounted() {},
-  methods: {}
-};
+  methods: {},
+}
 </script>
 <style scoped lang="scss"></style>

@@ -36,35 +36,37 @@
 </template>
 
 <script>
-import { clone } from "@/utils/gFunc";
+import { clone } from '@/utils/gFunc'
 export default {
   data() {
     return {
       list: [
         {
-          id: "14000019950729782X",
-          title: "Mwmdjbuq oefuyvbf vpzeskgyvh xlro fwdbdstwe xcgyplxe ycqtqq qzlsmbo ilma hex lhvjka lhutorbf yfewq emxbth trf ohzxmexo kkgilcofz cweelbocw vctfceary.",
-          status: "deleted",
-          author: "name",
-          display_time: "2017-07-08 15:39:27",
-          pageviews: 1560
+          id: '14000019950729782X',
+          title:
+            'Mwmdjbuq oefuyvbf vpzeskgyvh xlro fwdbdstwe xcgyplxe ycqtqq qzlsmbo ilma hex lhvjka lhutorbf yfewq emxbth trf ohzxmexo kkgilcofz cweelbocw vctfceary.',
+          status: 'deleted',
+          author: 'name',
+          display_time: '2017-07-08 15:39:27',
+          pageviews: 1560,
         },
         {
-          id: "320000199901231013",
-          title: "Kdos yvybx gwvemg eye oqzkkb dxiqsne eoetrh ifzcei rmtisd uokzcrb dbotjy uriucvwh vgvwt qmy msodgeoyp wkrhlsep.",
-          status: "draft",
-          author: "name",
-          display_time: "2008-07-11 03:37:47",
-          pageviews: 4379
-        }
-      ]
-    };
+          id: '320000199901231013',
+          title:
+            'Kdos yvybx gwvemg eye oqzkkb dxiqsne eoetrh ifzcei rmtisd uokzcrb dbotjy uriucvwh vgvwt qmy msodgeoyp wkrhlsep.',
+          status: 'draft',
+          author: 'name',
+          display_time: '2008-07-11 03:37:47',
+          pageviews: 4379,
+        },
+      ],
+    }
   },
   created() {
-    this.list = clone(this.list, 10);
+    this.list = clone(this.list, 10)
   },
-  methods: {}
-};
+  methods: {},
+}
 </script>
 <style lang="scss" scoped>
 .my-table-container {
@@ -138,10 +140,10 @@ export default {
   .el-table__row.selected {
     background-color: #000 !important;
   }
-  .el-popper[x-placement^="bottom"] .popper__arrow::after {
+  .el-popper[x-placement^='bottom'] .popper__arrow::after {
     border-bottom-color: black !important;
   }
-  .el-popper[x-placement^="top"] .popper__arrow::after {
+  .el-popper[x-placement^='top'] .popper__arrow::after {
     border-top-color: black !important;
   }
 
