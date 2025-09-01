@@ -1,29 +1,31 @@
 <template>
   <g-absolute-box :customStyle="{ left: 0, top: '50%' }" title="元素属性">
-    <el-collapse :value="'base'">
-      <el-collapse-item title="基础属性" name="base">
-        <table class="gridtable">
-          <tr>
-            <td>name</td>
-            <td>{{ obj.name }}</td>
-          </tr>
-          <tr>
-            <td>ElementID</td>
-            <td>{{ obj.id }}</td>
-          </tr>
-        </table>
-      </el-collapse-item>
-    </el-collapse>
-    <el-collapse :value="'yueshu'">
-      <el-collapse-item title="约束" name="yueshu">
-        <table class="gridtable">
-          <tr>
-            <td>房屋边界</td>
-            <td>{{ obj.homeBorder | formatBoolean }}</td>
-          </tr>
-        </table>
-      </el-collapse-item>
-    </el-collapse>
+    <template v-if="attribute && Object.keys(attribute).length > 0">
+      <el-collapse :value="'base'">
+        <el-collapse-item title="基础属性" name="base">
+          <table class="gridtable">
+            <tr>
+              <td>name</td>
+              <td>{{ attribute.name }}</td>
+            </tr>
+            <tr>
+              <td>ElementID</td>
+              <td>{{ attribute.id }}</td>
+            </tr>
+          </table>
+        </el-collapse-item>
+      </el-collapse>
+      <el-collapse :value="'yueshu'">
+        <el-collapse-item title="约束" name="yueshu">
+          <table class="gridtable">
+            <tr>
+              <td>房屋边界</td>
+              <td>{{ attribute.homeBorder | formatBoolean }}</td>
+            </tr>
+          </table>
+        </el-collapse-item>
+      </el-collapse>
+    </template>
   </g-absolute-box>
 </template>
 
@@ -31,20 +33,19 @@
 export default {
   name: 'T2',
   components: {},
-  props: {},
+  props: {
+    attribute: {
+      type: Object,
+      default: () => {},
+    },
+  },
   filters: {
     formatBoolean(value) {
       return value ? '是' : '否' // 可以改成任何你想要的显示方式
     },
   },
   data() {
-    return {
-      obj: {
-        name: 'name111',
-        id: 'id2222222',
-        homeBorder: true,
-      },
-    }
+    return {}
   },
   computed: {},
   watch: {},

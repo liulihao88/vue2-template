@@ -48,7 +48,7 @@ export default {
   position: absolute;
   z-index: auto;
   color: #fff;
-  width: 20%;
+  width: 300px;
   height: 50vh;
   background: #000;
   font-size: 12px;
@@ -88,7 +88,7 @@ export default {
         touch-action: none;
         padding: 2px 25px 2px 10px;
         margin-left: 4px;
-        background: #333;
+        background: #3b4453;
         border-radius: 4px 4px 0px 0px;
       }
     }
@@ -117,7 +117,7 @@ export default {
     padding: 8px;
     height: 100%;
     ::v-deep .el-scrollbar {
-      height: 100%;
+      height: calc(100% - 30px);
     }
   }
 }

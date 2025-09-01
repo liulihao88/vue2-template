@@ -12,30 +12,24 @@
           v-for="(part, i) in partLists"
           :key="part.id"
           :class="{ active: selectedPartId === part.id }"
-          @click="onPartListClick(part.id)"
+          class="part-item"
+          @click="onPartListClick(part)"
         >
           <div>{{ part.name }}: {{ part.id }}</div>
         </div>
       </g-absolute-box>
-      <g-absolute-box :customStyle="{ left: 0, top: '50%' }" title="元素属性">
-        <div v-if="selectedPartMesh">
-          <div v-for="(value, key) of selectedPartMesh" :key="key">
-            <div class="">{{ key }}</div>
-            <div class="cl-red" style="color: red">{{ value }}</div>
-          </div>
-        </div>
-      </g-absolute-box>
-      <g-absolute-box :customStyle="{ right: 0, top: '0%' }" title="检查">
+
+      <ElementAttribute :attribute="selectedPartMesh"></ElementAttribute>
+      <g-absolute-box :customStyle="{ right: '0', top: '0%' }" title="检查">
         <TableBlack></TableBlack>
         <template #right>
           <el-button type="text" icon="el-icon-plus">新增</el-button>
           <el-button type="text" icon="el-icon-close">关闭</el-button>
         </template>
       </g-absolute-box>
-      <g-absolute-box :customStyle="{ right: 0, top: '50%' }" title="检查表单"></g-absolute-box>
     </template>
 
-    <BottomThreeBtn v-if="modelLoaded" @clipboardHandler="clipboardHandler"></BottomThreeBtn>
+    <BottomThreeBtn v-if="modelLoaded" @clipboardHandler="clipboardHandler" @resetModel="resetModel"></BottomThreeBtn>
     <ClipboardPhoto
       :scene="scene"
       :renderer="renderer"
@@ -46,7 +40,9 @@
 </template>
 
 <script>
+import { clone } from '@/utils/gFunc'
 import * as THREE from 'three'
+import ElementAttribute from '@/views/three/elementAttribute.vue'
 import TableBlack from '@/views/element/tableBlack.vue'
 import BottomThreeBtn from '@/views/three/bottomThreeBtn.vue'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
@@ -61,6 +57,7 @@ export default {
     BottomThreeBtn,
     ClipboardPhoto,
     TableBlack,
+    ElementAttribute,
   },
   data() {
     return {
@@ -74,14 +71,12 @@ export default {
       raycaster: new THREE.Raycaster(),
       mouse: new THREE.Vector2(),
       intersectedObject: null,
-      originalMaterials: new WeakMap(),
       selectedPartMesh: null,
+      originalMaterials: new WeakMap(),
+      partLists: [],
+      selectedPartId: '',
       materialMeshMap: new Map(), // 材质ID => 对应的Mesh数组
-      selectedPartId: null,
-      partLists: [], //最终结果
       highlightedMeshes: new Set(),
-      animationFrameId: null, // 记录动画ID以便停止
-      pulseSpeed: 0.005, // 可调节动画速度
       _highlightMaterial: '',
     }
   },
@@ -109,8 +104,6 @@ export default {
     }, 5000)
   },
   beforeDestroy() {
-    // 1. 停止动画
-    cancelAnimationFrame(this.animationFrameId)
     this.cleanupScene()
   },
   methods: {
@@ -130,6 +123,7 @@ export default {
     },
 
     triggerFileInput() {
+      // this.cleanupScene()
       this.$refs.fileInput.click()
     },
 
@@ -223,7 +217,7 @@ export default {
         // 发射射线检测
         this.raycaster.setFromCamera(this.pointer, this.camera)
         const intersects = this.raycaster.intersectObject(this.model, true)
-        console.log(`89 intersects`, intersects)
+        console.log(`35 intersects`, intersects)
 
         if (intersects.length > 0) {
           // 触发mesh的点击事件
@@ -257,14 +251,15 @@ export default {
             this.model.traverse((obj) => {
               if (obj.isMesh) {
                 const matId = obj.material.id
-
                 // 建立材质与Mesh的映射
                 if (!this.materialMeshMap.has(matId)) {
                   this.materialMeshMap.set(matId, [])
+                  // let cloneMaterial = clone(obj.material)
                   this.partLists.push({
                     // 去重部件列表
                     name: obj.material.name || `部件_${matId}`,
                     id: matId,
+                    // ...cloneMaterial,
                   })
                 }
                 this.materialMeshMap.get(matId).push(obj) // 关联Mesh
@@ -303,8 +298,7 @@ export default {
         // 执行射线检测
         this.raycaster.setFromCamera(mouse, this.camera)
         const intersects = this.raycaster.intersectObjects(this.model.children, true)
-        console.log(`06 intersects`, intersects)
-        // const intersects = this.raycaster.intersectObjects(this.clickableObjects, false)
+        console.log(`851 intersects`, intersects)
 
         if (intersects.length > 0) {
           const clickedObj = intersects[0].object
@@ -312,49 +306,11 @@ export default {
         }
       })
     },
-
-    handlePartClick(event, obj) {
-      // 恢复之前高亮的部分（如果有）
-      if (this.currentHighlight) {
-        this.currentHighlight.material = this.currentHighlight.userData.originalMaterial
-      }
-      this.currentHighlight = obj
-      // 确保每次点击都使用新的高亮材质实例（避免共享导致的闪烁）
-      const highlightMaterial = new THREE.MeshBasicMaterial({
-        color: 0xffff00,
-        transparent: true,
-        opacity: 0.7,
-        wireframe: false,
-      })
-
-      // 保存原始材质并应用高亮
-      obj.userData.originalMaterial = obj.material
-      obj.material = highlightMaterial
-      this.selectedPartMesh = obj
-    },
-
-    resetScene() {
-      // 清除选中状态
-      if (this.selectedPartMesh) {
-        this.scene.remove(this.selectedPartMesh)
-        this.selectedPartMesh = null
-      }
-      this.selectedPart = null
-    },
-
-    prepareModelForInteraction(model) {
-      const clickableObjects = []
-      model.traverse((child) => {
-        if (child.isMesh) {
-          child.userData.clickable = true
-          clickableObjects.push(child)
-        }
-      })
-      this.clickableObjects = clickableObjects // 存储可点击对象数组
-    },
-
     // 点击部件列表时的处理
-    onPartListClick(partId) {
+    onPartListClick(part) {
+      console.log(`18 part`, part)
+      this.selectedPartMesh = part
+      let partId = part.id
       // 清除旧高亮
       this.clearHighlights()
 
@@ -401,6 +357,66 @@ export default {
       this.highlightedMeshes.clear()
     },
 
+    handlePartClick(event, obj) {
+      console.log(`75 event`, event)
+      console.log(`29 obj`, obj)
+      console.log(`obj.material.id`, obj.material.id)
+      this.onPartListClick(obj.material)
+    },
+    // 在 methods 中添加 resetModel() 方法
+    resetModel() {
+      // 1. 恢复模型的初始位置/旋转/缩放
+      if (this.model) {
+        this.model.position.set(0, 0, 0) // 重置位置
+        this.model.rotation.set(0, 0, 0) // 重置旋转
+        this.model.scale.set(1, 1, 1) // 恢复原始大小
+      }
+      // 2. 重置相机和控制器到初始位置
+      if (this.camera) {
+        this.camera.position.set(0, 5, 10) // 恢复到初始相机位置
+        if (this.controls) {
+          this.controls.target.set(0, 0, 0) // 重置控制器焦点
+          this.controls.update() // 强制更新控制器
+        }
+      }
+      // 3. 清除所有选中和高亮状态
+      this.resetScene()
+
+      // 4. 重新适应模型到视图
+      this.fitCameraToModel()
+
+    },
+
+    resetScene() {
+      // 1. 清除所有Mesh的高亮材质
+      this.clearHighlights()
+      // 2. 清除左侧列表的选中状态
+      this.selectedPartId = '' // 设置为空字符串（或 undefined/null）
+
+      // 3. 重置 selectedPartMesh（避免动画继续）
+      if (this.selectedPartMesh) {
+        this.scene.remove(this.selectedPartMesh)
+        this.selectedPartMesh = null
+      }
+      this.selectedPart = null
+      // 4. 移除射线交互的高亮对象
+      this.intersectedObject = null // 如果你在用射线交互
+      // 可选：强制重渲染一次（如果UI没立即更新）
+      if (this.renderer && this.scene && this.camera) {
+        this.renderer.render(this.scene, this.camera)
+      }
+    },
+
+    prepareModelForInteraction(model) {
+      model.traverse((child) => {
+        if (child.isMesh) {
+          child.userData.selectable = true
+          child.castShadow = true
+          child.receiveShadow = true
+        }
+      })
+    },
+
     fitCameraToModel() {
       const box = new THREE.Box3().setFromObject(this.model)
       const size = box.getSize(new THREE.Vector3()).length()
@@ -408,7 +424,7 @@ export default {
 
       this.controls.target.copy(center)
       this.camera.position.copy(center)
-      this.camera.position.z += size
+      this.camera.position.z += size * 1.5
       this.controls.update()
     },
 
@@ -424,65 +440,27 @@ export default {
     },
 
     animate() {
-      if (performance.memory.usedJSHeapSize > 3 * 1024 * 1024 * 1024) {
-        // 接近3GB时警告
-        alert(performance.memory.usedJSHeapSize)
-        console.error('内存接近上限，建议优化模型！')
+      requestAnimationFrame(this.animate)
+      if (this.controls) {
+        this.controls.update()
       }
-      // 使用timestamp参数优化动画
-      const animateFrame = (timestamp) => {
-        this.animationFrameId = requestAnimationFrame(animateFrame)
-
-        // 只在必要时更新和渲染
-        if (this.controls) {
-          this.controls.update()
-        }
-        if (this.renderer && this.scene && this.camera) {
-          this.renderer.render(this.scene, this.camera)
-        }
-
-        // 添加节流控制
-        if (this.selectedPartMesh?.material && timestamp % 5 === 0) {
-          this.selectedPartMesh.material.opacity = 0.5 + 0.3 * Math.sin(timestamp * 0.005)
-        }
+      if (this.renderer && this.scene && this.camera) {
+        this.renderer.render(this.scene, this.camera)
       }
-      this.animationFrameId = requestAnimationFrame(animateFrame)
+      // 在animate()中添加脉冲动画
+      if (this.selectedPartMesh && this.selectedPartMesh.material) {
+        console.log(`99 this.selectedPartMesh.material`, this.selectedPartMesh.material)
+        this.selectedPartMesh.material.opacity = 0.5 + 0.3 * Math.sin(Date.now() * 0.005)
+      }
     },
+
     cleanupScene() {
-      // 停止所有动画
-      cancelAnimationFrame(this.animationFrameId)
-
-      // 释放所有材质和几何体
-      this.highlightedMeshes.forEach((mesh) => {
-        if (mesh.userData?.originalMaterial) {
-          mesh.material.dispose()
-          mesh.material = mesh.userData.originalMaterial
-        }
-        mesh.geometry?.dispose()
-      })
-      this.highlightedMeshes.clear()
-      // 释放高亮材质
-      if (this._highlightMaterial) {
-        this._highlightMaterial.dispose()
-        this._highlightMaterial = null
-      }
-
-      // 清除映射数据
-      this.materialMeshMap.clear()
-      this.highlightedMeshes.clear()
-      this.partLists = []
-      // 移除事件监听器
       if (this.renderer?.domElement) {
         this.renderer.domElement.removeEventListener('pointerdown', this.onPointerDown)
         this.renderer.domElement.removeEventListener('pointermove', this.onPointerMove)
       }
       window.removeEventListener('resize', this.onWindowResize)
 
-      // 移除事件监听
-      this.renderer?.domElement.removeEventListener('click', this.handleClick)
-      window.removeEventListener('resize', this.onWindowResize)
-
-      // 释放所有模型资源
       if (this.model && this.scene) {
         this.scene.remove(this.model)
         this.model.traverse((child) => {
@@ -511,6 +489,7 @@ export default {
   top: 10px;
   left: 50%;
   z-index: 1;
+  transform: translateX(-50%);
 }
 .model-viewer {
   width: 100vw; /* 或固定宽度 */
@@ -538,6 +517,11 @@ export default {
 
 .scene-container canvas {
   cursor: pointer;
+}
+.part-item {
+  height: 30px;
+  line-height: 30px;
+  padding: 2px;
 }
 .active {
   background: yellow;

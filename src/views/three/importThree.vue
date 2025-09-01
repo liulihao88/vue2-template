@@ -249,7 +249,6 @@ export default {
 
 <style scoped>
 .model-viewer {
-  position: relative;
   width: 100vw; /* 或固定宽度 */
   height: 100vh; /* 或固定高度 */
   overflow: hidden; /* 避免滚动条影响 */

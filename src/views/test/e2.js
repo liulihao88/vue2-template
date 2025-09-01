@@ -1,47 +1,147 @@
-{
-    "metadata": {
-        "version": 4.7,
-        "type": "Material",
-        "generator": "Material.toJSON"
-    },
-    "uuid": "7e059c90-ac58-4ab8-8f9d-67e0be8f8a87",
-    "type": "MeshStandardMaterial",
-    "name": "渲染材质 128-128-128",
-    "color": 12369084,
-    "roughness": 1,
-    "metalness": 0,
-    "emissive": 0,
-    "envMapRotation": [
-        0,
-        0,
-        0,
-        "XYZ"
-    ],
-    "envMapIntensity": 1,
-    "opacity": 0,
-    "blendColor": 0
-}
-
-{
-    "metadata": {
-        "version": 4.7,
-        "type": "Material",
-        "generator": "Material.toJSON"
-    },
-    "uuid": "be4f1a9a-f3d7-4cb0-9b9c-1107079ed1b3",
-    "type": "MeshStandardMaterial",
-    "name": "默认墙",
-    "color": 12369084,
-    "roughness": 1,
-    "metalness": 0,
-    "emissive": 0,
-    "envMapRotation": [
-        0,
-        0,
-        0,
-        "XYZ"
-    ],
-    "envMapIntensity": 1,
-    "opacity": 0,
-    "blendColor": 0
-}
+isMaterial
+true
+uuid
+a655aa02-5c77-43ae-b653-3837e31298eb
+name
+A_A石膏板
+type
+MeshStandardMaterial
+blending
+1
+side
+0
+vertexColors
+false
+opacity
+0
+transparent
+false
+alphaHash
+false
+blendSrc
+204
+blendDst
+205
+blendEquation
+100
+blendSrcAlpha
+blendDstAlpha
+blendEquationAlpha
+blendColor
+0
+blendAlpha
+0
+depthFunc
+3
+depthTest
+true
+depthWrite
+true
+stencilWriteMask
+255
+stencilFunc
+519
+stencilRef
+0
+stencilFuncMask
+255
+stencilFail
+7680
+stencilZFail
+7680
+stencilZPass
+7680
+stencilWrite
+false
+clippingPlanes
+clipIntersection
+false
+clipShadows
+false
+shadowSide
+colorWrite
+true
+precision
+polygonOffset
+false
+polygonOffsetFactor
+0
+polygonOffsetUnits
+0
+dithering
+false
+alphaToCoverage
+false
+premultipliedAlpha
+false
+forceSinglePass
+false
+allowOverride
+true
+visible
+true
+toneMapped
+true
+userData
+{}
+version
+0
+_alphaTest
+0
+isMeshStandardMaterial
+true
+defines
+{ "STANDARD": "" }
+color
+13948116
+roughness
+1
+metalness
+0
+map
+lightMap
+lightMapIntensity
+1
+aoMap
+aoMapIntensity
+1
+emissive
+0
+emissiveIntensity
+1
+emissiveMap
+bumpMap
+bumpScale
+1
+normalMap
+normalMapType
+0
+normalScale
+{ "x": 1, "y": -1 }
+displacementMap
+displacementScale
+1
+displacementBias
+0
+roughnessMap
+metalnessMap
+alphaMap
+envMap
+envMapRotation
+{ "isEuler": true, "_x": 0, "_y": 0, "_z": 0, "_order": "XYZ" }
+envMapIntensity
+1
+wireframe
+false
+wireframeLinewidth
+1
+wireframeLinecap
+round
+wireframeLinejoin
+round
+flatShading
+false
+fog
+true
+_listeners
+{ "dispose": [ null ] }

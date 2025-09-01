@@ -1,6 +1,10 @@
 <template>
   <div class="toolbar">
     <div data-v-78bdb7f6="" class="toolbar-buttons">
+      <div class="image-button-checkbox" @click="resetModel">
+        <svg-icon icon-class="reset" class="icon-dom" />
+        <span data-v-6fec4127="" class="text">复位</span>
+      </div>
       <div class="image-button-checkbox" @click="clipboardHandler">
         <svg-icon icon-class="clipboard" class="icon-dom" />
         <span data-v-6fec4127="" class="text">剪切</span>
@@ -8,6 +12,10 @@
       <div class="image-button-checkbox" @click="reviewHandler">
         <svg-icon icon-class="review" class="icon-dom" />
         <span data-v-6fec4127="" class="text">审查</span>
+      </div>
+      <div class="image-button-checkbox" @click="clipboardHandler">
+        <svg-icon icon-class="map" class="icon-dom" />
+        <span data-v-6fec4127="" class="text">显示地图</span>
       </div>
     </div>
   </div>
@@ -31,6 +39,9 @@ export default {
     },
     reviewHandler() {
       this.$emit('reviewHandler')
+    },
+    resetModel() {
+      this.$emit('resetModel')
     },
   },
 }

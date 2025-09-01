@@ -76,6 +76,14 @@ export default {
         this.$refs.sceneContainer.appendChild(this.renderer.domElement)
       }
     })
+
+    // 在mounted中添加
+    setInterval(() => {
+      const memory = performance.memory
+      console.log(
+        `内存使用: ${(memory.usedJSHeapSize / 1048576).toFixed(2)} MB / ${(memory.jsHeapSizeLimit / 1048576).toFixed(2)} MB`,
+      )
+    }, 5000)
   },
   beforeDestroy() {
     this.cleanupScene()
@@ -190,6 +198,7 @@ export default {
         // 发射射线检测
         this.raycaster.setFromCamera(this.pointer, this.camera)
         const intersects = this.raycaster.intersectObject(this.model, true)
+        console.log(`35 intersects`, intersects)
 
         if (intersects.length > 0) {
           // 触发mesh的点击事件
@@ -256,6 +265,7 @@ export default {
         // 执行射线检测
         this.raycaster.setFromCamera(mouse, this.camera)
         const intersects = this.raycaster.intersectObjects(this.model.children, true)
+        console.log(`851 intersects`, intersects)
 
         if (intersects.length > 0) {
           const clickedObj = intersects[0].object
@@ -271,7 +281,6 @@ export default {
       }
 
       // 高亮当前选中部分
-      console.log(`45 obj`, obj)
       this.currentHighlight = obj
       this.selectedPartMesh = obj // 保存选中的mesh对象
       obj.material = new THREE.MeshBasicMaterial({
