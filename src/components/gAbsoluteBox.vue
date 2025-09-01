@@ -12,7 +12,9 @@
       <section class="lm_tabdropdown_list" style="display: none"></section>
     </section>
     <div class="box-container">
-      <slot></slot>
+      <el-scrollbar>
+        <slot></slot>
+      </el-scrollbar>
     </div>
   </div>
 </template>
@@ -44,7 +46,6 @@ export default {
 <style scoped lang="scss">
 .box {
   position: absolute;
-  overflow: hidden;
   z-index: auto;
   color: #fff;
   width: 20%;
@@ -115,6 +116,9 @@ export default {
     background: #3b4453;
     padding: 8px;
     height: 100%;
+    ::v-deep .el-scrollbar {
+      height: 100%;
+    }
   }
 }
 </style>

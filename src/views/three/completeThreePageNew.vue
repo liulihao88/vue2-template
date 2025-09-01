@@ -6,20 +6,29 @@
     </div>
 
     <div ref="sceneContainer" class="scene-container" v-if="modelLoaded"></div>
-    <g-absolute-box v-if="modelLoaded">
-      <div v-if="selectedPart">
-        <div class="part-name">
-          选中部件: <strong>{{ selectedPart }}</strong>
+    <template v-if="modelLoaded">
+      <g-absolute-box :customStyle="{ left: 0, top: '0%' }" title="部位属性">
+        <div v-for="(v, i) in partLists" :key="i">
+          <div>{{ v.name }}: {{ v.id }}</div>
         </div>
-        <el-button @click="resetScene" type="primary" size="small">取消选择</el-button>
-
-        <div v-if="selectedPartMesh" class="part-meta">
-          <div>位置: {{ selectedPartMesh.position.toArray().map((v) => v.toFixed(2)) }}</div>
-          <div>uuid: {{ selectedPartMesh.uuid }}</div>
-          <div>id: {{ selectedPartMesh.id }}</div>
+      </g-absolute-box>
+      <g-absolute-box :customStyle="{ left: 0, top: '50%' }" title="元素属性">
+        <div v-if="selectedPartMesh">
+          <div v-for="(value, key) of selectedPartMesh" :key="key">
+            <div class="">{{ key }}</div>
+            <div class="cl-red" style="color: red">{{ value }}</div>
+          </div>
         </div>
-      </div>
-    </g-absolute-box>
+      </g-absolute-box>
+      <g-absolute-box :customStyle="{ right: 0, top: '0%' }" title="检查">
+        <TableBlack></TableBlack>
+        <template #right>
+          <el-button type="text" icon="el-icon-plus">新增</el-button>
+          <el-button type="text" icon="el-icon-close">关闭</el-button>
+        </template>
+      </g-absolute-box>
+      <g-absolute-box :customStyle="{ right: 0, top: '50%' }" title="检查表单"></g-absolute-box>
+    </template>
 
     <BottomThreeBtn v-if="modelLoaded" @clipboardHandler="clipboardHandler"></BottomThreeBtn>
     <ClipboardPhoto :scene="scene" :renderer="renderer" :container="$refs.sceneContainer" ref="clipboardPhotoRef"></ClipboardPhoto>
@@ -28,6 +37,7 @@
 
 <script>
 import * as THREE from "three";
+import TableBlack from "@/views/element/tableBlack.vue";
 import BottomThreeBtn from "@/views/three/bottomThreeBtn.vue";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
@@ -39,7 +49,8 @@ export default {
   name: "ModelViewer",
   components: {
     BottomThreeBtn,
-    ClipboardPhoto
+    ClipboardPhoto,
+    TableBlack
   },
   data() {
     return {
@@ -53,7 +64,10 @@ export default {
       raycaster: new THREE.Raycaster(),
       mouse: new THREE.Vector2(),
       intersectedObject: null,
-      originalMaterials: new WeakMap()
+      originalMaterials: new WeakMap(),
+      selectedPartMesh: null,
+      materialMap: new Map(), // 用于去重
+      partLists: [], //最终结果
     };
   },
   async mounted() {
@@ -204,15 +218,26 @@ export default {
           arrayBuffer,
           "",
           (gltf) => {
+            this.partLists = [];
             this.model = gltf.scene;
             // 打印场景结构
             console.log("场景对象:", this.model);
             // ✅ 为所有部件添加点击事件
             this.model.traverse((obj) => {
               if (obj.isMesh) {
-                obj.userData.originalMaterial = obj.material; // 保存原始材质
+                obj.userData.originalMaterial = obj.material;
+
+                // 使用 Map 去重（以 material.id 为唯一键）
+                if (!this.materialMap.has(obj.material.id)) {
+                  this.materialMap.set(obj.material.id, {
+                    name: obj.material.name || `未命名材质_${obj.material.id}`,
+                    id: obj.material.id
+                  });
+                }
               }
             });
+            // 转存到 partLists（去重后）
+            this.partLists = Array.from(this.materialMap.values());
             this.scene.add(this.model);
             this.prepareModelForInteraction(this.model);
             this.fitCameraToModel();
@@ -263,6 +288,7 @@ export default {
       console.log(`45 obj`, obj);
       this.currentHighlight = obj;
       this.selectedPartMesh = obj; // 保存选中的mesh对象
+      console.log(`72 this.selectedPartMesh`, this.selectedPartMesh);
       obj.material = new THREE.MeshBasicMaterial({
         color: 0xffff00,
         transparent: true,
@@ -302,7 +328,7 @@ export default {
 
       this.controls.target.copy(center);
       this.camera.position.copy(center);
-      this.camera.position.z += size * 1.5;
+      this.camera.position.z += size;
       this.controls.update();
     },
 
@@ -362,11 +388,10 @@ export default {
 .open-glb {
   position: absolute;
   top: 10px;
-  left: 10px;
+  left: 50%;
   z-index: 1;
 }
 .model-viewer {
-  position: relative;
   width: 100vw; /* 或固定宽度 */
   height: 100vh; /* 或固定高度 */
   overflow: hidden; /* 避免滚动条影响 */

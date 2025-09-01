@@ -77,11 +77,18 @@ export const constantRoutes = [
         meta: { title: "completeThreePage完整页面" }
       },
       {
+        path: "completeThreePageNew",
+        name: "completeThreePageNew",
+        component: () => import("@/views/three/completeThreePageNew"),
+        meta: { title: "completeThreePageNew新的完整页面" }
+      },
+      {
         path: "testCompleteThreePage",
         name: "testCompleteThreePage",
         component: () => import("@/views/three/testCompleteThreePage"),
         meta: { title: "testCompleteThreePage测试完整页面" }
       },
+
       {
         path: "bottomThreeBtn",
         name: "bottomThreeBtn",
@@ -239,6 +246,18 @@ export const constantRoutes = [
         name: "t3",
         component: () => import("@/views/test/t3"),
         meta: { title: "t3", icon: "form" }
+      }
+    ]
+  },
+  {
+    path: "/t4",
+    component: Layout,
+    children: [
+      {
+        path: "index",
+        name: "t4",
+        component: () => import("@/views/test/t4"),
+        meta: { title: "t4", icon: "form" }
       }
     ]
   },
