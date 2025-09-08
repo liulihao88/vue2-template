@@ -2,42 +2,54 @@
   <div class="model-viewer">
     <div class="upload-area">
       <el-button class="open-glb" type="primary" size="small" @click="triggerFileInput">打开 GLB 文件</el-button>
+      <el-button class="open-glb to-left" type="primary" size="small" @click="setTopView">切换俯视图</el-button>
+      <el-input-number v-model="testDuration.x" class="open-glb to-left1" />
+      <el-input-number v-model="testDuration.y" class="open-glb to-left2" />
+      <el-input-number v-model="testDuration.z" class="open-glb to-left3" />
       <input ref="fileInput" type="file" accept=".glb" @change="handleFileUpload" style="display: none" />
     </div>
 
     <div ref="sceneContainer" class="scene-container" v-if="modelLoaded"></div>
     <template v-if="modelLoaded">
-      <g-absolute-box :customStyle="{ left: 0, top: '0%' }" title="部位属性">
+      <g-absolute-box
+        :customStyle="{
+          left: 0,
+          top: '0%',
+        }"
+        title="部位属性">
         <div
           v-for="(part, i) in partLists"
           :key="part.id"
-          :class="{ active: selectedPartId === part.id }"
+          :class="{
+            active: selectedPartId === part.id,
+          }"
           class="part-item"
-          @click="onPartListClick(part)"
-        >
-          <div>{{ part.name }}: {{ part.id }}</div>
+          @click="onPartListClick(part)">
+          <div>
+            {{ part.name }}:
+            {{ part.id }}
+          </div>
         </div>
       </g-absolute-box>
 
       <ElementAttribute :attribute="selectedPartMesh"></ElementAttribute>
       <TableBlack></TableBlack>
-      <T4></T4>
+      <UploadFile></UploadFile>
     </template>
 
-    <BottomThreeBtn v-if="modelLoaded" @clipboardHandler="clipboardHandler" @resetModel="resetModel"></BottomThreeBtn>
+    <BottomThreeBtn v-if="modelLoaded" @clipboardHandler="clipboardHandler" @resetModel="resetModel()"></BottomThreeBtn>
     <ClipboardPhoto
       :scene="scene"
       :renderer="renderer"
       :container="$refs.sceneContainer"
-      ref="clipboardPhotoRef"
-    ></ClipboardPhoto>
+      ref="clipboardPhotoRef"></ClipboardPhoto>
   </div>
 </template>
 
 <script>
 import { clone } from '@/utils/gFunc'
 import * as THREE from 'three'
-import T4 from '@/views/test/t4.vue'
+import UploadFile from './uploadFile.vue'
 import ElementAttribute from '@/views/three/elementAttribute.vue'
 import TableBlack from '@/views/element/tableBlack.vue'
 import BottomThreeBtn from '@/views/three/bottomThreeBtn.vue'
@@ -54,7 +66,7 @@ export default {
     ClipboardPhoto,
     TableBlack,
     ElementAttribute,
-    T4,
+    UploadFile,
   },
   data() {
     return {
@@ -62,6 +74,13 @@ export default {
       scene: null,
       camera: null,
       renderer: null,
+      testDuration: {
+        x: 0,
+        y: 0,
+        z: 0,
+      },
+      size: {},
+      center: {},
       controls: null,
       model: null,
       selectedPart: null,
@@ -91,14 +110,6 @@ export default {
         this.$refs.sceneContainer.appendChild(this.renderer.domElement)
       }
     })
-
-    // 在mounted中添加
-    setInterval(() => {
-      const memory = performance.memory
-      console.log(
-        `内存使用: ${(memory.usedJSHeapSize / 1048576).toFixed(2)} MB / ${(memory.jsHeapSizeLimit / 1048576).toFixed(2)} MB`,
-      )
-    }, 5000)
   },
   beforeDestroy() {
     this.cleanupScene()
@@ -165,12 +176,11 @@ export default {
       this.scene.background = new THREE.Color(0x000000)
 
       this.camera = new THREE.PerspectiveCamera(
-        90,
+        75,
         this.$refs.sceneContainer.clientWidth / this.$refs.sceneContainer.clientHeight,
-        0.5,
+        0.1,
         1000,
       )
-      this.camera.position.set(0, 5, 10)
 
       // 光源设置
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
@@ -180,8 +190,6 @@ export default {
       directionalLight.position.set(10, 20, 0)
       this.scene.add(directionalLight)
 
-      console.log(`15 his.$refs.sceneContainer.clientWidth`, this.$refs.sceneContainer.clientWidth)
-      console.log(`56 this.$refs.sceneContainer.clientHeight`, this.$refs.sceneContainer.clientHeight)
       this.renderer.setSize(this.$refs.sceneContainer.clientWidth, this.$refs.sceneContainer.clientHeight)
       this.renderer.shadowMap.enabled = true
 
@@ -189,6 +197,8 @@ export default {
 
       this.controls = new OrbitControls(this.camera, this.renderer.domElement)
       this.controls.enableDamping = true
+      // this.camera.position.set(0.5, 0, 0.866)
+      // this.controls.update()
 
       // 添加事件监听
       this.renderer.domElement.addEventListener('pointerdown', this.onPointerDown)
@@ -218,7 +228,10 @@ export default {
 
         if (intersects.length > 0) {
           // 触发mesh的点击事件
-          intersects[0].object.dispatchEvent({ type: 'click', event })
+          intersects[0].object.dispatchEvent({
+            type: 'click',
+            event,
+          })
         } else {
           this.resetScene() // 点击空白处重置选择
         }
@@ -241,6 +254,8 @@ export default {
           '',
           (gltf) => {
             this.partLists = []
+            // gltf.scene.rotation.x = -Math.PI / 2 // 如果需要模型躺平
+            gltf.scene.rotation.y = Math.PI
             this.model = gltf.scene
             // 打印场景结构
             console.log('场景对象:', this.model)
@@ -323,7 +338,6 @@ export default {
 
         // 应用高亮材质（共享同一个材质实例提升性能）
         mesh.material = this.getHighlightMaterial()
-        console.log(`87 mesh.material`, mesh.material)
         this.highlightedMeshes.add(mesh)
       })
 
@@ -357,30 +371,31 @@ export default {
     handlePartClick(event, obj) {
       console.log(`75 event`, event)
       console.log(`29 obj`, obj)
+      const userData = obj.userData
+      if (userData) {
+        console.log('英文名:', userData.name_en) // 可能字段
+        console.log('中文名:', userData.name_cn)
+        console.log('材质类型:', userData.material_type)
+      }
+
       console.log(`obj.material.id`, obj.material.id)
       this.onPartListClick(obj.material)
     },
     // 在 methods 中添加 resetModel() 方法
-    resetModel() {
+    async resetModel(isFirst = false) {
       // 1. 恢复模型的初始位置/旋转/缩放
       if (this.model) {
         this.model.position.set(0, 0, 0) // 重置位置
         this.model.rotation.set(0, 0, 0) // 重置旋转
         this.model.scale.set(1, 1, 1) // 恢复原始大小
       }
-      // // 2. 重置相机和控制器到初始位置
-      // if (this.camera) {
-      //   this.camera.position.set(0, 5, 10) // 恢复到初始相机位置
-      //   if (this.controls) {
-      //     this.controls.target.set(0, 0, 0) // 重置控制器焦点
-      //     this.controls.update() // 强制更新控制器
-      //   }
-      // }
-      // 3. 清除所有选中和高亮状态
-      this.resetScene()
+      if (!isFirst) {
+        // 3. 清除所有选中和高亮状态
+        this.resetScene()
 
-      // 4. 重新适应模型到视图
-      this.fitCameraToModel()
+        // 4. 重新适应模型到视图
+        this.fitCameraToModel()
+      }
     },
 
     resetScene() {
@@ -415,13 +430,28 @@ export default {
 
     fitCameraToModel() {
       const box = new THREE.Box3().setFromObject(this.model)
-      const size = box.getSize(new THREE.Vector3()).length()
+      const size = box.getSize(new THREE.Vector3())
       const center = box.getCenter(new THREE.Vector3())
 
-      this.controls.target.copy(center)
-      this.camera.position.copy(center)
-      this.camera.position.z += size * 1.5
-      this.controls.update()
+      // 计算模型的对角线长度（保证完整包围）
+      const maxDim = Math.max(size.x, size.y, size.z)
+      console.log(`45 maxDim`, maxDim)
+      const distance = maxDim * 2 // 相机距离根据最大尺寸动态调整
+
+      this.camera.position.set(
+        0,
+        center.y + distance * 0.8, // 高度2倍
+        distance * 0.5, // 倾斜量
+      )
+      this.camera.lookAt(center)
+
+      // 4. 更新控制器（若使用OrbitControls）
+      if (this.controls) {
+        this.controls.target.copy(center) // 设置控制器焦点
+        this.controls.update() // 强制生效
+      }
+      // 调试输出
+      console.log('Model size:', size, 'Camera position:', this.camera.position)
     },
 
     // 以下是交互方法保持不变（onPointerDown, onPointerMove等）
@@ -434,12 +464,18 @@ export default {
         this.renderer.setSize(this.$refs.sceneContainer.clientWidth, this.$refs.sceneContainer.clientHeight)
       }
     },
+    setTopView() {
+      const { x, y, z } = this.testDuration
+      this.camera.position.set(x, y, z)
+      this.camera.lookAt(0, 0, 0)
+      this.controls.update() // 强制更新控制器
+    },
 
     animate() {
       requestAnimationFrame(this.animate)
-      if (this.controls) {
-        this.controls.update()
-      }
+      // if (this.controls) {
+      //   this.controls.update()
+      // }
       if (this.renderer && this.scene && this.camera) {
         this.renderer.render(this.scene, this.camera)
       }
@@ -486,6 +522,21 @@ export default {
   left: 50%;
   z-index: 1;
   transform: translateX(-50%);
+}
+.to-left {
+  left: 60%;
+}
+.to-left1 {
+  top: 50px;
+  left: 30%;
+}
+.to-left2 {
+  top: 50px;
+  left: 50%;
+}
+.to-left3 {
+  top: 50px;
+  left: 70%;
 }
 .model-viewer {
   width: 100vw; /* 或固定宽度 */
