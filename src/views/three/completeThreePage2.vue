@@ -20,13 +20,8 @@
       </g-absolute-box>
 
       <ElementAttribute :attribute="selectedPartMesh"></ElementAttribute>
-      <g-absolute-box :customStyle="{ right: '0', top: '0%' }" title="检查">
-        <TableBlack></TableBlack>
-        <template #right>
-          <el-button type="text" icon="el-icon-plus">新增</el-button>
-          <el-button type="text" icon="el-icon-close">关闭</el-button>
-        </template>
-      </g-absolute-box>
+      <TableBlack></TableBlack>
+      <T4></T4>
     </template>
 
     <BottomThreeBtn v-if="modelLoaded" @clipboardHandler="clipboardHandler" @resetModel="resetModel"></BottomThreeBtn>
@@ -42,6 +37,7 @@
 <script>
 import { clone } from '@/utils/gFunc'
 import * as THREE from 'three'
+import T4 from '@/views/test/t4.vue'
 import ElementAttribute from '@/views/three/elementAttribute.vue'
 import TableBlack from '@/views/element/tableBlack.vue'
 import BottomThreeBtn from '@/views/three/bottomThreeBtn.vue'
@@ -58,6 +54,7 @@ export default {
     ClipboardPhoto,
     TableBlack,
     ElementAttribute,
+    T4,
   },
   data() {
     return {
@@ -384,7 +381,6 @@ export default {
 
       // 4. 重新适应模型到视图
       this.fitCameraToModel()
-
     },
 
     resetScene() {

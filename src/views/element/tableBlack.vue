@@ -1,6 +1,10 @@
 <template>
-  <div class="my-table-container">
-    <el-scrollbar>
+  <g-absolute-box :customStyle="{ right: '0', top: '0%' }" title="检查">
+    <template #right>
+      <el-button type="text" icon="el-icon-plus">新增</el-button>
+      <el-button type="text" icon="el-icon-close">关闭</el-button>
+    </template>
+    <div class="my-table-container">
       <el-table :data="list" border fit size="snall" align="center">
         <el-table-column label="标准名称" prop="standardId">
           <template slot-scope="scope">
@@ -31,8 +35,8 @@
           </template>
         </el-table-column>
       </el-table>
-    </el-scrollbar>
-  </div>
+    </div>
+  </g-absolute-box>
 </template>
 
 <script>
@@ -71,8 +75,6 @@ export default {
 <style lang="scss" scoped>
 .my-table-container {
   background: #000;
-  height: calc(100vh - 55px);
-  overflow: auto;
   /* 针对 el-table 内部的 el-dropdown 菜单项悬停 */
   .el-table .el-dropdown-menu__item:hover {
     background-color: black !important;

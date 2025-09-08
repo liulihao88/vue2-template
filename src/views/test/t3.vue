@@ -1,6 +1,7 @@
 <template>
   <div>
-    <ElementAttribute :attribute="obj"></ElementAttribute>
+    <!-- <ElementAttribute :attribute="obj"></ElementAttribute> -->
+     
   </div>
 </template>
 
