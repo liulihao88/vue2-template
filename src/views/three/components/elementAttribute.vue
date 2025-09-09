@@ -1,5 +1,5 @@
 <template>
-  <g-absolute-box :customStyle="{ left: 0, top: '50%' }" title="元素属性">
+  <absolute-box :customStyle="{ left: 0, top: '50%' }" title="元素属性">
     <template v-if="attribute && Object.keys(attribute).length > 0">
       <el-collapse :value="'base'">
         <el-collapse-item title="基础属性" name="base">
@@ -26,13 +26,16 @@
         </el-collapse-item>
       </el-collapse>
     </template>
-  </g-absolute-box>
+  </absolute-box>
 </template>
 
 <script>
+import absoluteBox from './absoluteBox.vue'
 export default {
   name: 'T2',
-  components: {},
+  components: {
+    absoluteBox,
+  },
   props: {
     attribute: {
       type: Object,

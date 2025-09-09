@@ -1,6 +1,6 @@
 <template>
   <div>
-    <g-absolute-box :customStyle="{ right: 0, top: '50%' }" title="新增表单">
+    <absolute-box :customStyle="{ right: 0, top: '50%' }" title="新增表单">
       <el-form ref="form" :model="form" label-width="80px" class="dark-form">
         <el-form-item label="标准名称">
           <el-input v-model="form.standardId" placeholder="请输入"></el-input>
@@ -32,7 +32,7 @@
           <el-input v-model="form.auditContent" type="textarea" placeholder="请输入" />
         </el-form-item>
       </el-form>
-    </g-absolute-box>
+    </absolute-box>
     <el-dialog :visible.sync="dialogVisible">
       <img width="100%" :src="dialogImageUrl" alt="" />
     </el-dialog>
@@ -40,9 +40,12 @@
 </template>
 
 <script>
+import AbsoluteBox from './absoluteBox.vue'
 export default {
   name: 'T4',
-  components: {},
+  components: {
+    AbsoluteBox
+  },
   props: {},
   data() {
     return {

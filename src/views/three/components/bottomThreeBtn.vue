@@ -5,17 +5,13 @@
         <svg-icon icon-class="reset" class="icon-dom" />
         <span data-v-6fec4127="" class="text">复位</span>
       </div>
-      <div class="image-button-checkbox" @click="clipboardHandler">
+      <div class="image-button-checkbox" :class="{ 'is-active': isActive === 'clipboard' }" @click="clipboardHandler">
         <svg-icon icon-class="clipboard" class="icon-dom" />
         <span data-v-6fec4127="" class="text">剪切</span>
       </div>
-      <div class="image-button-checkbox" @click="reviewHandler">
+      <div class="image-button-checkbox" :class="{ 'is-active': isActive === 'review' }" @click="reviewHandler">
         <svg-icon icon-class="review" class="icon-dom" />
         <span data-v-6fec4127="" class="text">审查</span>
-      </div>
-      <div class="image-button-checkbox" @click="clipboardHandler">
-        <svg-icon icon-class="map" class="icon-dom" />
-        <span data-v-6fec4127="" class="text">显示地图</span>
       </div>
     </div>
   </div>
@@ -25,7 +21,13 @@
 export default {
   name: 'T3',
   components: {},
-  props: {},
+  props: {
+    isActive: {
+      type: String,
+      default: '',
+    },
+  },
+
   data() {
     return {}
   },
@@ -77,10 +79,15 @@ export default {
       .icon-dom {
         margin-bottom: 4px;
       }
+
       &:hover {
         background-color: rgb(196, 196, 196);
         color: rgb(0, 0, 0);
       }
+    }
+    .is-active {
+      background-color: rgb(196, 196, 196) !important;
+      color: rgb(0, 0, 0) !important;
     }
   }
 }

@@ -11,7 +11,7 @@
 
     <div ref="sceneContainer" class="scene-container" v-if="modelLoaded"></div>
     <template v-if="modelLoaded">
-      <g-absolute-box
+      <absolute-box
         :customStyle="{
           left: 0,
           top: '0%',
@@ -30,17 +30,22 @@
             {{ part.id }}
           </div>
         </div>
-      </g-absolute-box>
+      </absolute-box>
 
       <ElementAttribute :attribute="selectedPartMesh"></ElementAttribute>
       <TableBlack></TableBlack>
       <UploadFile></UploadFile>
     </template>
 
-    <BottomThreeBtn v-if="modelLoaded" @clipboardHandler="clipboardHandler" @resetModel="resetModel()"></BottomThreeBtn>
+    <BottomThreeBtn
+      v-if="modelLoaded"
+      @clipboardHandler="clipboardHandler"
+      @resetModel="resetModel()"
+      :isActive="isActive"></BottomThreeBtn>
     <ClipboardPhoto
       :scene="scene"
       :renderer="renderer"
+      @toggleControls="toggleControls"
       :container="$refs.sceneContainer"
       ref="clipboardPhotoRef"></ClipboardPhoto>
   </div>
@@ -49,15 +54,15 @@
 <script>
 import { clone } from '@/utils/gFunc'
 import * as THREE from 'three'
-import UploadFile from './uploadFile.vue'
-import ElementAttribute from '@/views/three/elementAttribute.vue'
-import TableBlack from '@/views/element/tableBlack.vue'
-import BottomThreeBtn from '@/views/three/bottomThreeBtn.vue'
+import UploadFile from './components/uploadFile.vue'
+import ElementAttribute from './components/elementAttribute.vue'
+import TableBlack from './components/tableBlack.vue'
+import BottomThreeBtn from './components/bottomThreeBtn.vue'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import { sleep } from '@/utils/gFunc'
-import ClipboardPhoto from '@/views/form/clipboardPhoto.vue'
+import ClipboardPhoto from './components/clipboardPhoto.vue'
+import absoluteBox from './components/absoluteBox.vue'
 
 export default {
   name: 'ModelViewer',
@@ -67,6 +72,7 @@ export default {
     TableBlack,
     ElementAttribute,
     UploadFile,
+    absoluteBox,
   },
   data() {
     return {
@@ -94,6 +100,7 @@ export default {
       materialMeshMap: new Map(), // 材质ID => 对应的Mesh数组
       highlightedMeshes: new Set(),
       _highlightMaterial: '',
+      isActive: '',
     }
   },
   async mounted() {
@@ -115,7 +122,15 @@ export default {
     this.cleanupScene()
   },
   methods: {
+    toggleControls(bool) {
+      console.log(`19 bool`, bool);
+      this.controls.enabled = bool
+      if (bool) {
+        this.isActive = ''
+      }
+    },
     clipboardHandler() {
+      this.isActive = 'clipboard'
       this.$refs.clipboardPhotoRef.startSelection()
     },
     async initDracoLoader() {
