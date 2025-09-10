@@ -13,8 +13,7 @@
           :key="part.id"
           :class="{ active: selectedPartId === part.id }"
           class="part-item"
-          @click="onPartListClick(part)"
-        >
+          @click="onPartListClick(part)">
           <div>{{ part.name }}: {{ part.id }}</div>
         </div>
       </g-absolute-box>
@@ -29,8 +28,7 @@
       :scene="scene"
       :renderer="renderer"
       :container="$refs.sceneContainer"
-      ref="clipboardPhotoRef"
-    ></ClipboardPhoto>
+      ref="clipboardPhotoRef"></ClipboardPhoto>
   </div>
 </template>
 
@@ -38,9 +36,9 @@
 import { clone } from '@/utils/gFunc'
 import * as THREE from 'three'
 import T4 from '@/views/test/t4.vue'
-import ElementAttribute from '@/views/three/elementAttribute.vue'
+import ElementAttribute from '@/views/three/components/elementAttribute.vue'
 import TableBlack from '@/views/element/tableBlack.vue'
-import BottomThreeBtn from '@/views/three/bottomThreeBtn.vue'
+import BottomThreeBtn from '@/views/three/components/bottomThreeBtn.vue'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'

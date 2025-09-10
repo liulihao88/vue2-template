@@ -46,3 +46,32 @@
 .el-range-separator {
   box-sizing: content-box;
 }
+/* 黑色主题下拉框 */
+/* 黑色主题下拉框 */
+.dark-select-dropdown {
+  background-color: #000 !important;
+  border: 1px solid #333 !important;
+
+  /* 下拉选项 */
+  .el-select-dropdown__item {
+    color: white !important;
+
+    &:hover {
+      background-color: #333 !important;
+    }
+
+    &.selected {
+      color: white !important;
+      background-color: #444 !important;
+    }
+  }
+
+  /* 下拉箭头 */
+  .popper__arrow {
+    border-bottom-color: #000 !important;
+
+    &::after {
+      border-bottom-color: #000 !important;
+    }
+  }
+}

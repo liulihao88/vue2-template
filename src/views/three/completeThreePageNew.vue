@@ -12,8 +12,7 @@
           v-for="(part, i) in partLists"
           :key="part.id"
           :class="{ active: selectedPartId === part.id }"
-          @click="onPartListClick(part.id)"
-        >
+          @click="onPartListClick(part.id)">
           <div>{{ part.name }}: {{ part.id }}</div>
         </div>
       </g-absolute-box>
@@ -40,15 +39,14 @@
       :scene="scene"
       :renderer="renderer"
       :container="$refs.sceneContainer"
-      ref="clipboardPhotoRef"
-    ></ClipboardPhoto>
+      ref="clipboardPhotoRef"></ClipboardPhoto>
   </div>
 </template>
 
 <script>
 import * as THREE from 'three'
 import TableBlack from '@/views/element/tableBlack.vue'
-import BottomThreeBtn from '@/views/three/bottomThreeBtn.vue'
+import BottomThreeBtn from '@/views/three/components/bottomThreeBtn.vue'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
