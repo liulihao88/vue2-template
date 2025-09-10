@@ -101,6 +101,14 @@ export const constantRoutes = [
         },
       },
       {
+        path: 'completeThreePage4',
+        name: 'completeThreePage4',
+        component: () => import('@/views/three/completeThreePage4'),
+        meta: {
+          title: 'completeThreePage4完整页面',
+        },
+      },
+      {
         path: 'completeThreePageNew',
         name: 'completeThreePageNew',
         component: () => import('@/views/three/completeThreePageNew'),
