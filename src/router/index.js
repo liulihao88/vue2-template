@@ -173,6 +173,14 @@ export const constantRoutes = [
           title: 'el-table黑色主题',
         },
       },
+      {
+        path: 'selectBlack',
+        name: 'selectBlack',
+        component: () => import('@/views/element/selectBlack'),
+        meta: {
+          title: 'el-select黑色主题',
+        },
+      },
     ],
   },
 

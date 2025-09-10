@@ -1,43 +1,20 @@
 <template>
-  <div class="dark-select-wrapper">
-    <div>hhhhhhhhhhhhhhhhhhhhh</div>
-    <el-select v-model="value" placeholder="请选择" popper-class="dark-select-dropdown">
-      <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
-    </el-select>
+  <div>
+    <div>t3</div>
+    <ElementAttribute></ElementAttribute>
   </div>
 </template>
 
 <script>
+import ElementAttribute from '@/views/three/components/elementAttribute.vue'
 export default {
   name: 'T3',
-  components: {},
+  components: {
+    ElementAttribute,
+  },
   props: {},
   data() {
-    return {
-      options: [
-        {
-          value: '选项1',
-          label: '黄金糕',
-        },
-        {
-          value: '选项2',
-          label: '双皮奶',
-        },
-        {
-          value: '选项3',
-          label: '蚵仔煎',
-        },
-        {
-          value: '选项4',
-          label: '龙须面',
-        },
-        {
-          value: '选项5',
-          label: '北京烤鸭',
-        },
-      ],
-      value: '',
-    }
+    return {}
   },
   computed: {},
   watch: {},
@@ -46,4 +23,4 @@ export default {
   methods: {},
 }
 </script>
-<style lang="scss"></style>
+<style scoped lang="scss"></style>

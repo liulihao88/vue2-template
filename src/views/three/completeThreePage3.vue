@@ -123,7 +123,7 @@ export default {
   },
   methods: {
     toggleControls(bool) {
-      console.log(`19 bool`, bool);
+      console.log(`19 bool`, bool)
       this.controls.enabled = bool
       if (bool) {
         this.isActive = ''
@@ -336,6 +336,7 @@ export default {
     // 点击部件列表时的处理
     onPartListClick(part) {
       console.log(`18 part`, part)
+      console.log(`this.partLists`, this.partLists)
       this.selectedPartMesh = part
       let partId = part.id
       // 清除旧高亮
@@ -384,16 +385,17 @@ export default {
     },
 
     handlePartClick(event, obj) {
-      console.log(`75 event`, event)
-      console.log(`29 obj`, obj)
       const userData = obj.userData
-      if (userData) {
-        console.log('英文名:', userData.name_en) // 可能字段
-        console.log('中文名:', userData.name_cn)
-        console.log('材质类型:', userData.material_type)
-      }
+      // console.log(`04***** obj ***** 389行 three/completeThreePage3.vue  `)
+      // console.log(JSON.stringify(obj, null, '\t'))
 
-      console.log(`obj.material.id`, obj.material.id)
+      console.log(`34 userData`, userData)
+      console.log(`19***** userData.originalMaterial ***** 393行 three/completeThreePage3.vue  `)
+      console.log(JSON.stringify(userData.originalMaterial, null, '\t'))
+
+      console.log(`86***** obj.material ***** 403行 three/completeThreePage3.vue  `)
+      console.log(JSON.stringify(obj.material, null, '\t'))
+
       this.onPartListClick(obj.material)
     },
     // 在 methods 中添加 resetModel() 方法
