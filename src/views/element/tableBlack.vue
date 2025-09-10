@@ -1,17 +1,19 @@
 <template>
-  <g-absolute-box :customStyle="{ right: '0', top: '0%' }" title="检查">
+  <g-absolute-box :customStyle="{ right: '0', top: '0%' }" title="审查" >
     <template #right>
       <el-button type="text" icon="el-icon-plus">新增</el-button>
       <el-button type="text" icon="el-icon-close">关闭</el-button>
     </template>
     <div class="my-table-container">
       <el-table :data="list" border fit size="snall" align="center">
-        <el-table-column label="标准名称" prop="standardId">
+        <el-table-column label="标准名称" prop="standardId" :show-overflow-tooltip="true">
           <template slot-scope="scope">
-            {{ scope.$index }}
+            {{ scope.$index }} Lorem ipsum dolor sit amet consectetur adipisicing elit. Necessitatibus quas ut ipsam
+            voluptate doloribus dolor, voluptatum qui magnam molestiae nam eveniet atque ad corporis ex, neque accusamus
+            ullam quidem laudantium!
           </template>
         </el-table-column>
-        <el-table-column prop="auditContent" label="审查详情">
+        <el-table-column prop="auditContent" label="审查详情" :show-overflow-tooltip="true">
           <template slot-scope="scope">
             <i class="el-icon-time" />
             <span>{{ scope.row.display_time }}</span>

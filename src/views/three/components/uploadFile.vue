@@ -1,6 +1,6 @@
 <template>
   <div>
-    <absolute-box :customStyle="{ right: 0, top: '50%' }" title="新增表单">
+    <absolute-box :customStyle="{ right: 0, top: '50%' }" title="新增审查">
       <el-form ref="form" :model="form" label-width="80px" class="dark-form">
         <el-form-item label="标准名称">
           <el-input v-model="form.standardId" placeholder="请输入"></el-input>
@@ -16,8 +16,7 @@
             :before-upload="handleBeforeUploadImage"
             :on-error="handleError"
             :on-success="handleSuccess"
-            :file-list="fileList"
-          >
+            :file-list="fileList">
             <template v-if="fileList.length === 0">
               <!-- 没有文件时显示上传按钮 -->
               <el-button size="small" type="primary">点击上传</el-button>
@@ -44,7 +43,7 @@ import AbsoluteBox from './absoluteBox.vue'
 export default {
   name: 'T4',
   components: {
-    AbsoluteBox
+    AbsoluteBox,
   },
   props: {},
   data() {

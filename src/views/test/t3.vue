@@ -1,20 +1,65 @@
 <template>
   <div>
-    <div>t3</div>
-    <ElementAttribute></ElementAttribute>
+    <g-absolute-box :title="title">你好</g-absolute-box>
+    <g-absolute-box :title="title" :customStyle="{ bottom: 0, left: 0 }">
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+      <div>我好</div>
+    </g-absolute-box>
   </div>
 </template>
 
 <script>
-import ElementAttribute from '@/views/three/components/elementAttribute.vue'
 export default {
   name: 'T3',
-  components: {
-    ElementAttribute,
-  },
+  components: {},
   props: {},
   data() {
-    return {}
+    return {
+      title: '我是一段很长的tit',
+    }
   },
   computed: {},
   watch: {},

@@ -3,13 +3,14 @@
     <section class="lm_header" style="height: 30px">
       <section class="lm_tabs">
         <div class="lm_tab" style="z-index: auto">
-          <span class="lm_title">{{ title }}</span>
+          <el-tooltip :disabled="!showTooltip" :content="title" placement="top">
+            <span ref="titleRef" class="lm_title" :style="{ maxWidth: titleMaxWidth + 'px' }">{{ title }}</span>
+          </el-tooltip>
         </div>
       </section>
-      <section class="lm_controls">
+      <section ref="controlsRef" class="lm_controls">
         <slot name="right"></slot>
       </section>
-      <section class="lm_tabdropdown_list" style="display: none"></section>
     </section>
     <div class="box-container">
       <el-scrollbar>
@@ -22,7 +23,6 @@
 <script>
 export default {
   name: 'GAbsoluteBox',
-  components: {},
   props: {
     title: {
       type: String,
@@ -30,28 +30,59 @@ export default {
     },
     customStyle: {
       type: Object,
-      default: () => {},
+      default: () => ({}),
     },
   },
   data() {
-    return {}
+    return {
+      showTooltip: false,
+      titleMaxWidth: 0,
+    }
   },
-  computed: {},
-  watch: {},
-  created() {},
-  mounted() {},
-  methods: {},
+  watch: {
+    title() {
+      this.$nextTick(this.checkTitleOverflow)
+    },
+  },
+  mounted() {
+    this.checkTitleOverflow()
+    this.resizeObserver = new ResizeObserver(this.checkTitleOverflow)
+    this.resizeObserver.observe(this.$refs.controlsRef)
+    this.resizeObserver.observe(this.$el)
+  },
+  beforeDestroy() {
+    this.resizeObserver?.disconnect()
+  },
+  methods: {
+    checkTitleOverflow() {
+      if (!this.$refs.titleRef || !this.$refs.controlsRef) return
+
+      const headerWidth = this.$el.clientWidth
+      const controlsWidth = this.$refs.controlsRef.clientWidth
+      const paddingRight = 20 // .lm_controls 的 right: 20px
+      const buffer = 20 // 额外缓冲空间
+
+      this.titleMaxWidth = headerWidth - controlsWidth - paddingRight - buffer - 30
+
+      const titleEl = this.$refs.titleRef
+      this.showTooltip = titleEl.scrollWidth > titleEl.offsetWidth
+    },
+  },
 }
 </script>
+
 <style scoped lang="scss">
 .box {
   position: absolute;
   z-index: auto;
   color: #fff;
   width: 300px;
+  display: flex;
+  flex-direction: column;
   height: 50vh;
-  background: #000;
   font-size: 12px;
+  background: #000;
+
   .lm_header {
     position: relative;
     z-index: 1;
@@ -60,19 +91,23 @@ export default {
     user-select: none;
     align-items: center;
     overflow: visible;
-    height: 100px;
+    height: 100%;
     border-bottom: 3px solid rgb(59, 68, 83);
+    width: 100%;
+
     .lm_tabs {
       position: absolute;
       display: flex;
+      height: 100%;
+      max-width: none;
 
       .lm_tab {
+        background: #3b4453;
         box-shadow: rgba(0, 0, 0, 0.8) 0px -2px 3px;
         padding-bottom: 5px;
         border-bottom: none;
         display: flex;
         align-items: center;
-
         font-family: Arial, sans-serif;
         font-size: 12px;
         color: #fff;
@@ -87,11 +122,19 @@ export default {
         position: relative;
         touch-action: none;
         padding: 2px 25px 2px 10px;
-        margin-left: 4px;
         background: #3b4453;
-        border-radius: 4px 4px 0px 0px;
+        border-radius: 0px 4px 0px 0px;
+        max-width: 100%;
+
+        .lm_title {
+          display: inline-block;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
       }
     }
+
     .lm_controls {
       position: absolute;
       right: 20px;
@@ -103,21 +146,19 @@ export default {
       }
     }
   }
-  .title {
-    font-size: 14px;
-    font-weight: 600;
-    background: #3b4453;
-    display: inline-block;
-    padding: 4px 20px 4px 8px;
-    border-radius: 4px 4px 0 0;
-    box-shadow: 12px 4px 12px 0 rgba(4, 25, 25, 0.1);
-  }
+
   .box-container {
     background: #3b4453;
+    flex: 1;
     padding: 8px;
     height: 100%;
+    overflow: hidden;
+
     ::v-deep .el-scrollbar {
-      height: calc(100% - 30px);
+      height: 100%;
+      .el-scrollbar__wrap {
+        overflow-x: hidden;
+      }
     }
   }
 }
