@@ -63,6 +63,7 @@
 <script>
 import { validUsername } from '@/utils/validate'
 import { getToken, setToken, removeToken } from '@/utils/auth'
+import { login } from '@/api/beitou.js'
 
 export default {
   name: 'Login',
@@ -83,8 +84,8 @@ export default {
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111',
+        username: 'beitou',
+        password: 'Beitou@123',
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur' }],
@@ -114,7 +115,8 @@ export default {
         this.$refs.password.focus()
       })
     },
-    handleLogin() {
+    async handleLogin() {
+      // await login('beitou', 'Beitou@123')
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
           this.loading = true
@@ -125,25 +127,6 @@ export default {
         }
       })
     },
-    // handleLogin() {
-    //   this.$refs.loginForm.validate((valid) => {
-    //     if (valid) {
-    //       this.loading = true
-    //       this.$store
-    //         .dispatch('user/login', this.loginForm)
-    //         .then(() => {
-    //           this.$router.push({ path: this.redirect || '/' })
-    //           this.loading = false
-    //         })
-    //         .catch(() => {
-    //           this.loading = false
-    //         })
-    //     } else {
-    //       console.log('error submit!!')
-    //       return false
-    //     }
-    //   })
-    // },
   },
 }
 </script>
