@@ -51,27 +51,69 @@
 .dark-select-dropdown {
   background-color: #000 !important;
   border: 1px solid #333 !important;
-
   /* 下拉选项 */
   .el-select-dropdown__item {
     color: white !important;
-
     &:hover {
       background-color: #333 !important;
     }
-
     &.selected {
+      font-weight: bold;
       color: white !important;
       background-color: #444 !important;
     }
   }
-
+  .el-select-dropdown__item.hover {
+    background-color: #333;
+  }
   /* 下拉箭头 */
   .popper__arrow {
     border-bottom-color: #000 !important;
-
     &::after {
       border-bottom-color: #000 !important;
     }
+  }
+  .el-input--suffix .el-input__inner {
+    padding-right: 30px;
+    background: #000;
+    color: #fff;
+  }
+}
+/* 输入框黑色主题 */
+
+.dark-theme-dialog {
+  /* 对话框整体背景 */
+  background-color: #000;
+
+  /* 标题栏样式 */
+  .el-dialog__header {
+    background-color: #000;
+    border-bottom: 1px solid #333;
+
+    .el-dialog__title {
+      color: #fff;
+      font-size: 18px;
+    }
+
+    .el-dialog__headerbtn {
+      .el-icon-close {
+        color: #fff;
+        &:hover {
+          color: #ccc;
+        }
+      }
+    }
+  }
+
+  /* 内容区域样式 */
+  .el-dialog__body {
+    color: #fff;
+    background-color: #000;
+    padding: 20px;
+  }
+
+  /* 遮罩层样式（可选） */
+  .el-dialog__wrapper {
+    background-color: rgba(0, 0, 0, 0.8);
   }
 }

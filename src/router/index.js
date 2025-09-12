@@ -189,6 +189,14 @@ export const constantRoutes = [
           title: 'el-select黑色主题',
         },
       },
+      {
+        path: 'dialogBlack',
+        name: 'dialogBlack',
+        component: () => import('@/views/element/dialogBlack'),
+        meta: {
+          title: 'el-dialog黑色主题',
+        },
+      },
     ],
   },
 

@@ -1,7 +1,6 @@
 <template>
-  <div class="dark-select-wrapper">
-    <div>hhhhhhhhhhhhhhhhhhhhh</div>
-    <el-select v-model="value" placeholder="请选择" popper-class="dark-select-dropdown">
+  <div class="">
+    <el-select v-model="value" placeholder="请选择" popper-class="dark-select-dropdown" class="dark-select-wrapper">
       <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
     </el-select>
   </div>
@@ -46,4 +45,10 @@ export default {
   methods: {},
 }
 </script>
-<style lang="scss"></style>
+<style lang="scss" scoped>
+.dark-select-wrapper ::v-deep .el-input--suffix .el-input__inner {
+  padding-right: 30px;
+  background: #000;
+  color: #fff;
+}
+</style>

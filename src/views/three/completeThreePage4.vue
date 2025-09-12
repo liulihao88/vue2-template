@@ -2,10 +2,10 @@
   <div class="model-viewer">
     <div class="upload-area">
       <el-button class="open-glb" type="primary" size="small" @click="triggerFileInput">打开 GLB 文件</el-button>
-      <el-button class="open-glb to-left" type="primary" size="small" @click="setTopView">切换俯视图</el-button>
+      <!-- <el-button class="open-glb to-left" type="primary" size="small" @click="setTopView">切换俯视图</el-button>
       <el-input-number v-model="testDuration.x" class="open-glb to-left1" />
       <el-input-number v-model="testDuration.y" class="open-glb to-left2" />
-      <el-input-number v-model="testDuration.z" class="open-glb to-left3" />
+      <el-input-number v-model="testDuration.z" class="open-glb to-left3" /> -->
       <input ref="fileInput" type="file" accept=".glb" @change="handleFileUpload" style="display: none" />
     </div>
 
@@ -17,22 +17,19 @@
           top: '0%',
         }"
         title="部位属性">
-        <div
-          v-for="(part, i) in partLists"
-          :key="part.id"
-          :class="{
-            active: selectedPartId === part.id,
-          }"
-          class="part-item"
-          @click="onPartListClick(part)">
-          <div>
-            {{ part.name }}:
-            {{ part.id }}
-          </div>
+        <div class="node-tree">
+          <node-item
+            v-for="node in sceneNodes"
+            :key="node.uuid"
+            :node="node"
+            :depth="0"
+            :selected-id="selectedNodeId"
+            @node-select="handleNodeSelect" />
         </div>
       </absolute-box>
 
-      <ElementAttribute :attribute="selectedPartMesh"></ElementAttribute>
+      <!-- <ElementAttribute :attribute="selectedNode"></ElementAttribute> -->
+      <ElementAttribute></ElementAttribute>
       <TableBlack></TableBlack>
       <UploadFile></UploadFile>
     </template>
@@ -63,6 +60,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import ClipboardPhoto from './components/clipboardPhoto.vue'
 import absoluteBox from './components/absoluteBox.vue'
+import NodeItem from './components/NodeItem.vue' // New component for rendering tree nodes
 
 export default {
   name: 'ModelViewer',
@@ -73,6 +71,7 @@ export default {
     ElementAttribute,
     UploadFile,
     absoluteBox,
+    NodeItem,
   },
   data() {
     return {
@@ -85,33 +84,30 @@ export default {
         y: 0,
         z: 0,
       },
-      size: {},
-      center: {},
       controls: null,
       model: null,
-      selectedPart: null,
       raycaster: new THREE.Raycaster(),
       mouse: new THREE.Vector2(),
-      intersectedObject: null,
-      selectedPartMesh: null,
-      originalMaterials: new WeakMap(),
-      partLists: [],
-      selectedPartId: '',
-      materialMeshMap: new Map(), // 材质ID => 对应的Mesh数组
-      highlightedMeshes: new Set(),
-      _highlightMaterial: '',
+
+      // Node tree data
+      sceneNodes: [],
+      selectedNode: null,
+      selectedNodeId: null,
+      highlightedObjects: new Set(),
+
+      // Other state
       isActive: '',
+      nodeMap: new Map(), // Maps UUID to node objects
+      meshNodeMap: new Map(), // Maps Mesh objects to their containing nodes
     }
   },
   async mounted() {
-    // 初始化渲染器
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
-      preserveDrawingBuffer: true, // 关键修复！允许读取像素数据
+      preserveDrawingBuffer: true,
     })
     this.animate()
 
-    // 预创建场景容器
     this.$nextTick(() => {
       if (this.$refs.sceneContainer) {
         this.$refs.sceneContainer.appendChild(this.renderer.domElement)
@@ -123,7 +119,6 @@ export default {
   },
   methods: {
     toggleControls(bool) {
-      console.log(`19 bool`, bool)
       this.controls.enabled = bool
       if (bool) {
         this.isActive = ''
@@ -134,19 +129,15 @@ export default {
       this.$refs.clipboardPhotoRef.startSelection()
     },
     async initDracoLoader() {
-      // 仅在开发环境下加载本地DRACO库（生产环境建议使用CDN）
       if (process.env.NODE_ENV === 'development') {
         const dracoLoader = new DRACOLoader()
         dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/')
         return dracoLoader
       }
-
-      // 生产环境默认使用three.js内置的DRACO支持
       return null
     },
 
     triggerFileInput() {
-      // this.cleanupScene()
       this.$refs.fileInput.click()
     },
 
@@ -180,12 +171,12 @@ export default {
 
       const container = this.$refs.sceneContainer
       if (container.clientWidth === 0) {
-        // 临时强制显示容器
         container.style.display = 'block'
         const width = container.clientWidth
         const height = container.clientHeight
-        container.style.display = '' // 恢复原始状态
+        container.style.display = ''
       }
+
       this.cleanupScene()
       this.scene = new THREE.Scene()
       this.scene.background = new THREE.Color(0x000000)
@@ -197,7 +188,7 @@ export default {
         1000,
       )
 
-      // 光源设置
+      // Lighting
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
       this.scene.add(ambientLight)
 
@@ -205,60 +196,21 @@ export default {
       directionalLight.position.set(10, 20, 0)
       this.scene.add(directionalLight)
 
-      this.renderer.setSize(this.$refs.sceneContainer.clientWidth, this.$refs.sceneContainer.clientHeight)
+      this.renderer.setSize(container.clientWidth, container.clientHeight)
       this.renderer.shadowMap.enabled = true
-
-      this.$refs.sceneContainer.appendChild(this.renderer.domElement)
+      container.appendChild(this.renderer.domElement)
 
       this.controls = new OrbitControls(this.camera, this.renderer.domElement)
       this.controls.enableDamping = true
-      // this.camera.position.set(0.5, 0, 0.866)
-      // this.controls.update()
 
-      // 添加事件监听
-      this.renderer.domElement.addEventListener('pointerdown', this.onPointerDown)
-      this.renderer.domElement.addEventListener('pointermove', this.onPointerMove)
+      // Event listeners
+      this.renderer.domElement.addEventListener('click', this.onCanvasClick)
       window.addEventListener('resize', this.onWindowResize)
-
-      // 在 mounted 或 initScene 方法中加入调试代码：
-      console.log('DOM容器:', this.$refs.sceneContainer)
-      console.log('渲染器DOM:', this.renderer.domElement)
-
-      // ✅ 添加射线检测
-      this.raycaster = new THREE.Raycaster()
-      this.pointer = new THREE.Vector2()
-
-      // 监听canvas点击事件
-      this.renderer.domElement.addEventListener('click', (event) => {
-        if (!this.model) return
-
-        // 计算点击位置归一化坐标
-        this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1
-        this.pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
-
-        // 发射射线检测
-        this.raycaster.setFromCamera(this.pointer, this.camera)
-        const intersects = this.raycaster.intersectObject(this.model, true)
-        console.log(`35 intersects`, intersects)
-
-        if (intersects.length > 0) {
-          // 触发mesh的点击事件
-          intersects[0].object.dispatchEvent({
-            type: 'click',
-            event,
-          })
-        } else {
-          this.resetScene() // 点击空白处重置选择
-        }
-      })
     },
 
     async loadModel(arrayBuffer) {
       const loader = new GLTFLoader()
-
-      // 设置DRACO解码器
       const dracoLoader = await this.initDracoLoader()
-      console.log(`66 dracoLoader`, dracoLoader)
       if (dracoLoader) {
         loader.setDRACOLoader(dracoLoader)
       }
@@ -268,39 +220,22 @@ export default {
           arrayBuffer,
           '',
           (gltf) => {
-            this.partLists = []
-            // gltf.scene.rotation.x = -Math.PI / 2 // 如果需要模型躺平
+            // Reset state
+            this.sceneNodes = []
+            this.nodeMap.clear()
+            this.meshNodeMap.clear()
+
+            // Apply initial rotation
             gltf.scene.rotation.y = Math.PI
             this.model = gltf.scene
-            // 打印场景结构
-            console.log('场景对象:', this.model)
-            // ✅ 为所有部件添加点击事件
-            this.model.traverse((obj) => {
-              if (obj.isMesh) {
-                const matId = obj.material.id
-                // 建立材质与Mesh的映射
-                if (!this.materialMeshMap.has(matId)) {
-                  this.materialMeshMap.set(matId, [])
-                  // let cloneMaterial = clone(obj.material)
-                  this.partLists.push({
-                    // 去重部件列表
-                    name: obj.material.name || `部件_${matId}`,
-                    id: matId,
-                    // ...cloneMaterial,
-                  })
-                }
-                this.materialMeshMap.get(matId).push(obj) // 关联Mesh
-                obj.userData.originalMaterial = obj.material // 保存原始材质
-              }
-            })
             this.scene.add(this.model)
+
+            // Build node tree structure
+            this.buildNodeTree(this.model)
+
+            // Prepare for interaction
             this.prepareModelForInteraction(this.model)
             this.fitCameraToModel()
-
-            // 设置点击事件监听（在容器上）
-            this.setupClickHandler()
-            // 强制重渲染
-            this.renderer.render(this.scene, this.camera)
 
             resolve()
           },
@@ -312,126 +247,287 @@ export default {
       })
     },
 
-    setupClickHandler() {
-      const container = this.$refs.sceneContainer
-      const mouse = new THREE.Vector2()
+    buildNodeTree(object, parentNode = null, depth = 0) {
+      if (!object || object.type === 'Camera' || object.type === 'Light') return
 
-      container.addEventListener('click', (event) => {
-        // 计算鼠标标准化坐标
-        const rect = container.getBoundingClientRect()
-        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
-        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+      const node = {
+        uuid: object.uuid,
+        name: object.name || `Node_${object.type}`,
+        type: object.type,
+        visible: object.visible,
+        isMesh: object.isMesh,
+        userData: object.userData,
+        children: [],
+      }
 
-        // 执行射线检测
-        this.raycaster.setFromCamera(mouse, this.camera)
-        const intersects = this.raycaster.intersectObjects(this.model.children, true)
-        console.log(`851 intersects`, intersects)
+      // Store in maps
+      this.nodeMap.set(object.uuid, node)
+      if (object.isMesh) {
+        this.meshNodeMap.set(object, node)
+      }
 
-        if (intersects.length > 0) {
-          const clickedObj = intersects[0].object
-          this.handlePartClick(event, clickedObj)
+      if (parentNode) {
+        parentNode.children.push(node)
+      } else {
+        this.sceneNodes.push(node)
+      }
+
+      // Recursively process children
+      if (object.children && object.children.length > 0) {
+        object.children.forEach((child) => {
+          this.buildNodeTree(child, node, depth + 1)
+        })
+      }
+    },
+
+    handleNodeSelect(node) {
+      if (this.selectedNodeId === node.uuid) {
+        this.clearHighlight()
+        return
+      }
+      this.selectedNode = node
+      this.selectedNodeId = node.uuid
+
+      // 查找所有相关mesh
+      const meshes = []
+      this.findMeshes(node, meshes)
+
+      if (meshes.length > 0) {
+        this.highlightMeshes(meshes)
+        this.focusOnSelection(meshes) // 新增：聚焦选中部位
+      }
+    },
+    onCanvasClick(event) {
+      if (!this.model) return
+
+      // 计算鼠标位置
+      const rect = this.renderer.domElement.getBoundingClientRect()
+      this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+      this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+
+      // 射线检测
+      this.raycaster.setFromCamera(this.mouse, this.camera)
+      const intersects = this.raycaster.intersectObject(this.model, true)
+
+      if (intersects.length > 0) {
+        const clickedObject = intersects[0].object
+
+        // 查找最近的包含节点定义的父对象
+        let current = clickedObject
+        let foundNode = null
+
+        while (current && !foundNode) {
+          foundNode = this.nodeMap.get(current.uuid)
+          if (!foundNode && current.parent) {
+            current = current.parent
+          } else {
+            break
+          }
+        }
+
+        if (foundNode) {
+          this.handleNodeSelect(foundNode)
+
+          // 滚动到对应的树节点
+          this.$nextTick(() => {
+            const nodeElement = document.querySelector(`[data-node-id="${foundNode.uuid}"]`)
+            if (nodeElement) {
+              nodeElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+              })
+            }
+          })
+        }
+      } else {
+        this.clearHighlight()
+      }
+    },
+
+    // 新增方法：聚焦选中部位
+    focusOnSelection(meshes) {
+      // 创建包含所有选中mesh的包围盒
+      const box = new THREE.Box3()
+
+      meshes.forEach((mesh) => {
+        mesh.updateMatrixWorld() // 确保世界矩阵是最新的
+        const meshBox = new THREE.Box3().setFromObject(mesh)
+        box.union(meshBox) // 合并所有包围盒
+      })
+      const center = box.getCenter(new THREE.Vector3())
+      const size = box.getSize(new THREE.Vector3())
+
+      // 计算最佳观察距离
+      const maxDim = Math.max(size.x, size.y, size.z)
+      const distance = maxDim * 1.5
+
+      // 计算从当前相机位置到目标中心的向量
+      const direction = new THREE.Vector3()
+        .subVectors(this.camera.position, center)
+        .normalize()
+        .multiplyScalar(distance)
+
+      const targetPosition = new THREE.Vector3().addVectors(center, direction)
+
+      // 创建动画
+      const startPosition = this.camera.position.clone()
+      const startTarget = this.controls.target.clone()
+      const duration = 1000 // 1秒动画
+
+      const startTime = Date.now()
+
+      const animateCamera = () => {
+        const elapsed = Date.now() - startTime
+        const t = Math.min(elapsed / duration, 1)
+
+        // 使用缓动函数让移动更平滑
+        const easeT = this.easeOutQuad(t)
+
+        this.camera.position.lerpVectors(startPosition, targetPosition, easeT)
+        this.controls.target.lerpVectors(startTarget, center, easeT)
+        this.controls.update()
+
+        if (t < 1) {
+          requestAnimationFrame(animateCamera)
+        }
+      }
+
+      animateCamera()
+    },
+    // 缓动函数
+    easeOutQuad(t) {
+      return t * (2 - t)
+    },
+    // 更新findMeshes方法
+    findMeshes(node, result) {
+      // 查找模型中的对应物体
+      this.model.traverse((obj) => {
+        if (obj.uuid === node.uuid) {
+          if (obj.isMesh) {
+            result.push(obj)
+          }
+          // 如果是组/空节点，收集所有子mesh
+          else {
+            obj.children.forEach((child) => {
+              if (child.isMesh) result.push(child)
+            })
+          }
         }
       })
+      // 递归查找子节点
+      if (node.children && node.children.length > 0) {
+        node.children.forEach((childNode) => {
+          this.findMeshes(childNode, result)
+        })
+      }
     },
-    // 点击部件列表时的处理
-    onPartListClick(part) {
-      console.log(`18 part`, part)
-      console.log(`this.partLists`, this.partLists)
-      this.selectedPartMesh = part
-      let partId = part.id
-      // 清除旧高亮
-      this.clearHighlights()
+    highlightMeshes(meshes) {
+      this.clearHighlight()
 
-      // 获取该材质对应的所有Mesh
-      const meshes = this.materialMeshMap.get(partId) || []
-
-      // 批量高亮
       meshes.forEach((mesh) => {
-        // 保存原始材质（如果尚未保存）
         if (!mesh.userData.originalMaterial) {
           mesh.userData.originalMaterial = mesh.material
         }
 
-        // 应用高亮材质（共享同一个材质实例提升性能）
-        mesh.material = this.getHighlightMaterial()
-        this.highlightedMeshes.add(mesh)
+        if (!this.highlightMaterial) {
+          this.highlightMaterial = new THREE.MeshBasicMaterial({
+            color: 0x00ff00,
+            transparent: true,
+            opacity: 0.7,
+            wireframe: false,
+          })
+        }
+
+        mesh.material = this.highlightMaterial
+        this.highlightedObjects.add(mesh)
+      })
+    },
+
+    highlightNode(node) {
+      this.clearHighlight()
+
+      // Find the corresponding Three.js object from the scene
+      this.model.traverse((obj) => {
+        if (obj.uuid === node.uuid && obj.isMesh) {
+          this.highlightMesh(obj)
+        }
       })
 
-      // 更新选中状态
-      this.selectedPartId = partId
-      console.log(`18 partId`, partId)
-      console.log(`46 this.selectedPartId`, this.selectedPartId)
+      // If this is a group node, find all child meshes
+      if (node.children && node.children.length > 0) {
+        node.children.forEach((childNode) => {
+          this.highlightNode(childNode)
+        })
+      }
     },
-    // 获取/共享高亮材质
-    getHighlightMaterial() {
-      if (!this._highlightMaterial) {
-        this._highlightMaterial = new THREE.MeshBasicMaterial({
-          color: 0xffff00,
+
+    highlightMesh(mesh) {
+      if (!mesh) return
+
+      // Store original material and apply highlight
+      if (!mesh.userData.originalMaterial) {
+        mesh.userData.originalMaterial = mesh.material
+      }
+
+      // Create highlight material if not exists
+      if (!this.highlightMaterial) {
+        this.highlightMaterial = new THREE.MeshBasicMaterial({
+          color: 0x00ff00,
           transparent: true,
-          opacity: 0.7,
+          opacity: 0.8,
           wireframe: false,
         })
       }
-      return this._highlightMaterial
+
+      mesh.material = this.highlightMaterial
+      this.highlightedObjects.add(mesh)
     },
-    // 清除所有高亮
-    clearHighlights() {
-      this.highlightedMeshes.forEach((mesh) => {
+
+    clearHighlight() {
+      this.highlightedObjects.forEach((mesh) => {
         if (mesh.userData.originalMaterial) {
           mesh.material = mesh.userData.originalMaterial
         }
       })
-      this.highlightedMeshes.clear()
+      this.highlightedObjects.clear()
+      this.selectedNodeId = null
+      this.selectedNode = null
     },
 
-    handlePartClick(event, obj) {
-      const userData = obj.userData
-      // console.log(`04***** obj ***** 389行 three/completeThreePage3.vue  `)
-      // console.log(JSON.stringify(obj, null, '\t'))
+    onCanvasClick(event) {
+      if (!this.model) return
 
-      console.log(`34 userData`, userData)
-      console.log(`19***** userData.originalMaterial ***** 393行 three/completeThreePage3.vue  `)
-      console.log(JSON.stringify(userData.originalMaterial, null, '\t'))
+      // Calculate mouse position in normalized device coordinates
+      const rect = this.renderer.domElement.getBoundingClientRect()
+      this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+      this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
 
-      console.log(`86***** obj.material ***** 403行 three/completeThreePage3.vue  `)
-      console.log(JSON.stringify(obj.material, null, '\t'))
+      // Raycast to find intersections
+      this.raycaster.setFromCamera(this.mouse, this.camera)
+      const intersects = this.raycaster.intersectObject(this.model, true)
 
-      this.onPartListClick(obj.material)
-    },
-    // 在 methods 中添加 resetModel() 方法
-    async resetModel(isFirst = false) {
-      // 1. 恢复模型的初始位置/旋转/缩放
-      if (this.model) {
-        this.model.position.set(0, 0, 0) // 重置位置
-        this.model.rotation.set(0, 0, 0) // 重置旋转
-        this.model.scale.set(1, 1, 1) // 恢复原始大小
-      }
-      if (!isFirst) {
-        // 3. 清除所有选中和高亮状态
-        this.resetScene()
+      if (intersects.length > 0) {
+        const clickedObject = intersects[0].object
 
-        // 4. 重新适应模型到视图
-        this.fitCameraToModel()
-      }
-    },
+        // Find the nearest mesh (might be child of a group)
+        let mesh = clickedObject
+        while (mesh && !mesh.isMesh) {
+          if (mesh.parent) {
+            mesh = mesh.parent
+          } else {
+            break
+          }
+        }
 
-    resetScene() {
-      // 1. 清除所有Mesh的高亮材质
-      this.clearHighlights()
-      // 2. 清除左侧列表的选中状态
-      this.selectedPartId = '' // 设置为空字符串（或 undefined/null）
-
-      // 3. 重置 selectedPartMesh（避免动画继续）
-      if (this.selectedPartMesh) {
-        this.scene.remove(this.selectedPartMesh)
-        this.selectedPartMesh = null
-      }
-      this.selectedPart = null
-      // 4. 移除射线交互的高亮对象
-      this.intersectedObject = null // 如果你在用射线交互
-      // 可选：强制重渲染一次（如果UI没立即更新）
-      if (this.renderer && this.scene && this.camera) {
-        this.renderer.render(this.scene, this.camera)
+        if (mesh && mesh.isMesh) {
+          // Find the corresponding node in our tree
+          const node = this.nodeMap.get(mesh.uuid) || this.meshNodeMap.get(mesh)
+          if (node) {
+            this.handleNodeSelect(node)
+          }
+        }
+      } else {
+        this.clearHighlight()
       }
     },
 
@@ -450,29 +546,17 @@ export default {
       const size = box.getSize(new THREE.Vector3())
       const center = box.getCenter(new THREE.Vector3())
 
-      // 计算模型的对角线长度（保证完整包围）
       const maxDim = Math.max(size.x, size.y, size.z)
-      console.log(`45 maxDim`, maxDim)
-      const distance = maxDim * 2 // 相机距离根据最大尺寸动态调整
+      const distance = maxDim * 2
 
-      this.camera.position.set(
-        0,
-        center.y + distance * 0.8, // 高度2倍
-        distance * 0.5, // 倾斜量
-      )
+      this.camera.position.set(0, center.y + distance * 0.8, distance * 0.5)
       this.camera.lookAt(center)
 
-      // 4. 更新控制器（若使用OrbitControls）
       if (this.controls) {
-        this.controls.target.copy(center) // 设置控制器焦点
-        this.controls.update() // 强制生效
+        this.controls.target.copy(center)
+        this.controls.update()
       }
-      // 调试输出
-      console.log('Model size:', size, 'Camera position:', this.camera.position)
     },
-
-    // 以下是交互方法保持不变（onPointerDown, onPointerMove等）
-    // ...
 
     onWindowResize() {
       if (this.$refs.sceneContainer && this.camera && this.renderer) {
@@ -481,35 +565,49 @@ export default {
         this.renderer.setSize(this.$refs.sceneContainer.clientWidth, this.$refs.sceneContainer.clientHeight)
       }
     },
+
     setTopView() {
       const { x, y, z } = this.testDuration
       this.camera.position.set(x, y, z)
       this.camera.lookAt(0, 0, 0)
-      this.controls.update() // 强制更新控制器
+      this.controls.update()
     },
 
     animate() {
       requestAnimationFrame(this.animate)
-      // if (this.controls) {
-      //   this.controls.update()
-      // }
       if (this.renderer && this.scene && this.camera) {
         this.renderer.render(this.scene, this.camera)
       }
-      // 在animate()中添加脉冲动画
-      if (this.selectedPartMesh && this.selectedPartMesh.material) {
-        console.log(`99 this.selectedPartMesh.material`, this.selectedPartMesh.material)
-        this.selectedPartMesh.material.opacity = 0.5 + 0.3 * Math.sin(Date.now() * 0.005)
+
+      // Pulsing animation for highlighted objects
+      if (this.highlightedObjects.size > 0 && this.highlightMaterial) {
+        const pulse = 0.5 + 0.3 * Math.sin(Date.now() * 0.005)
+        this.highlightMaterial.opacity = pulse
+      }
+    },
+    async resetModel(isFirst = false) {
+      // 1. 恢复模型的初始位置/旋转/缩放
+      if (this.model) {
+        this.model.position.set(0, 0, 0) // 重置位置
+        this.model.rotation.set(0, 0, 0) // 重置旋转
+        this.model.scale.set(1, 1, 1) // 恢复原始大小
+      }
+      if (!isFirst) {
+        // 3. 清除所有选中和高亮状态
+
+        // 4. 重新适应模型到视图
+        this.fitCameraToModel()
       }
     },
 
     cleanupScene() {
-      if (this.renderer?.domElement) {
-        this.renderer.domElement.removeEventListener('pointerdown', this.onPointerDown)
-        this.renderer.domElement.removeEventListener('pointermove', this.onPointerMove)
+      // Remove event listeners
+      if (this.renderer) {
+        this.renderer.domElement.removeEventListener('click', this.onCanvasClick)
       }
       window.removeEventListener('resize', this.onWindowResize)
 
+      // Dispose of scene objects
       if (this.model && this.scene) {
         this.scene.remove(this.model)
         this.model.traverse((child) => {
@@ -523,10 +621,23 @@ export default {
         this.model = null
       }
 
+      // Clean up highlight material
+      if (this.highlightMaterial) {
+        this.highlightMaterial.dispose()
+        this.highlightMaterial = null
+      }
+
+      // Clear controls
       if (this.controls) {
         this.controls.dispose()
         this.controls = null
       }
+
+      // Clear state
+      this.sceneNodes = []
+      this.nodeMap.clear()
+      this.meshNodeMap.clear()
+      this.highlightedObjects.clear()
     },
   },
 }
@@ -556,39 +667,44 @@ export default {
   left: 70%;
 }
 .model-viewer {
-  width: 100vw; /* 或固定宽度 */
-  height: 100vh; /* 或固定高度 */
-  overflow: hidden; /* 避免滚动条影响 */
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
 .scene-container {
   width: 100% !important;
   height: 100% !important;
   background: #000;
 }
-.info-panel {
-  position: absolute;
-  top: 100px;
-  right: 500px;
-  background: rgba(0, 0, 0, 0.7);
-  color: white;
+
+.node-tree {
   padding: 10px;
-  border-radius: 4px;
-  z-index: 100;
-}
-.part-name {
-  margin-bottom: 8px;
 }
 
-.scene-container canvas {
-  cursor: pointer;
+.node-item {
+  margin-left: 16px;
 }
-.part-item {
-  height: 30px;
-  line-height: 30px;
-  padding: 2px;
+
+.node-tree {
+  padding: 10px;
+  max-height: 70vh;
+  overflow-y: auto;
 }
-.active {
-  background: yellow;
-  color: blue;
+.node-tree::-webkit-scrollbar {
+  width: 6px;
+}
+.node-tree::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+.node-tree::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+.node-tree::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+/* 确保模型容器可以接收鼠标事件 */
+.scene-container {
+  pointer-events: auto !important;
 }
 </style>
