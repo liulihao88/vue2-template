@@ -1,190 +1,161 @@
-// 全局变量
-let scene, camera, renderer, controls, selectedObject = null;
-const highlightMaterial = new THREE.MeshBasicMaterial({
-  color: 0x00ff00,
-  wireframe: true
-});
-const originalMaterials = new WeakMap();
-
-// 初始化Three.js场景
-function initScene() {
-  // 场景
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xf0f0f0);
-
-  // 相机
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(5, 5, 5);
-
-  // 渲染器
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(window.innerWidth - 300, window.innerHeight);
-  renderer.shadowMap.enabled = true;
-  document.getElementById('scene-container').appendChild(renderer.domElement);
-
-  // 控制器
-  controls = new THREE.OrbitControls(camera, renderer.domElement);
-  controls.enableDamping = true;
-
-  // 光源
-  const ambientLight = new THREE.AmbientLight(0x404040);
-  scene.add(ambientLight);
-
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-  directionalLight.position.set(1, 1, 1);
-  directionalLight.castShadow = true;
-  scene.add(directionalLight);
-
-  // 坐标轴辅助
-  const axesHelper = new THREE.AxesHelper(5);
-  scene.add(axesHelper);
-
-  // 性能监控
-  const stats = new Stats();
-  stats.domElement.style.position = 'absolute';
-  document.getElementById('stats').appendChild(stats.domElement);
-
-  // 窗口大小调整
-  window.addEventListener('resize', () => {
-    camera.aspect = (window.innerWidth - 300) / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth - 300, window.innerHeight);
-  });
-
-  // 动画循环
-  function animate() {
-    requestAnimationFrame(animate);
-    controls.update();
-    renderer.render(scene, camera);
-    stats.update();
-  }
-  animate();
+{
+    "uuid": "617f18de-50c0-42f0-bb92-8f1363e6aad1",
+    "name": "A_150+200加气板+50_1",
+    "type": "Mesh",
+    "visible": true,
+    "isMesh": true,
+    "userData": {
+        "name": "A_150+200加气板+50",
+        "ElementID": 374151,
+        "UniqueId": "8ee693b8-257b-4d94-9858-30b3631eb199-0005b587",
+        "Parameters": [
+            {
+                "GroupName": "结构",
+                "Parameters": [
+                    {
+                        "value": "否",
+                        "name": "结构"
+                    },
+                    {
+                        "value": "否",
+                        "name": "启用分析模型"
+                    },
+                    {
+                        "value": "非承重",
+                        "name": "结构用途"
+                    }
+                ]
+            },
+            {
+                "GroupName": "约束",
+                "Parameters": [
+                    {
+                        "value": "核心层中心线",
+                        "name": "定位线"
+                    },
+                    {
+                        "value": "F10",
+                        "name": "底部约束"
+                    },
+                    {
+                        "value": "-100",
+                        "name": "底部偏移"
+                    },
+                    {
+                        "value": "否",
+                        "name": "已附着底部"
+                    },
+                    {
+                        "value": "0",
+                        "name": "底部延伸距离"
+                    },
+                    {
+                        "value": "直到标高: F10M",
+                        "name": "顶部约束"
+                    },
+                    {
+                        "value": "4300",
+                        "name": "无连接高度"
+                    },
+                    {
+                        "value": "0",
+                        "name": "顶部偏移"
+                    },
+                    {
+                        "value": "否",
+                        "name": "已附着顶部"
+                    },
+                    {
+                        "value": "0",
+                        "name": "顶部延伸距离"
+                    },
+                    {
+                        "value": "是",
+                        "name": "房间边界"
+                    },
+                    {
+                        "value": "否",
+                        "name": "与体量相关"
+                    }
+                ]
+            },
+            {
+                "GroupName": "标识数据",
+                "Parameters": [
+                    {
+                        "value": "<无>",
+                        "name": "图像"
+                    },
+                    {
+                        "name": "注释"
+                    },
+                    {
+                        "name": "标记"
+                    },
+                    {
+                        "name": "备注"
+                    },
+                    {
+                        "value": "否",
+                        "name": "人防墙"
+                    }
+                ]
+            },
+            {
+                "GroupName": "阶段化",
+                "Parameters": [
+                    {
+                        "value": "新构造",
+                        "name": "创建的阶段"
+                    },
+                    {
+                        "value": "无",
+                        "name": "拆除的阶段"
+                    }
+                ]
+            },
+            {
+                "GroupName": "尺寸标注",
+                "Parameters": [
+                    {
+                        "value": "5525",
+                        "name": "长度"
+                    },
+                    {
+                        "value": "22.79",
+                        "name": "面积"
+                    },
+                    {
+                        "value": "9.12",
+                        "name": "体积"
+                    }
+                ]
+            }
+        ],
+        "selectable": true,
+        "originalMaterial": {
+            "metadata": {
+                "version": 4.7,
+                "type": "Material",
+                "generator": "Material.toJSON"
+            },
+            "uuid": "31138b5f-1797-44e1-a033-bf0ec4a6b48d",
+            "type": "MeshStandardMaterial",
+            "name": "默认墙",
+            "color": 12369084,
+            "roughness": 1,
+            "metalness": 0,
+            "emissive": 0,
+            "envMapRotation": [
+                0,
+                0,
+                0,
+                "XYZ"
+            ],
+            "envMapIntensity": 1,
+            "opacity": 0,
+            "blendColor": 0
+        }
+    },
+    "children": []
 }
-
-// 创建树形UI
-function createTreeUI(node, parentElement, depth = 0) {
-  const container = document.createElement('div');
-  container.className = 'tree-node';
-
-  // 节点名称和属性
-  const nodeElement = document.createElement('div');
-  nodeElement.textContent = `${node.name || 'unnamed'} (${node.type})`;
-  nodeElement.style.paddingLeft = `${depth * 15}px`;
-  nodeElement.addEventListener('click', () => highlightNode(node));
-
-  // 如果有子节点，添加折叠/展开按钮
-  if (node.children && node.children.length > 0) {
-    const caret = document.createElement('span');
-    caret.className = 'tree-caret';
-    caret.textContent = '▶';
-    caret.addEventListener('click', (e) => {
-      e.stopPropagation();
-      caret.textContent = caret.textContent === '▶' ? '▼' : '▶';
-      childrenContainer.style.display = childrenContainer.style.display === 'none' ? 'block' : 'none';
-      container.classList.toggle('expanded');
-    });
-    nodeElement.prepend(caret);
-  }
-
-  container.appendChild(nodeElement);
-  parentElement.appendChild(container);
-
-  // 子节点容器
-  if (node.children && node.children.length > 0) {
-    const childrenContainer = document.createElement('div');
-    childrenContainer.className = 'tree-children';
-    container.appendChild(childrenContainer);
-
-    // 递归创建子节点
-    node.children.forEach(child => {
-      createTreeUI(child, childrenContainer, depth + 1);
-    });
-  }
-}
-
-// 高亮选中的节点
-function highlightNode(node) {
-  // 移除之前的高亮
-  if (selectedObject) {
-    const materials = originalMaterials.get(selectedObject);
-    if (materials) {
-      selectedObject.material = materials;
-    }
-  }
-
-  // 高亮新选中的节点
-  selectedObject = node;
-
-  if (node.isMesh) {
-    // 保存原始材质
-    originalMaterials.set(node, node.material);
-    // 应用高亮材质
-    node.material = highlightMaterial;
-
-    // 聚焦到选中的对象
-    const bbox = new THREE.Box3().setFromObject(node);
-    const center = bbox.getCenter(new THREE.Vector3());
-    const size = bbox.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const fov = camera.fov * (Math.PI / 180);
-    const distance = maxDim / (2 * Math.tan(fov / 2));
-
-    controls.target.copy(center);
-    camera.position.copy(center.clone().add(new THREE.Vector3(1, 0.5, 1).normalize().multiplyScalar(distance)));
-    controls.update();
-  }
-}
-
-// 加载GLB文件
-function loadGLB(url) {
-  const loader = new THREE.GLTFLoader();
-  loader.load(url, (gltf) => {
-    // 添加到场景
-    scene.add(gltf.scene);
-
-    // 生成树形UI
-    const treeContainer = document.getElementById('tree-container');
-    treeContainer.innerHTML = '';
-    createTreeUI(gltf.scene, treeContainer);
-
-    // 自动展开第一层
-    const firstLevelNodes = treeContainer.querySelectorAll('.tree-node');
-    firstLevelNodes.forEach(node => {
-      const caret = node.querySelector('.tree-caret');
-      if (caret) {
-        caret.textContent = '▼';
-        node.classList.add('expanded');
-        node.querySelector('.tree-children').style.display = 'block';
-      }
-    });
-
-    // 计算模型边界并调整相机
-    const bbox = new THREE.Box3().setFromObject(gltf.scene);
-    const center = bbox.getCenter(new THREE.Vector3());
-    const size = bbox.getSize(new THREE.Vector3());
-    const maxDim = Math.max(size.x.size.y.size.z);
-    const fov = camera.fov * (Math.PI / 180);
-    const distance = maxDim / (2 * Math.tan(fov / 2));
-
-    controls.target.copy(center);
-    camera.position.copy(center.clone().add(new THREE.Vector3(1, 0.5, 1).normalize().multiplyScalar(distance)));
-    controls.update();
-  });
-}
-
-// 初始化应用
-initScene();
-
-// 示例: 替换为你的GLB文件路径
-loadGLB('your-model.glb');
-
-// 或者添加文件选择器
-document.body.addEventListener('dragover', (e) => e.preventDefault());
-document.body.addEventListener('drop', (e) => {
-  e.preventDefault();
-  const file = e.dataTransfer.files[0];
-  if (file) {
-    const url = URL.createObjectURL(file);
-    loadGLB(url);
-  }
-});

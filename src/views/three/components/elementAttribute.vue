@@ -1,22 +1,22 @@
 <template>
   <absolute-box :customStyle="{ left: 0, top: '50%' }" title="元素属性">
-    <template v-if="attribute && Object.keys(attribute).length > 0">
+    <template v-if="sAttribute && Object.keys(sAttribute).length > 0">
       <el-collapse :value="'base'">
         <el-collapse-item title="基础属性" name="base">
           <table class="gridtable">
             <tr>
               <td>name</td>
-              <td>{{ attribute.name }}</td>
+              <td>{{ sAttribute.name }}</td>
             </tr>
             <tr>
               <td>ElementID</td>
-              <td>{{ attribute.extras.ElementID }}</td>
+              <td>{{ sAttribute.ElementID }}</td>
             </tr>
           </table>
         </el-collapse-item>
       </el-collapse>
 
-      <el-collapse v-for="(v, i) in attribute.extras.Parameters" :value="v.GroupName">
+      <el-collapse v-for="(v, i) in sAttribute.Parameters" :value="v.GroupName">
         <el-collapse-item :title="v.GroupName" :name="v.GroupName">
           <table class="gridtable">
             <tr v-for="(val, idx) in v.Parameters" :key="idx">
@@ -117,10 +117,16 @@ export default {
     },
   },
   data() {
-    return {}
+    return {
+      sAttribute: this.attribute,
+    }
   },
   computed: {},
-  watch: {},
+  watch: {
+    attribute(newVal) {
+      this.sAttribute = newVal
+    },
+  },
   created() {},
   mounted() {},
   methods: {},
