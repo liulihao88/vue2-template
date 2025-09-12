@@ -6,8 +6,7 @@
       :rules="loginRules"
       class="login-form"
       auto-complete="on"
-      label-position="left"
-    >
+      label-position="left">
       <div class="title-container">
         <h3 class="title">Login Form</h3>
       </div>
@@ -23,8 +22,7 @@
           name="username"
           type="text"
           tabindex="1"
-          auto-complete="on"
-        />
+          auto-complete="on" />
       </el-form-item>
 
       <el-form-item prop="password">
@@ -40,8 +38,7 @@
           name="password"
           tabindex="2"
           auto-complete="on"
-          @keyup.enter.native="handleLogin"
-        />
+          @keyup.enter.native="handleLogin" />
         <span class="show-pwd" @click="showPwd">
           <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
         </span>
@@ -51,8 +48,7 @@
         :loading="loading"
         type="primary"
         style="width: 100%; margin-bottom: 30px"
-        @click.native.prevent="handleLogin"
-      >
+        @click.native.prevent="handleLogin">
         Login
       </el-button>
 
@@ -66,6 +62,7 @@
 
 <script>
 import { validUsername } from '@/utils/validate'
+import { getToken, setToken, removeToken } from '@/utils/auth'
 
 export default {
   name: 'Login',
@@ -90,7 +87,7 @@ export default {
         password: '111111',
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        username: [{ required: true, trigger: 'blur' }],
         password: [{ required: true, trigger: 'blur', validator: validatePassword }],
       },
       loading: false,
@@ -121,21 +118,32 @@ export default {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
           this.loading = true
-          this.$store
-            .dispatch('user/login', this.loginForm)
-            .then(() => {
-              this.$router.push({ path: this.redirect || '/' })
-              this.loading = false
-            })
-            .catch(() => {
-              this.loading = false
-            })
-        } else {
-          console.log('error submit!!')
-          return false
+          this.$store.commit('user/SET_TOKEN', 'admin-token')
+          setToken('admin-token')
+          this.$router.push({ path: this.redirect || '/' })
+          this.loading = false
         }
       })
     },
+    // handleLogin() {
+    //   this.$refs.loginForm.validate((valid) => {
+    //     if (valid) {
+    //       this.loading = true
+    //       this.$store
+    //         .dispatch('user/login', this.loginForm)
+    //         .then(() => {
+    //           this.$router.push({ path: this.redirect || '/' })
+    //           this.loading = false
+    //         })
+    //         .catch(() => {
+    //           this.loading = false
+    //         })
+    //     } else {
+    //       console.log('error submit!!')
+    //       return false
+    //     }
+    //   })
+    // },
   },
 }
 </script>

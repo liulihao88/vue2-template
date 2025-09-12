@@ -48,23 +48,19 @@ const actions = {
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token)
-        .then((response) => {
-          const { data } = response
-
-          if (!data) {
-            return reject('Verification failed, please Login again.')
-          }
-
-          const { name, avatar } = data
-
-          commit('SET_NAME', name)
-          commit('SET_AVATAR', avatar)
-          resolve(data)
-        })
-        .catch((error) => {
-          reject(error)
-        })
+      const data = {
+        roles: ['admin'],
+        introduction: '我是一个无敌管理员',
+        avatar: 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif',
+        name: '无敌管理员',
+      }
+      if (!data) {
+        return reject('Verification failed, please Login again.')
+      }
+      const { name, avatar } = data
+      commit('SET_NAME', name)
+      commit('SET_AVATAR', avatar)
+      resolve(data)
     })
   },
 
