@@ -166,21 +166,13 @@ export const constantRoutes = [
   {
     path: '/element',
     component: Layout,
-    redirect: '/element/table',
+    redirect: '/element/tableBlack',
     name: 'element',
     meta: {
-      title: 'element',
+      title: 'element-ui',
       icon: 'el-icon-s-help',
     },
     children: [
-      {
-        path: 'base',
-        name: 'base',
-        component: () => import('@/views/element/table'),
-        meta: {
-          title: 'el-table基础使用',
-        },
-      },
       {
         path: 'tableBlack',
         name: 'tableBlack',
