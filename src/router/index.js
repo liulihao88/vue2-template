@@ -225,6 +225,14 @@ export const constantRoutes = [
           title: 'konva画圆圈箭头文字',
         },
       },
+      {
+        path: 'drawPrevNext',
+        name: 'drawPrevNext',
+        component: () => import('@/views/konva/drawPrevNext'),
+        meta: {
+          title: 'konva加上一步下一步和颜色',
+        },
+      },
     ],
   },
 
