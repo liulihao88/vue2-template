@@ -24,7 +24,7 @@
     </div>
 
     <!-- 画布容器 -->
-    <div ref="container" class="canvas-container"></div>
+    <div ref="containerRef" class="full-screen-overlay"></div>
 
     <!-- 文字输入框 -->
     <div
@@ -125,10 +125,11 @@ export default {
   methods: {
     // 初始化画布
     initStage() {
+      const $containerRef = this.$refs.containerRef
       this.stage = new Konva.Stage({
-        container: this.$refs.container,
-        width: 800,
-        height: 600,
+        container: $containerRef,
+        width: $containerRef.clientWidth,
+        height: $containerRef.clientHeight,
       })
 
       this.layer = new Konva.Layer()
@@ -1217,12 +1218,10 @@ export default {
 }
 
 .canvas-container {
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  width: 800px;
-  height: 600px;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 9999;
+  background: blue;
 }
 
 .text-input-wrapper {
@@ -1252,5 +1251,19 @@ export default {
 .text-input:focus {
   border-color: #2980b9;
   box-shadow: 0;
+}
+
+.full-screen-overlay {
+  position: fixed; /* 关键！相对于视口定位 */
+  top: 0;
+  left: 300px;
+  width: calc(100% - 600px);
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  color: #333;
+  z-index: 1; /* 确保它在下面 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

@@ -1,30 +1,32 @@
 <template>
   <div>
-    <div>t3</div>
+    <el-dialog
+      :visible.sync="isShow"
+      title="我要变黑色"
+      append-to-body
+      :close-on-click-modal="false"
+      fullscreen
+      custom-class="dark-theme-dialog">
+      我是黑色内容
+    </el-dialog>
   </div>
 </template>
 
 <script>
 export default {
-  name: "T3",
-  components: {
-
-  },
+  name: 'DialogBlack',
+  components: {},
   props: {},
   data() {
     return {
-
+      isShow: true,
     }
   },
   computed: {},
   watch: {},
   created() {},
   mounted() {},
-  methods: {
-
-  }
+  methods: {},
 }
 </script>
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>

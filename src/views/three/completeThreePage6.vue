@@ -9,42 +9,52 @@
       <input ref="fileInput" type="file" accept=".glb" @change="handleFileUpload" style="display: none" />
     </div>
 
-    <div ref="sceneContainer" class="scene-container" v-if="modelLoaded"></div>
-    <template v-if="modelLoaded">
-      <absolute-box
-        :customStyle="{
-          left: 0,
-          top: '0%',
-        }"
-        title="部位属性">
-        <div class="node-tree">
-          <node-item
-            v-for="node in sceneNodes"
-            :key="node.uuid"
-            :node="node"
-            :depth="0"
-            :selected-id="selectedNodeId"
-            @node-select="handleNodeSelect" />
-        </div>
-      </absolute-box>
+    <el-dialog
+      :visible.sync="modelLoaded"
+      title="我要变黑色"
+      append-to-body
+      :close-on-click-modal="false"
+      fullscreen
+      custom-class="dark-theme-dialog">
+      <div>
+        <div ref="sceneContainer" class="scene-container" v-if="modelLoaded"></div>
+        <template v-if="modelLoaded">
+          <absolute-box
+            :customStyle="{
+              left: 0,
+              top: 'calc(0% + 55px)',
+            }"
+            title="部位属性">
+            <div class="node-tree">
+              <node-item
+                v-for="node in sceneNodes"
+                :key="node.uuid"
+                :node="node"
+                :depth="0"
+                :selected-id="selectedNodeId"
+                @node-select="handleNodeSelect" />
+            </div>
+          </absolute-box>
 
-      <!-- <ElementAttribute :attribute="selectedNode"></ElementAttribute> -->
-      <ElementAttribute :attribute="elementAttributeData"></ElementAttribute>
-      <TableBlack :containerRef="$refs.sceneContainer"></TableBlack>
-      <UploadFile></UploadFile>
-    </template>
+          <!-- <ElementAttribute :attribute="selectedNode"></ElementAttribute> -->
+          <ElementAttribute :attribute="elementAttributeData"></ElementAttribute>
+          <TableBlack></TableBlack>
+          <UploadFile></UploadFile>
+        </template>
 
-    <BottomThreeBtn
-      v-if="modelLoaded"
-      @clipboardHandler="clipboardHandler"
-      @resetModel="resetModel()"
-      :isActive="isActive"></BottomThreeBtn>
-    <ClipboardPhoto
-      :scene="scene"
-      :renderer="renderer"
-      @toggleControls="toggleControls"
-      :container="$refs.sceneContainer"
-      ref="clipboardPhotoRef"></ClipboardPhoto>
+        <BottomThreeBtn
+          v-if="modelLoaded"
+          @clipboardHandler="clipboardHandler"
+          @resetModel="resetModel()"
+          :isActive="isActive"></BottomThreeBtn>
+        <ClipboardPhoto
+          :scene="scene"
+          :renderer="renderer"
+          @toggleControls="toggleControls"
+          :container="$refs.sceneContainer"
+          ref="clipboardPhotoRef"></ClipboardPhoto>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -172,6 +182,7 @@ export default {
       await this.$nextTick()
 
       const container = this.$refs.sceneContainer
+      console.log(`53 container`, container);
       if (container.clientWidth === 0) {
         container.style.display = 'block'
         const width = container.clientWidth
@@ -676,8 +687,8 @@ export default {
   overflow: hidden;
 }
 .scene-container {
-  width: 100% !important;
-  height: 100% !important;
+  width: 100wh !important;
+  height: 100vh !important;
   background: #000;
 }
 
