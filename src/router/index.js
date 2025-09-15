@@ -117,6 +117,14 @@ export const constantRoutes = [
         },
       },
       {
+        path: 'completeThreePage6',
+        name: 'completeThreePage6',
+        component: () => import('@/views/three/completeThreePage6'),
+        meta: {
+          title: 'completeThreePage6完整页面',
+        },
+      },
+      {
         path: 'completeThreePageNew',
         name: 'completeThreePageNew',
         component: () => import('@/views/three/completeThreePageNew'),
@@ -231,6 +239,14 @@ export const constantRoutes = [
         component: () => import('@/views/konva/drawPrevNext'),
         meta: {
           title: 'konva加上一步下一步和颜色',
+        },
+      },
+      {
+        path: 'drawRef',
+        name: 'drawRef',
+        component: () => import('@/views/konva/drawRef'),
+        meta: {
+          title: 'konva通过外部的ref传递画布',
         },
       },
     ],

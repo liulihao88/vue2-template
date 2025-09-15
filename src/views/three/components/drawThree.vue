@@ -23,6 +23,9 @@
       <button @click="clearCanvas">清空</button>
     </div>
 
+    <!-- 画布容器 -->
+    <div ref="container" class="canvas-container"></div>
+
     <!-- 文字输入框 -->
     <div
       v-if="showTextInput"
@@ -49,28 +52,10 @@
 </template>
 
 <script>
-/** @使用方式
-  <T2 :containerRef="elementRefForChild"></T2>
-  <T2 :containerRef="$refs.canvasContainerRef"></T2>
-  data() {
-    return {
-      elementRefForChild: '',
-    }
-  },
-  mounted() {
-    this.elementRefForChild = this.$refs.canvasContainerRef
-  },
-*/
 import Konva from 'konva'
 
 export default {
   name: 'DrawingEditor',
-  props: {
-    containerRef: {
-      type: [HTMLElement],
-      required: true,
-    },
-  },
   data() {
     return {
       tools: [
@@ -123,24 +108,15 @@ export default {
       return this.currentHistoryIndex < this.history.length - 1
     },
   },
-  watch: {
-    containerRef: {
-      immediate: true,
-      handler(val) {
-        console.log(`87 val`, val)
-        if (val) {
-          console.log(`this.containerEl instanceof HTMLElement`, val instanceof HTMLElement)
-          this.initStage()
-          this.initTextMeasureCtx()
-          this.saveHistory()
-          // 添加全局键盘事件监听器
-          window.addEventListener('keydown', this.handleKeyDown)
-          window.addEventListener('keyup', this.handleKeyUp)
-        }
-      },
-    },
+  mounted() {
+    this.initStage()
+    this.initTextMeasureCtx()
+    this.saveHistory()
+
+    // 添加全局键盘事件监听器
+    window.addEventListener('keydown', this.handleKeyDown)
+    window.addEventListener('keyup', this.handleKeyUp)
   },
-  async mounted() {},
   beforeUnmount() {
     // 移除键盘事件监听器
     window.removeEventListener('keydown', this.handleKeyDown)
@@ -149,17 +125,12 @@ export default {
   methods: {
     // 初始化画布
     initStage() {
-      const displayWidth = this.containerRef.clientWidth // 800
-      console.log(`27 displayWidth`, displayWidth)
-      const displayHeight = this.containerRef.clientHeight // 600
-      console.log(`46 displayHeight`, displayHeight)
       this.stage = new Konva.Stage({
-        container: this.containerRef,
-        width: displayWidth,
-        height: displayHeight,
+        container: this.$refs.container,
+        width: 800,
+        height: 600,
       })
 
-      console.log(`52 this.stage`, this.stage)
       this.layer = new Konva.Layer()
       this.stage.add(this.layer)
 
@@ -1207,7 +1178,7 @@ export default {
 }
 
 .toolbar button {
-  padding: 6px 12px;
+  padding: 6px 6px;
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 4px;

@@ -1,10 +1,8 @@
 <template>
   <div>
     <absolute-box :customStyle="{ right: 0, top: '50%' }" title="新增审查">
+      <DrawThree></DrawThree>
       <el-form ref="form" :model="form" label-width="80px" class="dark-form">
-        <el-form-item label="标准名称">
-          <el-input v-model="form.standardId" placeholder="请输入"></el-input>
-        </el-form-item>
         <el-form-item label="审查截图">
           <el-upload
             class="upload-demo"
@@ -27,7 +25,11 @@
             <div v-if="uploading" slot="tip" class="uploading-text">上传中...请稍候</div>
           </el-upload>
         </el-form-item>
-        <el-form-item label="审查详情">
+        <el-form-item label="审查类别">
+          <el-input v-model="form.standardId" placeholder="请输入"></el-input>
+        </el-form-item>
+
+        <el-form-item label="审查内容">
           <el-input v-model="form.auditContent" type="textarea" placeholder="请输入" />
         </el-form-item>
       </el-form>
@@ -40,10 +42,12 @@
 
 <script>
 import AbsoluteBox from './absoluteBox.vue'
+import DrawThree from './drawThree.vue'
 export default {
   name: 'T4',
   components: {
     AbsoluteBox,
+    DrawThree,
   },
   props: {},
   data() {
