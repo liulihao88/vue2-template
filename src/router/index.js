@@ -199,6 +199,34 @@ export const constantRoutes = [
       },
     ],
   },
+  {
+    path: '/konva',
+    component: Layout,
+    redirect: '/konva/index',
+    name: 'konva',
+    meta: {
+      title: 'konva',
+      icon: 'el-icon-s-help',
+    },
+    children: [
+      {
+        path: 'index',
+        name: 'index',
+        component: () => import('@/views/konva/index'),
+        meta: {
+          title: 'konva基础使用',
+        },
+      },
+      {
+        path: 'draw',
+        name: 'draw',
+        component: () => import('@/views/konva/draw'),
+        meta: {
+          title: 'konva画圆圈箭头文字',
+        },
+      },
+    ],
+  },
 
   {
     path: '/form',

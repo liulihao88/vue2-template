@@ -37,18 +37,18 @@ module.exports = {
       warnings: false,
       errors: true,
     },
-    proxy: {
-      // '/apps': {
-      //   // 只代理 /apps 开头的请求
-      //   target: 'http://10.56.8.57:9999',
-      //   changeOrigin: true,
-      //   ws: true,
-      //   https: true,
-      //   pathRewrite: {
-      //     '^/apps': '/apps', // 保持路径不变
-      //   },
-      // },
-    },
+    // proxy: {
+    //   '/apps': {
+    //     // 只代理 /apps 开头的请求
+    //     target: 'http://10.56.8.57:9999',
+    //     changeOrigin: true,
+    //     ws: true,
+    //     https: true,
+    //     pathRewrite: {
+    //       '^/apps': '/apps', // 保持路径不变
+    //     },
+    //   },
+    // },
   },
   configureWebpack: {
     // provide the app's title in webpack's name field, so that
