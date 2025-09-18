@@ -1,7 +1,7 @@
 <template>
   <div>
     <absolute-box :customStyle="{ right: 0, top: '50%' }" title="新增审查">
-      <DrawThree></DrawThree>
+      <DrawThree ref="drawThreeRef"></DrawThree>
       <el-form ref="form" :model="form" label-width="80px" class="dark-form">
         <el-form-item label="审查截图">
           <el-upload

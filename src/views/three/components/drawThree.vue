@@ -98,6 +98,7 @@ export default {
       isCtrlPressed: false,
       textInsertStageX: 0, // 新增
       textInsertStageY: 0, // 新增
+      isInteracting: true,
     }
   },
   computed: {
@@ -107,6 +108,9 @@ export default {
     canRedo() {
       return this.currentHistoryIndex < this.history.length - 1
     },
+  },
+  created() {
+    this.$mitt.on('can-draw', this.stopOrStartDraw)
   },
   mounted() {
     this.initStage()
@@ -123,23 +127,37 @@ export default {
     window.removeEventListener('keyup', this.handleKeyUp)
   },
   methods: {
+    stopOrStartDraw(bool) {
+      console.log(`28 bool`, bool)
+      this.isInteracting = bool
+      if (!bool) {
+        this.cancelText()
+        this.currentTool = ''
+      }
+    },
     // 初始化画布
     initStage() {
       const $containerRef = this.$refs.containerRef
-      this.stage = new Konva.Stage({
-        container: $containerRef,
-        width: $containerRef.clientWidth,
-        height: $containerRef.clientHeight,
-      })
+      if ($containerRef) {
+        this.stage = new Konva.Stage({
+          container: $containerRef,
+          width: $containerRef.clientWidth,
+          height: $containerRef.clientHeight,
+        })
 
-      this.layer = new Konva.Layer()
-      this.stage.add(this.layer)
+        this.layer = new Konva.Layer()
+        this.stage.add(this.layer)
 
-      // 绑定事件
-      this.stage.on('mousedown touchstart', this.handleMouseDown)
-      this.stage.on('mousemove touchmove', this.handleMouseMove)
-      this.stage.on('mouseup touchend', this.handleMouseUp)
-      this.stage.on('click tap', this.handleCanvasClick)
+        // 绑定事件
+        this.stage.on('mousedown touchstart', this.handleMouseDown)
+        this.stage.on('mousemove touchmove', this.handleMouseMove)
+        this.stage.on('mouseup touchend', this.handleMouseUp)
+        this.stage.on('click tap', this.handleCanvasClick)
+
+        setTimeout(() => {
+          this.$mitt.emit('knova-canvas-ready', this.stage)
+        }, 1000)
+      }
     },
 
     initTextMeasureCtx() {
@@ -149,12 +167,14 @@ export default {
 
     // 设置当前工具
     setTool(tool) {
+      if (!this.isInteracting) return
       this.cancelText()
       this.currentTool = tool
     },
 
     // 更新当前颜色
     updateCurrentColor() {
+      if (!this.isInteracting) return
       this.textStyle.fill = this.strokeColor
 
       // 处理选中对象的颜色
@@ -178,6 +198,8 @@ export default {
     // ================= 绘图相关方法 =================
 
     handleMouseDown(e) {
+      console.log(`84 this.isInteracting`, this.isInteracting)
+      if (!this.isInteracting) return
       if (!this.currentTool || this.currentTool === 'text') return
 
       const pos = this.stage.getPointerPosition()
@@ -258,6 +280,7 @@ export default {
       }
     },
     handleMouseMove(e) {
+      if (!this.isInteracting) return
       if (!this.isDrawing || !this.tempShape) return
 
       const pos = this.stage.getPointerPosition()
@@ -325,6 +348,7 @@ export default {
      * 点击画布时处理文字工具
      */
     handleCanvasClick(e) {
+      if (!this.isInteracting) return
       if (this.currentTool !== 'text' || this.showTextInput) return
       // 获取点击位置（相对于画布）
       const pos = this.stage.getPointerPosition()
@@ -1135,6 +1159,7 @@ export default {
     // ================= 键盘事件处理 =================
 
     handleKeyDown(e) {
+      if (!this.isInteracting) return
       // 标记Ctrl键按下状态
       if (e.ctrlKey || e.metaKey) {
         this.isCtrlPressed = true
@@ -1151,6 +1176,7 @@ export default {
     },
 
     handleKeyUp(e) {
+      if (!this.isInteracting) return
       if (e.key === 'Control' || e.key === 'Meta') {
         this.isCtrlPressed = false
       }

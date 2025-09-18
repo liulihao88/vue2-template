@@ -39,7 +39,7 @@
           <!-- <ElementAttribute :attribute="selectedNode"></ElementAttribute> -->
           <ElementAttribute :attribute="elementAttributeData"></ElementAttribute>
           <TableBlack></TableBlack>
-          <UploadFile></UploadFile>
+          <UploadFile ref="uploadFileRef"></UploadFile>
         </template>
 
         <BottomThreeBtn
@@ -49,6 +49,7 @@
           :isActive="isActive"></BottomThreeBtn>
         <ClipboardPhoto
           :scene="scene"
+          :knovaCanvasRef="knovaCanvasRef"
           :renderer="renderer"
           @toggleControls="toggleControls"
           :container="$refs.sceneContainer"
@@ -83,6 +84,19 @@ export default {
     UploadFile,
     absoluteBox,
     NodeItem,
+  },
+  computed: {
+    knovaCanvasRef() {
+      // 从最外层开始，一步一步判断，确保每一步都存在
+      const uploadFileComp = this.$refs.uploadFileRef
+      console.log(`75 uploadFileComp`, uploadFileComp);
+      if (!uploadFileComp) return null
+      const drawThreeComp = uploadFileComp.$refs.drawThreeRef
+      console.log(`69 drawThreeComp`, drawThreeComp);
+      if (!drawThreeComp) return null
+      console.log(`58 drawThreeComp.$refs.containerRef`, drawThreeComp.$refs.containerRef);
+      return drawThreeComp.$refs.containerRef
+    },
   },
   data() {
     return {
@@ -182,7 +196,7 @@ export default {
       await this.$nextTick()
 
       const container = this.$refs.sceneContainer
-      console.log(`53 container`, container);
+      console.log(`53 container`, container)
       if (container.clientWidth === 0) {
         container.style.display = 'block'
         const width = container.clientWidth
