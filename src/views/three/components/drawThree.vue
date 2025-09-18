@@ -1230,17 +1230,17 @@ export default {
   transition: all 0.2s;
 }
 
-.toolbar button:hover {
-  background-color: #eee;
+.toolbar div:hover {
+  background-color: #fff;
+  color: #000;
 }
 
-.toolbar button.active {
-  background-color: #3498db;
-  color: white;
-  border-color: #2980b9;
+.toolbar div.active {
+  background-color: #fff;
+  color: #000;
 }
 
-.toolbar button:disabled {
+.toolbar div:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
