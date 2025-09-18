@@ -61,6 +61,14 @@ export const constantRoutes = [
         },
       },
       {
+        path: 'immediate',
+        name: 'immediate',
+        component: () => import('@/views/three/immediate'),
+        meta: {
+          title: '直接加载gltf文件',
+        },
+      },
+      {
         path: 'importThree',
         name: 'importThree',
         component: () => import('@/views/three/importThree'),
@@ -396,6 +404,21 @@ export const constantRoutes = [
         component: () => import('@/views/test/t4'),
         meta: {
           title: 't4',
+          icon: 'form',
+        },
+      },
+    ],
+  },
+  {
+    path: '/t5',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 't5',
+        component: () => import('@/views/test/t5'),
+        meta: {
+          title: 't5',
           icon: 'form',
         },
       },

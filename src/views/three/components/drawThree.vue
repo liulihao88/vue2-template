@@ -2,14 +2,16 @@
   <div class="editor-container">
     <!-- 工具栏 -->
     <div class="toolbar">
-      <el-button
+      <div
         v-for="tool in tools"
         :key="tool.name"
         size="small"
-        @click="setTool(tool.name)"
-        :class="{ active: currentTool === tool.name }">
-        {{ tool.label }}
-      </el-button>
+        class="anno-btn bim-button bim-button myfont"
+        :class="[currentTool === tool.name && 'active', tool.className]"
+        :title="tool.label"
+        @click="setTool(tool.name)">
+        <!-- {{ tool.label }} -->
+      </div>
 
       <!-- 颜色选择 -->
       <div class="color-picker">
@@ -17,10 +19,24 @@
       </div>
 
       <!-- 撤销/重做 -->
-      <button @click="undo" :disabled="!canUndo">上一步</button>
-      <button @click="redo" :disabled="!canRedo">下一步</button>
+      <svg-icon
+        iconClass="iconprev"
+        class="anno-btn bim-button bim-button myfont iconjiantou"
+        :disabled="!canUndo"
+        @click="undo"></svg-icon>
+      <svg-icon
+        iconClass="iconnext"
+        class="anno-btn bim-button bim-button myfont iconjiantou"
+        :disabled="!canRedo"
+        @click="redo"></svg-icon>
+      <svg-icon
+        iconClass="delete"
+        class="anno-btn bim-button bim-button myfont iconjiantou"
+        @click="clearCanvas"></svg-icon>
+      <!-- <button @click="undo" :disabled="!canUndo">上一步</button> -->
+      <!-- <button @click="redo" :disabled="!canRedo">下一步</button> -->
 
-      <button @click="clearCanvas">清空</button>
+      <!-- <button @click="clearCanvas">清空</button> -->
     </div>
 
     <!-- 画布容器 -->
@@ -59,10 +75,10 @@ export default {
   data() {
     return {
       tools: [
-        { name: 'arrow', label: '箭头' },
-        { name: 'rect', label: '长方形' },
-        { name: 'circle', label: '圆形' },
-        { name: 'text', label: '文字' },
+        { name: 'arrow', label: '箭头', className: 'iconjiantou' },
+        { name: 'rect', label: '矩形', className: 'iconjuxingkuang' },
+        { name: 'circle', label: '圆形', className: 'iconyuan' },
+        { name: 'text', label: '文字', className: 'iconwenzi' },
       ],
       currentTool: 'arrow',
       stage: null,
@@ -1196,6 +1212,7 @@ export default {
   padding: 10px;
   font-size: 12px;
   background-color: #000;
+  color: #fff;
   border-radius: 4px;
   margin-bottom: 10px;
   display: flex;
