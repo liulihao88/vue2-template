@@ -47,14 +47,19 @@
         @blur="confirmText"
         @keydown="handleTextKeyDown"></textarea>
     </div>
+    <CanvasDownload :stageInstance="stage"></CanvasDownload>
   </div>
 </template>
 
 <script>
+import CanvasDownload from '@/views/konva/canvasDownload.vue'
 import Konva from 'konva'
 
 export default {
   name: 'DrawingEditor',
+  components: {
+    CanvasDownload,
+  },
   data() {
     return {
       tools: [
