@@ -226,7 +226,7 @@ export default {
         console.log('- 目标 X:', 0, ' Y:', 0)
         console.log('- 目标 宽:', width * dpr, ' 高:', height * dpr)
         finalCtx.drawImage(
-          knovaCanvas,
+          knovaCanvas.content.children[0],
           knovaDprOffsetX,
           knovaDprOffsetY,
           width * dpr,
