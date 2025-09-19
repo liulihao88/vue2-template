@@ -99,12 +99,12 @@ export default {
       if (!this.isSelecting) return
       this.$emit('toggleControls', false)
       const rect = this.renderer.domElement.getBoundingClientRect()
-      const dpr = window.devicePixelRatio || 1 // 关键修复
 
       this.selectionStart = {
-        x: (e.clientX - rect.left) * dpr, // 修正坐标
-        y: (e.clientY - rect.top) * dpr,
+        x: (e.clientX - rect.left), // 修正坐标
+        y: (e.clientY - rect.top),
       }
+      this.selectionEnd = { ...this.selectionStart }
     },
 
     // **新增：鼠标移动（更新选区框）**
@@ -160,40 +160,56 @@ export default {
     },
     // **新增：截取选中区域并下载**
     captureSelection(x, y, width, height) {
-      const dpr = window.devicePixelRatio || 1
-      // 1. 创建最终混合的 Canvas，尺寸是选区的设备像素尺寸
+      // 注意：x, y, width, height 是基于 CSS 像素的选区尺寸
+      // 在使用它们进行 drawImage 前，需要转换为所有画布共同的“物理像素”坐标系
+      // 1. 创建最终混合的 Canvas
+      // 其物理尺寸应该是选区的物理尺寸
       const finalCanvas = document.createElement('canvas')
-      finalCanvas.width = width * dpr
-      finalCanvas.height = height * dpr
+      finalCanvas.width = width
+      finalCanvas.height = height
       const finalCtx = finalCanvas.getContext('2d')
       if (!finalCtx) return
-      // 2. 在最终画布上绘制 Three.js 的背景层
-      const threeDprOffsetX = x * dpr
-      const threeDprOffsetY = y * dpr
+      // 2. 定义绘制源时所需的物理坐标和尺寸
+      // 源物理坐标 = 选区 CSS 坐标
+      const sourceOffsetX = x
+      const sourceOffsetY = y
+      // 源物理尺寸 = 选区 CSS 尺寸
+      const sourceWidth = width
+      const sourceHeight = height
+      // 3. 从 Three.js Canvas 绘制背景层
+      // 此时，this.renderer.domElement 的物理尺寸已经是 [容器CSS宽度 ] x [容器CSS高度 ]
       finalCtx.drawImage(
-        this.renderer.domElement, // 源: Three.js 画布
-        threeDprOffsetX,
-        threeDprOffsetY, // 源裁剪起点
-        width * dpr,
-        height * dpr, // 源裁剪尺寸
+        this.renderer.domElement,
+        sourceOffsetX,
+        sourceOffsetY,
+        sourceWidth,
+        sourceHeight,
         0,
-        0, // 目标放置起点
-        width * dpr,
-        height * dpr, // 目标尺寸
+        0, // 绘制到 finalCanvas 的 (0,0) 位置
+        finalCanvas.width,
+        finalCanvas.height, // 使用 finalCanvas 的物理尺寸进行拉伸
       )
-      // 3. 关键一步：在最终画布上绘制 Knova 的前景层
-      const knovaCanvas = this.localKnovaCanvasRef // 如果是用 props 传递的
-      if (knovaCanvas) {
+      // 4. 从 Konva Canvas 绘制前景层
+      // 此时，knovaCanvas.content.children[0] 的物理尺寸也已经正确设置为 [容器CSS宽度 ] x [容器CSS高度 ]
+      // 这里的 drawImage 逻辑现在和 Three.js 是完全对称的，因此可以正确工作
+      console.log(`98 this.localKnovaCanvasRef`, this.localKnovaCanvasRef);
+      if (
+        this.localKnovaCanvasRef &&
+        this.localKnovaCanvasRef.content &&
+        this.localKnovaCanvasRef.content.children[0]
+      ) {
+        const konvaCanvasElement = this.localKnovaCanvasRef.content.children[0]
+        console.log(`92 konvaCanvasElement`, konvaCanvasElement);
         finalCtx.drawImage(
-          knovaCanvas.content.children[0],
-          threeDprOffsetX,
-          threeDprOffsetY, // 源裁剪起点
-          width * dpr,
-          height * dpr,
+          konvaCanvasElement,
+          sourceOffsetX,
+          sourceOffsetY,
+          sourceWidth,
+          sourceHeight,
           0,
           0,
-          width * dpr,
-          height * dpr,
+          finalCanvas.width,
+          finalCanvas.height,
         )
       }
       // 4. 下载混合后的最终画布

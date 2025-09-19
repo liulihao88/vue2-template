@@ -40,7 +40,9 @@
     </div>
 
     <!-- 画布容器 -->
-    <div ref="containerRef" class="full-screen-overlay"></div>
+    <div ref="containerRef" class="full-screen-overlay">
+      <!-- <canvas ref="konvaCanvas" ></canvas> -->
+    </div>
 
     <!-- 文字输入框 -->
     <div
@@ -154,25 +156,52 @@ export default {
     // 初始化画布
     initStage() {
       const $containerRef = this.$refs.containerRef
+      const canvas = this.$refs.konvaCanvas
+      console.log(`57 canvas`, canvas)
+      console.log(`61 $containerRef`, $containerRef)
+      // 获取容器的 CSS 尺寸
+      const width = $containerRef.clientWidth
+      console.log(`31 width`, width)
+      const height = $containerRef.clientHeight
+      console.log(`85 height`, height)
+
       if ($containerRef) {
         this.stage = new Konva.Stage({
           container: $containerRef,
-          width: $containerRef.clientWidth,
-          height: $containerRef.clientHeight,
+          width: width,
+          height: height,
+          draggable: false,
+          pixelRatio: 1.0,
         })
 
-        this.layer = new Konva.Layer()
-        this.stage.add(this.layer)
+        this.layer = new Konva.Layer({
+          pixelRatio: 1.0,
+        })
+        this.layer.getCanvas().setPixelRatio(1.0)
 
+        this.stage.add(this.layer)
         // 绑定事件
         this.stage.on('mousedown touchstart', this.handleMouseDown)
         this.stage.on('mousemove touchmove', this.handleMouseMove)
         this.stage.on('mouseup touchend', this.handleMouseUp)
         this.stage.on('click tap', this.handleCanvasClick)
 
-        setTimeout(() => {
-          this.$mitt.emit('knova-canvas-ready', this.stage)
-        }, 1000)
+        const konvaContentDiv = $containerRef.querySelector('.konvajs-content')
+        console.log(`91 konvaContentDiv`, konvaContentDiv)
+        if (konvaContentDiv) {
+          // 然后在这个 div 里找到 canvas 标签
+          const canvas = konvaContentDiv.querySelector('canvas')
+          if (canvas) {
+            console.log('成功找到 Canvas:', canvas)
+            // canvas.width = width
+            // canvas.height = height
+          } else {
+            console.error('在 konvajs-content 中未找到 canvas！')
+          }
+        } else {
+          console.error('未找到 konvajs-content 容器！')
+        }
+        this.$mitt.emit('knova-canvas-ready', this.stage)
       }
     },
 
@@ -562,37 +591,34 @@ export default {
     /**
      * 保存当前画布状态到历史记录
      */
+    // 替换您的 saveHistory
     saveHistory() {
-      // 防止在加载历史时保存
       if (this._loadingHistory) return
+      if (!this.layer) return
 
-      // 1. 获取当前画布的JSON表示（简化版）
-      const snapshot = this.serializeStage()
+      // 使用 Stage 的 toJSON() 方法！
+      // 这会把 Stage 和 Layer 下的所有 Shape 的状态都正确地保存下来，
+      // 并且会间接保留 pixelRatio 的设置。
+      const snapshot = this.stage.toJSON()
 
-      // 2. 如果当前位置不是历史记录的末尾，则截断后面的记录
       if (this.currentHistoryIndex < this.history.length - 1) {
         this.history = this.history.slice(0, this.currentHistoryIndex + 1)
       }
 
-      // 3. 检查是否与上一个状态相同（避免重复保存）
       if (this.history.length > 0) {
-        const lastState = this.history[this.history.length - 1]
-        if (JSON.stringify(lastState) === JSON.stringify(snapshot)) {
+        // 这个比较可能有点重，但对于图片编辑，简单比较 JSON 是可以的
+        if (JSON.stringify(this.history[this.history.length - 1]) === JSON.stringify(snapshot)) {
           return
         }
       }
 
-      // 4. 保存新状态
       this.history.push(snapshot)
       this.currentHistoryIndex = this.history.length - 1
-
-      // 5. 限制历史记录数量（最多50条）
       if (this.history.length > 50) {
         this.history.shift()
         this.currentHistoryIndex--
       }
     },
-
     /**
      * 序列化画布状态（去除不必要的数据）
      */
@@ -640,25 +666,17 @@ export default {
     /**
      * 加载历史状态（核心修复）
      */
+    // 替换您的 loadHistory
     loadHistory() {
-      if (
-        this.history.length === 0 ||
-        this.currentHistoryIndex < 0 ||
-        this.currentHistoryIndex >= this.history.length
-      ) {
-        return
-      }
+      if (this.history.length === 0 || this.currentHistoryIndex < 0) return
 
-      // 设置加载锁防止递归
       if (this._loadingHistory) return
       this._loadingHistory = true
 
       try {
-        // 1. 获取要加载的历史数据
         const historyData = this.history[this.currentHistoryIndex]
-        console.log(`98 historyData`, historyData)
 
-        // 2. 取消所有当前操作
+        // 1. 取消所有当前操作
         this.cancelText()
         this.isDrawing = false
         if (this.tempShape) {
@@ -666,29 +684,53 @@ export default {
           this.tempShape = null
         }
 
-        // 3. 清空当前图层
-        this.layer.destroyChildren()
+        // 2. 使用 Konva.Node.create() 从 JSON 数据中直接重建 Stage!
+        // 这是最关键的一步！它会内部处理 pixelRatio，并创建正确的对象图。
+        const newStage = Konva.Node.create(historyData, 'konva')
 
-        // 4. 重建所有形状（不使用Node.create）
-        console.log(`69 historyData.shapes`, historyData.shapes)
-        historyData.shapes.forEach((shapeData) => {
-          this.recreateShape(shapeData)
-        })
+        // 3. 销毁旧的 Stage 和 Layer
+        this.layer.destroy()
+        this.stage.destroy()
 
-        // 5. 恢复舞台尺寸
-        console.log(`49 this.stage`, this.stage)
-        this.stage.width(historyData.stageSize.width)
-        this.stage.height(historyData.stageSize.height)
+        // 4. 替换为新的
+        this.stage = newStage
+        this.layer = this.stage.getLayers()[0] // 获取新stage的第一个层
 
-        this.layer.batchDraw()
+        // 5. 重新绑定事件！
+        // 因为重建的对象没有事件，我们需要重新绑定。
+        this.rebindAllShapeEvents()
+
+        // 6. 重新获取容器引用，因为 Konva.Node.create() 重新渲染了 DOM
+        // 注意：下面的代码需要调整，因为 Stage 实例没有直接 .container() 的 DOM 方式
+        // this.stage.container() 依然返回的是最内层的那个 div
+        // 但为了事件监听，我们重新绑定一次到 Stage 实例上是好的。
+        const newContainerRef = this.$refs.containerRef
+        this.stage.on('mousedown touchstart', this.handleMouseDown)
+        this.stage.on('mousemove touchmove', this.handleMouseMove)
+        this.stage.on('mouseup touchend', this.handleMouseUp)
+        this.stage.on('click tap', this.handleCanvasClick)
+
+        this.layer.draw()
       } catch (error) {
-        console.error('历史记录加载失败111:', error)
-
-        // 紧急恢复：重置到最后一次正确状态
-        // this.resetToLastGoodState()
+        console.error('历史记录加载失败:', error)
       } finally {
         this._loadingHistory = false
       }
+    },
+
+    // 新增一个方法来重新绑定所有形状的事件
+    rebindAllShapeEvents() {
+      this.layer.find('Shape').forEach((node) => {
+        this.configureShapeEvents(node)
+      })
+      // 特别处理文本的双击编辑，因为 configureShapeEvents 只绑定了 click
+      this.layer.find(Text).forEach((node) => {
+        node.on('dblclick', () => {
+          const pos = node.position()
+          this.editingNode = node
+          this.openTextInput(pos.x, pos.y, node.text())
+        })
+      })
     },
 
     /**
@@ -753,6 +795,7 @@ export default {
           // 默认创建Group作为兜底
           shape = new Konva.Group({
             id: shapeData.id,
+            pixelRatio: 0.5,
             draggable: shapeData.attrs.draggable,
           })
       }

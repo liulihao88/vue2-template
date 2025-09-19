@@ -89,12 +89,12 @@ export default {
     knovaCanvasRef() {
       // 从最外层开始，一步一步判断，确保每一步都存在
       const uploadFileComp = this.$refs.uploadFileRef
-      console.log(`75 uploadFileComp`, uploadFileComp);
+      console.log(`75 uploadFileComp`, uploadFileComp)
       if (!uploadFileComp) return null
       const drawThreeComp = uploadFileComp.$refs.drawThreeRef
-      console.log(`69 drawThreeComp`, drawThreeComp);
+      console.log(`69 drawThreeComp`, drawThreeComp)
       if (!drawThreeComp) return null
-      console.log(`58 drawThreeComp.$refs.containerRef`, drawThreeComp.$refs.containerRef);
+      console.log(`58 drawThreeComp.$refs.containerRef`, drawThreeComp.$refs.containerRef)
       return drawThreeComp.$refs.containerRef
     },
   },
@@ -196,7 +196,6 @@ export default {
       await this.$nextTick()
 
       const container = this.$refs.sceneContainer
-      console.log(`53 container`, container)
       if (container.clientWidth === 0) {
         container.style.display = 'block'
         const width = container.clientWidth
@@ -226,6 +225,7 @@ export default {
       this.renderer.setSize(container.clientWidth, container.clientHeight)
       this.renderer.shadowMap.enabled = true
       container.appendChild(this.renderer.domElement)
+      this.renderer.setPixelRatio(1.0)
 
       this.controls = new OrbitControls(this.camera, this.renderer.domElement)
       this.controls.enableDamping = true
@@ -701,8 +701,11 @@ export default {
   overflow: hidden;
 }
 .scene-container {
-  width: 100wh !important;
-  height: 100vh !important;
+  position: fixed; /* 关键！相对于视口定位 */
+  top: 0;
+  left: 300px;
+  width: calc(100% - 600px);
+  height: 100%;
   background: #000;
 }
 
