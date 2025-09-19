@@ -752,7 +752,7 @@ export default {
 
         case 'Circle':
           shape = new Konva.Circle({
-            x: shapeDataattrs.x,
+            x: shapeData.attrs.x,
             y: shapeData.attrs.y,
             radius: shapeData.attrs.radius,
             stroke: shapeData.attrs.stroke,
