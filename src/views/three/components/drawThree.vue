@@ -115,6 +115,7 @@ export default {
       textInsertStageX: 0, // 新增
       textInsertStageY: 0, // 新增
       isInteracting: true,
+      resizeObserver: null, // <--- 新增
     }
   },
   computed: {
@@ -131,6 +132,7 @@ export default {
   mounted() {
     this.initStage()
     this.initTextMeasureCtx()
+    this.setupResizeObserver() // <--- 在 mounted 里调用
     this.saveHistory()
 
     // 添加全局键盘事件监听器
@@ -141,10 +143,13 @@ export default {
     // 移除键盘事件监听器
     window.removeEventListener('keydown', this.handleKeyDown)
     window.removeEventListener('keyup', this.handleKeyUp)
+    // 组件卸载时，务必断开 Observer
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
+    }
   },
   methods: {
     stopOrStartDraw(bool) {
-      console.log(`28 bool`, bool)
       this.isInteracting = bool
       if (!bool) {
         this.cancelText()
@@ -155,13 +160,9 @@ export default {
     initStage() {
       const $containerRef = this.$refs.containerRef
       const canvas = this.$refs.konvaCanvas
-      console.log(`57 canvas`, canvas)
-      console.log(`61 $containerRef`, $containerRef)
       // 获取容器的 CSS 尺寸
       const width = $containerRef.clientWidth
-      console.log(`31 width`, width)
       const height = $containerRef.clientHeight
-      console.log(`85 height`, height)
 
       if ($containerRef) {
         this.stage = new Konva.Stage({
@@ -174,6 +175,7 @@ export default {
 
         this.layer = new Konva.Layer({
           pixelRatio: 1.0,
+          draggable: false,
         })
         this.layer.getCanvas().setPixelRatio(1.0)
 
@@ -185,12 +187,10 @@ export default {
         this.stage.on('click tap', this.handleCanvasClick)
 
         const konvaContentDiv = $containerRef.querySelector('.konvajs-content')
-        console.log(`91 konvaContentDiv`, konvaContentDiv)
         if (konvaContentDiv) {
           // 然后在这个 div 里找到 canvas 标签
           const canvas = konvaContentDiv.querySelector('canvas')
           if (canvas) {
-            console.log('成功找到 Canvas:', canvas)
             // canvas.width = width
             // canvas.height = height
           } else {
@@ -241,7 +241,6 @@ export default {
     // ================= 绘图相关方法 =================
 
     handleMouseDown(e) {
-      console.log(`84 this.isInteracting`, this.isInteracting)
       if (!this.isInteracting) return
       if (!this.currentTool || this.currentTool === 'text') return
 
@@ -544,7 +543,6 @@ export default {
         fontSize: this.textStyle.fontSize,
         fontFamily: this.textStyle.fontFamily,
         fill: this.strokeColor,
-        draggable: true,
         name: 'text',
       })
 
@@ -683,7 +681,6 @@ export default {
       try {
         // 1. 获取要加载的历史数据
         const historyData = this.history[this.currentHistoryIndex]
-        console.log(`98 historyData`, historyData)
 
         // 2. 取消所有当前操作
         this.cancelText()
@@ -697,13 +694,11 @@ export default {
         this.layer.destroyChildren()
 
         // 4. 重建所有形状（不使用Node.create）
-        console.log(`69 historyData.shapes`, historyData.shapes)
         historyData.shapes.forEach((shapeData) => {
           this.recreateShape(shapeData)
         })
 
         // 5. 恢复舞台尺寸
-        console.log(`49 this.stage`, this.stage)
         this.stage.width(historyData.stageSize.width)
         this.stage.height(historyData.stageSize.height)
 
@@ -902,7 +897,7 @@ export default {
 
       if (this.tempShape) {
         // 添加拖拽选择功能
-        this.tempShape.draggable(true)
+        this.tempShape.draggable(false)
         this.tempShape.on('click tap', (e) => {
           // 取消其他节点的选中状态
           this.layer
@@ -1147,7 +1142,6 @@ export default {
         fontSize: this.textStyle.fontSize,
         fontFamily: this.textStyle.fontFamily,
         fill: this.strokeColor,
-        draggable: true,
         name: 'text',
         // **关键**：这里设置了视觉行高，让所有文字都“居中”在 (x, y) 点
         lineHeight: 1.2,
@@ -1221,6 +1215,78 @@ export default {
       if (e.key === 'Control' || e.key === 'Meta') {
         this.isCtrlPressed = false
       }
+    },
+    // ... 在 export default { ... } 内部 methods 中添加 ...
+    setupResizeObserver() {
+      // 1. 防止重复创建
+      if (this.resizeObserver) {
+        this.resizeObserver.disconnect()
+      }
+      if (!this.$refs.containerRef || !this.stage) {
+        return
+      }
+      // 2. 创建 ResizeObserver 实例
+      this.resizeObserver = new ResizeObserver((entries) => {
+        // entries 是一个数组，包含所有被监听元素的变化信息
+        for (let entry of entries) {
+          // 优化：只在内容尺寸发生变化时处理，忽略边框/内边距等变化
+          if (entry.contentRect) {
+            // 获取最新的容器尺寸
+            const { width, height } = entry.contentRect
+            // 确保尺寸有效，避免无限循环或无意义的更新
+            if (width > 0 && height > 0) {
+              this.handleStageResize(width, height)
+            }
+          }
+        }
+      })
+      // 3. 开始监听容器
+      this.resizeObserver.observe(this.$refs.containerRef)
+    },
+    handleStageResize(newWidth, newHeight) {
+      // 保存旧尺寸，用于后续计算
+      const oldWidth = this.stage.width()
+      const oldHeight = this.stage.height()
+      // 1. 更新 Stage 的宽高
+      this.stage.width(newWidth)
+      this.stage.height(newHeight)
+      // 2. 更新所有历史记录中的尺寸，这至关重要！
+      // 如果不更新，撤销/重做时会把 Stage 尺寸恢复成旧的
+      this.history.forEach((snapshot) => {
+        snapshot.stageSize.width = newWidth
+        snapshot.stageSize.height = newHeight
+      })
+      // 3. 调整画布上的所有元素，让它们保持相对位置和大小不变
+      const scaleX = newWidth / oldWidth
+      const scaleY = newHeight / oldHeight
+
+      this.layer.getChildren().forEach((node) => {
+        // 调整位置
+        node.x(node.x() * scaleX)
+        node.y(node.y() * scaleY)
+        // 调整尺寸
+        const name = node.getClassName()
+        if (name === 'Rect' || name === 'Text') {
+          node.width(node.width() * scaleX)
+          node.height(node.height() * scaleY)
+        } else if (name === 'Ellipse') {
+          // Circle 是 Ellipse 的特例
+          node.radiusX(node.radiusX() * scaleX)
+          node.radiusY(node.radiusY() * scaleY)
+        } else if (name === 'Arrow') {
+          const points = node.points()
+          // 箭头有多个点
+          const newPoints = []
+          for (let i = 0; i < points.length; i += 2) {
+            newPoints.push(points[i] * scaleX, points[i + 1] * scaleY)
+          }
+          node.points(newPoints)
+        }
+      })
+      // 4. 重新绘制图层
+      this.layer.batchDraw()
+      // 5. 保存一个新的历史状态，以记录这次缩放
+      this.saveHistory()
     },
   },
 }
