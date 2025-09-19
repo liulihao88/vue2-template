@@ -14,25 +14,23 @@
       </div>
 
       <!-- 颜色选择 -->
-      <div class="color-picker">
+      <div class="anno-btn bim-button bim-button myfont color-picker">
         <input type="color" id="stroke-color" v-model="strokeColor" @change="updateCurrentColor" />
       </div>
 
       <!-- 撤销/重做 -->
-      <svg-icon
-        iconClass="iconprev"
-        class="anno-btn bim-button bim-button myfont iconjiantou"
-        :disabled="!canUndo"
-        @click="undo"></svg-icon>
-      <svg-icon
-        iconClass="iconnext"
-        class="anno-btn bim-button bim-button myfont iconjiantou"
-        :disabled="!canRedo"
-        @click="redo"></svg-icon>
-      <svg-icon
-        iconClass="delete"
-        class="anno-btn bim-button bim-button myfont iconjiantou"
-        @click="clearCanvas"></svg-icon>
+      <div class="anno-btn bim-button bim-button myfont" :class="[canUndo && 'active']">
+        <svg-icon iconClass="iconprev" class="" :disabled="!canUndo" @click="undo"></svg-icon>
+      </div>
+      <div class="anno-btn bim-button bim-button myfont" :class="[canRedo && 'active']">
+        <svg-icon iconClass="iconnext" :disabled="!canRedo" @click="redo"></svg-icon>
+      </div>
+      <div class="anno-btn bim-button bim-button myfont">
+        <svg-icon
+          iconClass="delete"
+          class="anno-btn bim-button bim-button myfont iconjiantou"
+          @click="clearCanvas"></svg-icon>
+      </div>
       <!-- <button @click="undo" :disabled="!canUndo">上一步</button> -->
       <!-- <button @click="redo" :disabled="!canRedo">下一步</button> -->
 
@@ -593,27 +591,30 @@ export default {
      */
     // 替换您的 saveHistory
     saveHistory() {
+      // 防止在加载历史时保存
       if (this._loadingHistory) return
-      if (!this.layer) return
 
-      // 使用 Stage 的 toJSON() 方法！
-      // 这会把 Stage 和 Layer 下的所有 Shape 的状态都正确地保存下来，
-      // 并且会间接保留 pixelRatio 的设置。
-      const snapshot = this.stage.toJSON()
+      // 1. 获取当前画布的JSON表示（简化版）
+      const snapshot = this.serializeStage()
 
+      // 2. 如果当前位置不是历史记录的末尾，则截断后面的记录
       if (this.currentHistoryIndex < this.history.length - 1) {
         this.history = this.history.slice(0, this.currentHistoryIndex + 1)
       }
 
+      // 3. 检查是否与上一个状态相同（避免重复保存）
       if (this.history.length > 0) {
-        // 这个比较可能有点重，但对于图片编辑，简单比较 JSON 是可以的
-        if (JSON.stringify(this.history[this.history.length - 1]) === JSON.stringify(snapshot)) {
+        const lastState = this.history[this.history.length - 1]
+        if (JSON.stringify(lastState) === JSON.stringify(snapshot)) {
           return
         }
       }
 
+      // 4. 保存新状态
       this.history.push(snapshot)
       this.currentHistoryIndex = this.history.length - 1
+
+      // 5. 限制历史记录数量（最多50条）
       if (this.history.length > 50) {
         this.history.shift()
         this.currentHistoryIndex--
@@ -666,17 +667,25 @@ export default {
     /**
      * 加载历史状态（核心修复）
      */
-    // 替换您的 loadHistory
     loadHistory() {
-      if (this.history.length === 0 || this.currentHistoryIndex < 0) return
+      if (
+        this.history.length === 0 ||
+        this.currentHistoryIndex < 0 ||
+        this.currentHistoryIndex >= this.history.length
+      ) {
+        return
+      }
 
+      // 设置加载锁防止递归
       if (this._loadingHistory) return
       this._loadingHistory = true
 
       try {
+        // 1. 获取要加载的历史数据
         const historyData = this.history[this.currentHistoryIndex]
+        console.log(`98 historyData`, historyData)
 
-        // 1. 取消所有当前操作
+        // 2. 取消所有当前操作
         this.cancelText()
         this.isDrawing = false
         if (this.tempShape) {
@@ -684,53 +693,29 @@ export default {
           this.tempShape = null
         }
 
-        // 2. 使用 Konva.Node.create() 从 JSON 数据中直接重建 Stage!
-        // 这是最关键的一步！它会内部处理 pixelRatio，并创建正确的对象图。
-        const newStage = Konva.Node.create(historyData, 'konva')
+        // 3. 清空当前图层
+        this.layer.destroyChildren()
 
-        // 3. 销毁旧的 Stage 和 Layer
-        this.layer.destroy()
-        this.stage.destroy()
+        // 4. 重建所有形状（不使用Node.create）
+        console.log(`69 historyData.shapes`, historyData.shapes)
+        historyData.shapes.forEach((shapeData) => {
+          this.recreateShape(shapeData)
+        })
 
-        // 4. 替换为新的
-        this.stage = newStage
-        this.layer = this.stage.getLayers()[0] // 获取新stage的第一个层
+        // 5. 恢复舞台尺寸
+        console.log(`49 this.stage`, this.stage)
+        this.stage.width(historyData.stageSize.width)
+        this.stage.height(historyData.stageSize.height)
 
-        // 5. 重新绑定事件！
-        // 因为重建的对象没有事件，我们需要重新绑定。
-        this.rebindAllShapeEvents()
-
-        // 6. 重新获取容器引用，因为 Konva.Node.create() 重新渲染了 DOM
-        // 注意：下面的代码需要调整，因为 Stage 实例没有直接 .container() 的 DOM 方式
-        // this.stage.container() 依然返回的是最内层的那个 div
-        // 但为了事件监听，我们重新绑定一次到 Stage 实例上是好的。
-        const newContainerRef = this.$refs.containerRef
-        this.stage.on('mousedown touchstart', this.handleMouseDown)
-        this.stage.on('mousemove touchmove', this.handleMouseMove)
-        this.stage.on('mouseup touchend', this.handleMouseUp)
-        this.stage.on('click tap', this.handleCanvasClick)
-
-        this.layer.draw()
+        this.layer.batchDraw()
       } catch (error) {
-        console.error('历史记录加载失败:', error)
+        console.error('历史记录加载失败111:', error)
+
+        // 紧急恢复：重置到最后一次正确状态
+        // this.resetToLastGoodState()
       } finally {
         this._loadingHistory = false
       }
-    },
-
-    // 新增一个方法来重新绑定所有形状的事件
-    rebindAllShapeEvents() {
-      this.layer.find('Shape').forEach((node) => {
-        this.configureShapeEvents(node)
-      })
-      // 特别处理文本的双击编辑，因为 configureShapeEvents 只绑定了 click
-      this.layer.find(Text).forEach((node) => {
-        node.on('dblclick', () => {
-          const pos = node.position()
-          this.editingNode = node
-          this.openTextInput(pos.x, pos.y, node.text())
-        })
-      })
     },
 
     /**
@@ -795,7 +780,6 @@ export default {
           // 默认创建Group作为兜底
           shape = new Konva.Group({
             id: shapeData.id,
-            pixelRatio: 0.5,
             draggable: shapeData.attrs.draggable,
           })
       }
@@ -986,7 +970,6 @@ export default {
       this.tempShape = null
     },
 
-    // 用这个完全替换旧的 handleCanvasClick
     handleCanvasClick(e) {
       if (this.currentTool !== 'text') return
       // 1. 如果编辑框已经显示，别处理新点击，防止闪烁或问题
@@ -1122,7 +1105,6 @@ export default {
       }
     },
 
-    // 用这个完全替换旧的 confirmText
     confirmText() {
       const text = this.textContent.trim()
       if (!text) {
@@ -1278,7 +1260,7 @@ export default {
   color: #000;
 }
 
-.toolbar div.active {
+.toolbar .active {
   background-color: #fff;
   color: #000;
 }
@@ -1291,6 +1273,7 @@ export default {
 .color-picker {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
 }
 
