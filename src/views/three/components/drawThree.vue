@@ -1391,10 +1391,10 @@ export default {
 
 .full-screen-overlay {
   position: fixed; /* 关键！相对于视口定位 */
-  top: 0;
+  top: 56px;
   left: 300px;
   width: calc(100% - 600px);
-  height: 100%;
+  height: calc(100vh - 56px);
   background-color: rgba(0, 0, 0, 0.4);
   color: #333;
   z-index: 1; /* 确保它在下面 */

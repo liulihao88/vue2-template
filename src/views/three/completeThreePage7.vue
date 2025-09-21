@@ -22,7 +22,8 @@
           <absolute-box
             :customStyle="{
               left: 0,
-              top: 'calc(0% + 55px)',
+              top: 'calc(0% + 56px)',
+              height: 'calc(50vh - 56px)',
             }"
             title="部位属性">
             <div class="node-tree">
@@ -703,10 +704,10 @@ export default {
 }
 .scene-container {
   position: fixed; /* 关键！相对于视口定位 */
-  top: 0;
+  top: 56px;
   left: 300px;
   width: calc(100% - 600px);
-  height: 100%;
+  height: calc(100vh - 56px);
   background: #000;
 }
 

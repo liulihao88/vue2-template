@@ -22,7 +22,7 @@
           <absolute-box
             :customStyle="{
               left: 0,
-              top: 'calc(0% + 55px)',
+              top: 'calc(0% + 56px)',
             }"
             title="部位属性">
             <div class="node-tree">
