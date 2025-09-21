@@ -313,11 +313,11 @@ export default {
       console.log(`45 node`, node)
       if (this.selectedNodeId === node.uuid) {
         this.clearHighlight()
+        this.resetModel()
         return
       }
       this.elementAttributeData = node.userData
       this.selectedNode = node
-      this.selectedNodeId = node.uuid
 
       // 查找所有相关mesh
       const meshes = []
@@ -326,6 +326,7 @@ export default {
       if (meshes.length > 0) {
         this.highlightMeshes(meshes)
         this.focusOnSelection(meshes) // 新增：聚焦选中部位
+        this.selectedNodeId = node.uuid
       }
     },
     onCanvasClick(event) {
@@ -623,6 +624,7 @@ export default {
         this.model.rotation.set(0, 0, 0) // 重置旋转
         this.model.scale.set(1, 1, 1) // 恢复原始大小
       }
+      this.selectedNodeId = ''
       if (!isFirst) {
         // 3. 清除所有选中和高亮状态
 
