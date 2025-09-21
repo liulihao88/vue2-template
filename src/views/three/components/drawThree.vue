@@ -19,11 +19,16 @@
       </div>
 
       <!-- 撤销/重做 -->
+
       <div class="anno-btn bim-button bim-button myfont" :class="[canUndo && 'active']">
-        <svg-icon iconClass="iconprev" class="" :disabled="!canUndo" @click="undo"></svg-icon>
+        <svg-icon
+          iconClass="iconprev"
+          :class="{ 'prev-disabled': !canUndo }"
+          :disabled="!canUndo"
+          @click="undo"></svg-icon>
       </div>
       <div class="anno-btn bim-button bim-button myfont" :class="[canRedo && 'active']">
-        <svg-icon iconClass="iconnext" :disabled="!canRedo" @click="redo"></svg-icon>
+        <svg-icon iconClass="iconnext" :class="{ 'next-disabled': !canRedo }" @click="redo"></svg-icon>
       </div>
       <div class="anno-btn bim-button bim-button myfont">
         <svg-icon
@@ -31,10 +36,6 @@
           class="anno-btn bim-button bim-button myfont iconjiantou"
           @click="clearCanvas"></svg-icon>
       </div>
-      <!-- <button @click="undo" :disabled="!canUndo">上一步</button> -->
-      <!-- <button @click="redo" :disabled="!canRedo">下一步</button> -->
-
-      <!-- <button @click="clearCanvas">清空</button> -->
     </div>
 
     <!-- 画布容器 -->
@@ -1400,5 +1401,9 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.next-disabled,
+.prev-disabled {
+  cursor: not-allowed;
 }
 </style>

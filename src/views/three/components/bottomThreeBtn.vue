@@ -5,11 +5,17 @@
         <svg-icon icon-class="reset" class="icon-dom" />
         <span data-v-6fec4127="" class="text">复位</span>
       </div>
-      <div class="image-button-checkbox" :class="{ 'is-active': isActive === 'clipboard' }" @click="clipboardHandler">
+      <div
+        class="image-button-checkbox"
+        :class="{ 'is-active': sActiveArr.includes('clipboard') }"
+        @click="clipboardHandler">
         <svg-icon icon-class="clipboard" class="icon-dom" />
         <span data-v-6fec4127="" class="text">剪切</span>
       </div>
-      <div class="image-button-checkbox" :class="{ 'is-active': isReviewActive === true }" @click="reviewHandler">
+      <div
+        class="image-button-checkbox"
+        :class="{ 'is-active': sActiveArr.includes('review') }"
+        @click="reviewHandler">
         <svg-icon icon-class="review" class="icon-dom" />
         <span data-v-6fec4127="" class="text">审查</span>
       </div>
@@ -18,35 +24,55 @@
 </template>
 
 <script>
+import Immediate from '../immediate.vue'
+import { clone } from '@/utils/gFunc.js'
 export default {
   name: 'T3',
   components: {},
   props: {
-    isActive: {
-      type: String,
-      default: '',
+    activeArr: { // [clipboard, review]
+      type: Array,
+      default: () => {
+        return []
+      },
     },
   },
 
   data() {
     return {
-      isReviewActive: false,
+      sActiveArr: this.activeArr,
     }
   },
   computed: {},
-  watch: {},
+  watch: {
+    activeArr: {
+      handler(arr) {
+        this.sActiveArr = arr
+      },
+      deep: true,
+      Immediate: true,
+    },
+  },
   created() {},
   mounted() {},
   methods: {
     clipboardHandler() {
-      this.$emit('clipboardHandler')
+      this.toggleVar('clipboard')
     },
     reviewHandler() {
-      this.isReviewActive = !this.isReviewActive
-      this.$emit('reviewHandler', this.isReviewActive)
+      this.toggleVar('review')
     },
     resetModel() {
       this.$emit('resetModel')
+    },
+    toggleVar(variable) {
+      let cloneData = clone(this.sActiveArr)
+      if (cloneData.includes(variable)) {
+        cloneData = cloneData.filter((v) => v !== variable)
+      } else {
+        cloneData = [...cloneData, variable]
+      }
+      this.$emit('toggleCLick', cloneData)
     },
   },
 }

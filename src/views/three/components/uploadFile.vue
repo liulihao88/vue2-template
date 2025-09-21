@@ -1,7 +1,12 @@
 <template>
   <div>
     <absolute-box :customStyle="{ right: 0, top: '50%' }" title="新增审查">
-      <DrawThree ref="drawThreeRef"></DrawThree>
+      <template #right>
+        <el-button type="text" icon="el-icon-edit" @click="handleDrawEdit">
+          {{ isShowDraw ? '取消' : '编辑' }}
+        </el-button>
+      </template>
+      <DrawThree ref="drawThreeRef" v-if="isShowDraw"></DrawThree>
       <el-form ref="form" :model="form" label-width="80px" class="dark-form">
         <el-form-item label="审查截图">
           <el-upload
@@ -52,6 +57,7 @@ export default {
   props: {},
   data() {
     return {
+      isShowDraw: false,
       dialogVisible: false,
       dialogImageUrl: '',
       form: {
@@ -68,6 +74,9 @@ export default {
   created() {},
   mounted() {},
   methods: {
+    handleDrawEdit() {
+      this.isShowDraw = !this.isShowDraw
+    },
     handleBeforeUploadImage(file) {
       console.log('file', file)
       const imageSuffix = ['jpg', 'jpeg', 'png', 'svg']

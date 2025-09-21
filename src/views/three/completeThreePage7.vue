@@ -38,17 +38,16 @@
 
           <ElementAttribute :attribute="elementAttributeData"></ElementAttribute>
           <template v-if="isShowReview">
-            <TableBlack></TableBlack>
+            <TableBlack @closeReview="closeReview"></TableBlack>
             <UploadFile ref="uploadFileRef"></UploadFile>
           </template>
         </template>
 
         <BottomThreeBtn
           v-if="modelLoaded"
-          @clipboardHandler="clipboardHandler"
           @resetModel="resetModel()"
-          @reviewHandler="reviewHandler"
-          :isActive="isActive"></BottomThreeBtn>
+          @toggleCLick="toggleClick"
+          :activeArr="activeArr"></BottomThreeBtn>
         <ClipboardPhoto
           :scene="scene"
           :knovaCanvasRef="knovaCanvasRef"
@@ -124,7 +123,7 @@ export default {
       elementAttributeData: {},
 
       // Other state
-      isActive: '',
+      activeArr: [],
       isShowReview: false,
       nodeMap: new Map(), // Maps UUID to node objects
       meshNodeMap: new Map(), // Maps Mesh objects to their containing nodes
@@ -149,18 +148,26 @@ export default {
     this.cleanupScene()
   },
   methods: {
+    closeReview() {
+      this.isShowReview = false
+    },
     toggleControls(bool) {
       this.controls.enabled = bool
       if (bool) {
-        this.isActive = ''
+        this.activeArr = this.activeArr.filter((v) => v !== 'clipboard')
+      } else {
       }
     },
-    clipboardHandler() {
-      this.isActive = 'clipboard'
-      this.$refs.clipboardPhotoRef.startSelection()
-    },
-    reviewHandler(sendReveiwType) {
-      this.isShowReview = sendReveiwType
+    toggleClick(arr) {
+      if (arr.includes('clipboard')) {
+        this.$refs.clipboardPhotoRef.startSelection()
+      }
+      if (arr.includes('review')) {
+        this.isShowReview = true
+      } else {
+        this.isShowReview = false
+      }
+      this.activeArr = arr
     },
     async initDracoLoader() {
       if (process.env.NODE_ENV === 'development') {

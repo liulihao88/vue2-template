@@ -2,7 +2,7 @@
   <absolute-box :customStyle="{ right: '0', top: 'calc(0% + 55px)' }" title="审查">
     <template #right>
       <el-button type="text" icon="el-icon-plus">新增</el-button>
-      <el-button type="text" icon="el-icon-close">关闭</el-button>
+      <el-button type="text" icon="el-icon-close" @click="closeReview">关闭</el-button>
     </template>
     <div class="my-table-container">
       <el-table :data="list" border fit size="snall" align="center">
@@ -73,7 +73,11 @@ export default {
   created() {
     this.list = clone(this.list, 10)
   },
-  methods: {},
+  methods: {
+    closeReview() {
+      this.$emit('closeReview')
+    },
+  },
 }
 </script>
 <style lang="scss" scoped>
