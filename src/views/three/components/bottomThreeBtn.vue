@@ -9,7 +9,7 @@
         <svg-icon icon-class="clipboard" class="icon-dom" />
         <span data-v-6fec4127="" class="text">剪切</span>
       </div>
-      <div class="image-button-checkbox" :class="{ 'is-active': isActive === 'review' }" @click="reviewHandler">
+      <div class="image-button-checkbox" :class="{ 'is-active': isReviewActive === true }" @click="reviewHandler">
         <svg-icon icon-class="review" class="icon-dom" />
         <span data-v-6fec4127="" class="text">审查</span>
       </div>
@@ -29,7 +29,9 @@ export default {
   },
 
   data() {
-    return {}
+    return {
+      isReviewActive: false,
+    }
   },
   computed: {},
   watch: {},
@@ -40,7 +42,8 @@ export default {
       this.$emit('clipboardHandler')
     },
     reviewHandler() {
-      this.$emit('reviewHandler')
+      this.isReviewActive = !this.isReviewActive
+      this.$emit('reviewHandler', this.isReviewActive)
     },
     resetModel() {
       this.$emit('resetModel')

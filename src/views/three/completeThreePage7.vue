@@ -36,16 +36,18 @@
             </div>
           </absolute-box>
 
-          <!-- <ElementAttribute :attribute="selectedNode"></ElementAttribute> -->
           <ElementAttribute :attribute="elementAttributeData"></ElementAttribute>
-          <TableBlack></TableBlack>
-          <UploadFile ref="uploadFileRef"></UploadFile>
+          <template v-if="isShowReview">
+            <TableBlack></TableBlack>
+            <UploadFile ref="uploadFileRef"></UploadFile>
+          </template>
         </template>
 
         <BottomThreeBtn
           v-if="modelLoaded"
           @clipboardHandler="clipboardHandler"
           @resetModel="resetModel()"
+          @reviewHandler="reviewHandler"
           :isActive="isActive"></BottomThreeBtn>
         <ClipboardPhoto
           :scene="scene"
@@ -100,7 +102,7 @@ export default {
   },
   data() {
     return {
-      modelLoaded: false,
+      modelLoaded: true,
       scene: null,
       camera: null,
       renderer: null,
@@ -123,6 +125,7 @@ export default {
 
       // Other state
       isActive: '',
+      isShowReview: false,
       nodeMap: new Map(), // Maps UUID to node objects
       meshNodeMap: new Map(), // Maps Mesh objects to their containing nodes
     }
@@ -139,6 +142,8 @@ export default {
         this.$refs.sceneContainer.appendChild(this.renderer.domElement)
       }
     })
+    await this.initScene()
+    await this.loadModel()
   },
   beforeDestroy() {
     this.cleanupScene()
@@ -153,6 +158,9 @@ export default {
     clipboardHandler() {
       this.isActive = 'clipboard'
       this.$refs.clipboardPhotoRef.startSelection()
+    },
+    reviewHandler(sendReveiwType) {
+      this.isShowReview = sendReveiwType
     },
     async initDracoLoader() {
       if (process.env.NODE_ENV === 'development') {
@@ -235,42 +243,28 @@ export default {
       window.addEventListener('resize', this.onWindowResize)
     },
 
-    async loadModel(arrayBuffer) {
+    async loadModel() {
       const loader = new GLTFLoader()
       const dracoLoader = await this.initDracoLoader()
       if (dracoLoader) {
         loader.setDRACOLoader(dracoLoader)
       }
+      loader.load('/2.glb', (gltf) => {
+        this.sceneNodes = []
+        this.nodeMap.clear()
+        this.meshNodeMap.clear()
 
-      return new Promise((resolve, reject) => {
-        loader.parse(
-          arrayBuffer,
-          '',
-          (gltf) => {
-            // Reset state
-            this.sceneNodes = []
-            this.nodeMap.clear()
-            this.meshNodeMap.clear()
+        // Apply initial rotation
+        gltf.scene.rotation.y = Math.PI
+        this.model = gltf.scene
+        this.scene.add(this.model)
 
-            // Apply initial rotation
-            gltf.scene.rotation.y = Math.PI
-            this.model = gltf.scene
-            this.scene.add(this.model)
+        // Build node tree structure
+        this.buildNodeTree(this.model)
 
-            // Build node tree structure
-            this.buildNodeTree(this.model)
-
-            // Prepare for interaction
-            this.prepareModelForInteraction(this.model)
-            this.fitCameraToModel()
-
-            resolve()
-          },
-          (error) => {
-            console.error('模型解析错误:', error)
-            reject(new Error('GLB文件解析失败'))
-          },
-        )
+        // Prepare for interaction
+        this.prepareModelForInteraction(this.model)
+        this.fitCameraToModel()
       })
     },
 

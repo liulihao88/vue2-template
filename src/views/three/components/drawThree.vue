@@ -80,7 +80,7 @@ export default {
         { name: 'circle', label: '圆形', className: 'iconyuan' },
         { name: 'text', label: '文字', className: 'iconwenzi' },
       ],
-      currentTool: 'arrow',
+      currentTool: '',
       stage: null,
       layer: null,
 
