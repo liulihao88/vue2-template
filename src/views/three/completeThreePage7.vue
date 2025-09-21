@@ -300,7 +300,6 @@ export default {
       } else {
         this.sceneNodes.push(node)
       }
-
       // Recursively process children
       if (object.children && object.children.length > 0) {
         object.children.forEach((child) => {
@@ -310,7 +309,6 @@ export default {
     },
 
     handleNodeSelect(node) {
-      console.log(`45 node`, node)
       if (this.selectedNodeId === node.uuid) {
         this.clearHighlight()
         this.resetModel()
@@ -327,52 +325,6 @@ export default {
         this.highlightMeshes(meshes)
         this.focusOnSelection(meshes) // 新增：聚焦选中部位
         this.selectedNodeId = node.uuid
-      }
-    },
-    onCanvasClick(event) {
-      if (!this.model) return
-
-      // 计算鼠标位置
-      const rect = this.renderer.domElement.getBoundingClientRect()
-      this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
-      this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
-
-      // 射线检测
-      this.raycaster.setFromCamera(this.mouse, this.camera)
-      const intersects = this.raycaster.intersectObject(this.model, true)
-
-      if (intersects.length > 0) {
-        const clickedObject = intersects[0].object
-
-        // 查找最近的包含节点定义的父对象
-        let current = clickedObject
-        let foundNode = null
-
-        while (current && !foundNode) {
-          foundNode = this.nodeMap.get(current.uuid)
-          if (!foundNode && current.parent) {
-            current = current.parent
-          } else {
-            break
-          }
-        }
-
-        if (foundNode) {
-          this.handleNodeSelect(foundNode)
-
-          // 滚动到对应的树节点
-          this.$nextTick(() => {
-            const nodeElement = document.querySelector(`[data-node-id="${foundNode.uuid}"]`)
-            if (nodeElement) {
-              nodeElement.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center',
-              })
-            }
-          })
-        }
-      } else {
-        this.clearHighlight()
       }
     },
 
@@ -404,7 +356,7 @@ export default {
       // 创建动画
       const startPosition = this.camera.position.clone()
       const startTarget = this.controls.target.clone()
-      const duration = 1000 // 1秒动画
+      const duration = 300 // 1秒动画
 
       const startTime = Date.now()
 
@@ -556,11 +508,51 @@ export default {
           const node = this.nodeMap.get(mesh.uuid) || this.meshNodeMap.get(mesh)
           if (node) {
             this.handleNodeSelect(node)
+            // 滚动到对应的树节点
+            this.$nextTick(() => {
+              const nodeElement = document.querySelector(`[data-node-id="${node.uuid}"]`)
+              if (nodeElement) {
+              }
+              this.findClosestBySelector(nodeElement)
+              // console.log(`14 res`, res)
+              // res.style.display = 'block'
+              setTimeout(() => {
+                nodeElement.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'center',
+                })
+              }, 200)
+              this.$nextTick(() => {})
+            })
           }
         }
       } else {
         this.clearHighlight()
       }
+    },
+
+    // 遍历祖先节点, 如果祖先节点没有展开, 那就展开
+    findClosestBySelector(element) {
+      // 如果元素本身就匹配
+      if (element.classList.contains('not-expanded')) {
+        return element
+      }
+      // 循环向上查找，直到到达 document 元素
+      let currentElement = element.parentNode
+      while (currentElement && currentElement !== document) {
+        if (currentElement.classList.contains('not-expanded')) {
+          let preSiblings = currentElement.previousElementSibling
+          const expandToggleSpan = preSiblings.querySelector('.expand-toggle')
+          if (expandToggleSpan) {
+            // 3. 在该子元素上直接调用 click() 方法
+            expandToggleSpan.click()
+          }
+          // currentElement.style.display = 'block'
+        }
+        currentElement = currentElement.parentNode
+      }
+      // 如果没找到，返回 null
+      return null
     },
 
     prepareModelForInteraction(model) {

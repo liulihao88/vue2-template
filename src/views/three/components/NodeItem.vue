@@ -17,7 +17,7 @@
       </span>
     </div>
 
-    <div v-show="expanded" v-if="hasChildren" class="children-container">
+    <div v-show="expanded" v-if="hasChildren" class="children-container" :class="{ 'not-expanded': !expanded }" ref="notExpandedRef">
       <node-item
         v-for="child in node.children"
         :key="child.uuid"
@@ -128,9 +128,10 @@ export default {
   background-color: rgba(0, 255, 0, 0.2) !important;
   font-weight: bold;
   position: relative;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 .node-active::after {
-  content: "";
+  content: '';
   position: absolute;
   right: 10px;
   top: 50%;
@@ -152,5 +153,4 @@ export default {
     box-shadow: 0 0 0 0 rgba(0, 255, 0, 0);
   }
 }
-
 </style>
