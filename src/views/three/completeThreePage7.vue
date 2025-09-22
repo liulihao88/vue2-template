@@ -491,6 +491,7 @@ export default {
     },
 
     onCanvasClick(event) {
+      console.log(`46 event`, event)
       if (!this.model) return
 
       // Calculate mouse position in normalized device coordinates
@@ -675,8 +676,16 @@ export default {
       this.lastMousePos = null
       // 关键判断：如果没拖动，就执行点击
       if (!this.isCurrentlyDragging) {
-        // 这就是你的原始点击事件处理逻辑，保持不变！
-        this.onCanvasClick(event)
+        const parent = event.target?.parentNode
+        console.log(`25 parent`, parent)
+        if (!parent) {
+          return
+        }
+        let judgeIsSceneContainer = parent?.classList?.contains('scene-container')
+        if (judgeIsSceneContainer) {
+          this.onCanvasClick(event)
+          // 这就是你的原始点击事件处理逻辑，保持不变！
+        }
       }
 
       // 无论是否拖动，最后都重置拖动状态，为下一次点击做准备
