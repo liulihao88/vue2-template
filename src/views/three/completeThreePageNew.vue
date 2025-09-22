@@ -51,7 +51,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { sleep } from '@/utils/gFunc'
-import ClipboardPhoto from '@/views/form/clipboardPhoto.vue'
+import ClipboardPhoto from '@/views/form/clipboardPhotoBase.vue'
 
 export default {
   name: 'ModelViewer',

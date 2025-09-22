@@ -6,14 +6,13 @@
       :scene="scene"
       :container="$refs.container"
       :renderer="renderer"
-      ref="clipboardPhotoRef"
-    ></ClipboardPhoto>
+      ref="clipboardPhotoRef"></ClipboardPhoto>
   </div>
 </template>
 <script>
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import ClipboardPhoto from '@/views/form/clipboardPhoto.vue'
+import ClipboardPhoto from '@/views/form/clipboardPhotoBase.vue'
 
 export default {
   name: 'ThreeScene',
