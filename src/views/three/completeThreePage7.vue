@@ -128,6 +128,7 @@ export default {
       isShowReview: false,
       nodeMap: new Map(), // Maps UUID to node objects
       meshNodeMap: new Map(), // Maps Mesh objects to their containing nodes
+      isCurrentlyDragging: false,
     }
   },
   async mounted() {
@@ -246,8 +247,12 @@ export default {
       this.controls = new OrbitControls(this.camera, this.renderer.domElement)
       this.controls.enableDamping = true
 
-      // Event listeners
-      this.renderer.domElement.addEventListener('click', this.onCanvasClick)
+      // 切换到 mousedown
+      this.renderer.domElement.addEventListener('mousedown', this.onMouseDownHandler, { passive: true })
+      // 添加 mousemove 来检测是否开始拖动
+      this.renderer.domElement.addEventListener('mousemove', this.onMouseMoveHandler, { passive: true })
+      // 使用 window 监听 mouseup，确保万无一失
+      window.addEventListener('mouseup', this.onMouseUpHandler, { passive: true })
       window.addEventListener('resize', this.onWindowResize)
     },
 
@@ -310,8 +315,8 @@ export default {
 
     handleNodeSelect(node) {
       if (this.selectedNodeId === node.uuid) {
-        this.clearHighlight()
-        this.resetModel()
+        // this.clearHighlight()
+        // this.resetModel()
         return
       }
       this.elementAttributeData = node.userData
@@ -619,17 +624,65 @@ export default {
       this.selectedNodeId = ''
       if (!isFirst) {
         // 3. 清除所有选中和高亮状态
-
+        this.clearHighlight()
         // 4. 重新适应模型到视图
         this.fitCameraToModel()
       }
     },
 
+    onMouseDownHandler(event) {
+      // 标记为“尚未拖动”
+      this.isCurrentlyDragging = false
+    },
+    // 鼠标移动时，检查并标记为“正在拖动”
+    onMouseMoveHandler(event) {
+      // 如果 isCurrentlyDragging 已经是 true，就没必要再检查了
+      if (this.isCurrentlyDragging) {
+        return
+      }
+      // 任何微小的移动都表示用户意图是拖动，而不是点击
+      // 我们可以设置一个非常小的阈值，比如移动超过 2-3 像素就算作拖动
+      const threshold = 3 // 像素
+
+      // 获取鼠标上一次的位置（我们需要在 data 中存储这个值）
+      if (!this.lastMousePos) {
+        this.lastMousePos = { x: event.clientX, y: event.clientY }
+        return
+      }
+      const deltaX = Math.abs(event.clientX - this.lastMousePos.x)
+      const deltaY = Math.abs(event.clientY - this.lastMousePos.y)
+      if (deltaX > threshold || deltaY > threshold) {
+        this.isCurrentlyDragging = true
+        this.lastMousePos = { x: event.clientX, y: event.clientY } // 更新位置
+      }
+    },
+    // 鼠标松开时，根据 isCurrentlyDragging 标志决定是否触发点击
+    onMouseUpHandler(event) {
+      if (this.$refs.uploadFileRef?.isShowDraw) {
+        return
+      }
+      // 恢复 OrbitControls 的旋转能力
+      this.controls.enableRotate = true
+
+      // 重置鼠标位置记录
+      this.lastMousePos = null
+      // 关键判断：如果没拖动，就执行点击
+      if (!this.isCurrentlyDragging) {
+        // 这就是你的原始点击事件处理逻辑，保持不变！
+        this.onCanvasClick(event)
+      }
+
+      // 无论是否拖动，最后都重置拖动状态，为下一次点击做准备
+      this.isCurrentlyDragging = false
+    },
+
     cleanupScene() {
       // Remove event listeners
       if (this.renderer) {
-        this.renderer.domElement.removeEventListener('click', this.onCanvasClick)
+        this.renderer.domElement.removeEventListener('mousedown', this.onMouseDownHandler)
+        this.renderer.domElement.removeEventListener('mousemove', this.onMouseMoveHandler)
       }
+      window.removeEventListener('mouseup', this.onMouseUpHandler)
       window.removeEventListener('resize', this.onWindowResize)
 
       // Dispose of scene objects
