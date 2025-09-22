@@ -20,15 +20,18 @@
 
       <!-- 撤销/重做 -->
 
-      <div class="anno-btn bim-button bim-button myfont" :class="[canUndo && 'active']">
+      <div class="anno-btn bim-button bim-button myfont" title="上一步" :class="[canUndo && 'active']">
         <svg-icon
           iconClass="iconprev"
           :class="{ 'prev-disabled': !canUndo }"
           :disabled="!canUndo"
           @click="undo"></svg-icon>
       </div>
-      <div class="anno-btn bim-button bim-button myfont" :class="[canRedo && 'active']">
+      <div class="anno-btn bim-button bim-button myfont" title="下一步" :class="[canRedo && 'active']">
         <svg-icon iconClass="iconnext" :class="{ 'next-disabled': !canRedo }" @click="redo"></svg-icon>
+      </div>
+      <div class="anno-btn bim-button bim-button myfont" title="剪切" :class="[isClipboard && 'active']">
+        <svg-icon iconClass="clipboard" @click="clipboardHandler"></svg-icon>
       </div>
       <div class="anno-btn bim-button bim-button myfont">
         <svg-icon
@@ -117,6 +120,7 @@ export default {
       textInsertStageY: 0, // 新增
       isInteracting: true,
       resizeObserver: null, // <--- 新增
+      isClipboard: false,
     }
   },
   computed: {
@@ -150,6 +154,13 @@ export default {
     }
   },
   methods: {
+    clipboardHandler() {
+      this.isClipboard = true
+      this.currentTool = ''
+      if (this.isClipboard) {
+        this.$mitt.emit('mittClipboard', this.isClipboard)
+      }
+    },
     stopOrStartDraw(bool) {
       this.isInteracting = bool
       if (!bool) {
@@ -195,10 +206,8 @@ export default {
             // canvas.width = width
             // canvas.height = height
           } else {
-            console.error('在 konvajs-content 中未找到 canvas！')
           }
         } else {
-          console.error('未找到 konvajs-content 容器！')
         }
         this.$mitt.emit('knova-canvas-ready', this.stage)
       }
@@ -705,8 +714,6 @@ export default {
 
         this.layer.batchDraw()
       } catch (error) {
-        console.error('历史记录加载失败111:', error)
-
         // 紧急恢复：重置到最后一次正确状态
         // this.resetToLastGoodState()
       } finally {

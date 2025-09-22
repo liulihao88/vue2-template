@@ -8,7 +8,14 @@
       </template>
       <DrawThree ref="drawThreeRef" v-if="isShowDraw"></DrawThree>
       <el-form ref="form" :model="form" label-width="80px" class="dark-form">
-        <el-form-item label="审查截图">
+        <el-form-item>
+          <template #label>
+            <div>
+              <el-tooltip content="只能上传jpg/png文件">
+                <div>审查截图</div>
+              </el-tooltip>
+            </div>
+          </template>
           <el-upload
             class="upload-demo"
             action="/admin/sys-file-up;pad?bucketName=prjfilebimauditdetail"
@@ -23,7 +30,6 @@
             <template v-if="fileList.length === 0">
               <!-- 没有文件时显示上传按钮 -->
               <el-button size="small" type="primary">点击上传</el-button>
-              <div slot="tip" class="el-upload__tip cl-white">只能上传jpg/png文件</div>
             </template>
 
             <!-- 上传中的提示 -->

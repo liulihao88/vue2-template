@@ -25,7 +25,7 @@
 
 <script>
 import { tableOption } from './crud'
-import clipboardPhoto from './clipboardPhoto.vue'
+import clipboardPhoto from './clipboardPhotoBase.vue'
 export default {
   name: 'ThreeBtn',
   components: {

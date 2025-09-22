@@ -47,13 +47,13 @@
         <BottomThreeBtn
           v-if="modelLoaded"
           @resetModel="resetModel()"
-          @toggleCLick="toggleClick"
+          @toggleClick="toggleClick"
           :activeArr="activeArr"></BottomThreeBtn>
         <ClipboardPhoto
           :scene="scene"
           :knovaCanvasRef="knovaCanvasRef"
           :renderer="renderer"
-          :allContainerRef="$refs.allContainerRef"
+          :screenshotTargetArea="$refs.allContainerRef"
           @toggleControls="toggleControls"
           :container="$refs.sceneContainer"
           ref="clipboardPhotoRef"></ClipboardPhoto>
@@ -73,7 +73,7 @@ import BottomThreeBtn from './components/bottomThreeBtn.vue'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import ClipboardPhoto from './components/clipboardPhoto.vue'
+import ClipboardPhoto from './components/clipboardPhotoHtml2Canvas.vue'
 import absoluteBox from './components/absoluteBox.vue'
 import NodeItem from './components/NodeItem.vue' // New component for rendering tree nodes
 
@@ -132,6 +132,9 @@ export default {
       isCurrentlyDragging: false,
     }
   },
+  created() {
+    this.$mitt.on('mittClipboard', this.mittClipboard)
+  },
   async mounted() {
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
@@ -151,13 +154,16 @@ export default {
     this.cleanupScene()
   },
   methods: {
+    mittClipboard() {
+      this.$refs.clipboardPhotoRef.startSelection()
+    },
     closeReview() {
       this.isShowReview = false
     },
     toggleControls(bool) {
       this.controls.enabled = bool
       if (bool) {
-        this.activeArr = this.activeArr.filter((v) => v !== 'clipboard')
+        this.$refs.uploadFileRef.$refs.drawThreeRef.isClipboard = false
       } else {
       }
     },

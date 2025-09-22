@@ -5,13 +5,13 @@
         <svg-icon icon-class="reset" class="icon-dom" />
         <span data-v-6fec4127="" class="text">复位</span>
       </div>
-      <div
+      <!-- <div
         class="image-button-checkbox"
         :class="{ 'is-active': sActiveArr.includes('clipboard') }"
         @click="clipboardHandler">
-        <svg-icon icon-class="clipboard" class="icon-dom" />
+        <svg-icon icon-class="clipboard" class="icon-dom" crossorigin="anonymous" />
         <span data-v-6fec4127="" class="text">剪切</span>
-      </div>
+      </div> -->
       <div
         class="image-button-checkbox"
         :class="{ 'is-active': sActiveArr.includes('review') }"
@@ -56,9 +56,9 @@ export default {
   created() {},
   mounted() {},
   methods: {
-    clipboardHandler() {
-      this.toggleVar('clipboard')
-    },
+    // clipboardHandler() {
+    //   this.toggleVar('clipboard')
+    // },
     reviewHandler() {
       this.toggleVar('review')
     },
@@ -72,7 +72,7 @@ export default {
       } else {
         cloneData = [...cloneData, variable]
       }
-      this.$emit('toggleCLick', cloneData)
+      this.$emit('toggleClick', cloneData)
     },
   },
 }
