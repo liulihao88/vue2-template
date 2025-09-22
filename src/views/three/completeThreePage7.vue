@@ -16,7 +16,7 @@
       :close-on-click-modal="false"
       fullscreen
       custom-class="dark-theme-dialog">
-      <div>
+      <div ref="allContainerRef">
         <div ref="sceneContainer" class="scene-container" v-if="modelLoaded"></div>
         <template v-if="modelLoaded">
           <absolute-box
@@ -53,6 +53,7 @@
           :scene="scene"
           :knovaCanvasRef="knovaCanvasRef"
           :renderer="renderer"
+          :allContainerRef="$refs.allContainerRef"
           @toggleControls="toggleControls"
           :container="$refs.sceneContainer"
           ref="clipboardPhotoRef"></ClipboardPhoto>
