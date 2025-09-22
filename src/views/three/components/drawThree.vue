@@ -14,7 +14,7 @@
       </div>
 
       <!-- 颜色选择 -->
-      <div class="anno-btn bim-button bim-button myfont color-picker">
+      <div class="anno-btn bim-button bim-button myfont color-picker" title="选择颜色">
         <input type="color" id="stroke-color" v-model="strokeColor" @change="updateCurrentColor" />
       </div>
 
@@ -1316,8 +1316,10 @@ export default {
   margin-bottom: 10px;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  /* gap: 8px; */
   align-items: center;
+  width: 100%;
+  justify-content: space-between;
 }
 
 .toolbar button {
@@ -1352,8 +1354,10 @@ export default {
 }
 
 .color-picker input[type='color'] {
-  width: 30px;
-  height: 30px;
+  /* width: 30px; */
+  /* height: 30px; */
+  width: 100%;
+  height: 100%;
   padding: 0;
   border: 1px solid #ddd;
   border-radius: 4px;
