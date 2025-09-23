@@ -69,6 +69,14 @@ export const constantRoutes = [
         },
       },
       {
+        path: 'center',
+        name: 'center',
+        component: () => import('@/views/three/center'),
+        meta: {
+          title: '直接加载gltf文件且居中俯视展示',
+        },
+      },
+      {
         path: 'importThree',
         name: 'importThree',
         component: () => import('@/views/three/importThree'),
