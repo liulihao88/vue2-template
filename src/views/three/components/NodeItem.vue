@@ -7,6 +7,7 @@
         'node-active': isSelected,
         'node-mesh': node.isMesh,
         'node-group': !node.isMesh,
+        'is-top-level': displayName === 'root',
       }"
       @click.stop="handleClick">
       <span v-if="hasChildren" class="expand-toggle" @click.stop="toggleExpand">
@@ -17,7 +18,12 @@
       </span>
     </div>
 
-    <div v-show="expanded" v-if="hasChildren" class="children-container" :class="{ 'not-expanded': !expanded }" ref="notExpandedRef">
+    <div
+      v-show="expanded"
+      v-if="hasChildren"
+      class="children-container"
+      :class="{ 'not-expanded': !expanded, 'is-top-level': displayName === 'root' }"
+      ref="notExpandedRef">
       <node-item
         v-for="child in node.children"
         :key="child.uuid"
@@ -85,25 +91,34 @@ export default {
   align-items: center;
   border-radius: 4px;
   transition: all 0.2s;
+  border: 1px solid transparent; /* 默认无边框 */
 }
-
 .node-item-container:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
-
+/* 移除顶级节点的特殊颜色和边框 */
+.node-item-container.is-top-level {
+  border: none;
+  /*如果你想连颜色也去掉：*/
+  color: inherit;
+  display: none;
+}
 .node-active {
   background-color: rgba(0, 255, 0, 0.2) !important;
   font-weight: bold;
 }
-
 .node-mesh {
   color: #4fc3f7;
 }
-
 .node-group {
   color: #f06292;
 }
-
+/* 确保 node-mesh/node-group 类不影响顶级节点 */
+.node-item-container.is-top-level.node-mesh,
+.node-item-container.is-top-level.node-group {
+  color: inherit;
+  display: none;
+}
 .expand-toggle {
   display: inline-block;
   width: 16px;
@@ -111,25 +126,23 @@ export default {
   margin-right: 4px;
   font-weight: bold;
 }
-
 .node-name {
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
+  text-override: ellipsis;
 }
-
 .children-container {
   border-left: 1px dashed rgba(255, 255, 255, 0.1);
   margin-left: 8px;
   padding-left: 8px;
 }
-
-.node-active {
-  background-color: rgba(0, 255, 0, 0.2) !important;
-  font-weight: bold;
-  position: relative;
-  background-color: rgba(255, 255, 255, 0.1);
+/* 为顶级节点的 children-container 移除左边框和左边距 */
+.children-container.is-top-level {
+  border-left: none;
+  margin-left: 0;
+  padding-left: 0;
 }
+/* 原有的 active 样式保持不变 */
 .node-active::after {
   content: '';
   position: absolute;

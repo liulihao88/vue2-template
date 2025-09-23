@@ -280,7 +280,7 @@ export default {
         loader.setDRACOLoader(dracoLoader)
       }
       loader.load(
-        '/2.glb',
+        '/3.glb',
         (gltf) => {
           this.isLoaded = true
           this.sceneNodes = []
@@ -292,7 +292,7 @@ export default {
           this.scene.add(this.model)
 
           // Build node tree structure
-          this.buildNodeTree(this.model)
+          this.buildNodeTree(this.model.children[0])
 
           // Prepare for interaction
           this.prepareModelForInteraction(this.model)
