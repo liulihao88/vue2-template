@@ -19,6 +19,12 @@
       <div ref="allContainerRef">
         <div ref="sceneContainer" class="scene-container" v-if="modelLoaded"></div>
         <template v-if="modelLoaded">
+          <el-progress
+            :percentage="percentage"
+            v-if="!isLoaded"
+            class="progress-box"
+            color="#333"
+            :style-width="20"></el-progress>
           <absolute-box
             :customStyle="{
               left: 0,
@@ -130,6 +136,8 @@ export default {
       nodeMap: new Map(), // Maps UUID to node objects
       meshNodeMap: new Map(), // Maps Mesh objects to their containing nodes
       isCurrentlyDragging: false,
+      isLoaded: false,
+      percentage: 0,
     }
   },
   created() {
@@ -264,28 +272,41 @@ export default {
     },
 
     async loadModel() {
+      this.isLoaded = false
+      this.percentage = 0
       const loader = new GLTFLoader()
       const dracoLoader = await this.initDracoLoader()
       if (dracoLoader) {
         loader.setDRACOLoader(dracoLoader)
       }
-      loader.load('/2.glb', (gltf) => {
-        this.sceneNodes = []
-        this.nodeMap.clear()
-        this.meshNodeMap.clear()
+      loader.load(
+        '/2.glb',
+        (gltf) => {
+          this.isLoaded = true
+          this.sceneNodes = []
+          this.nodeMap.clear()
+          this.meshNodeMap.clear()
 
-        // Apply initial rotation
-        gltf.scene.rotation.y = Math.PI
-        this.model = gltf.scene
-        this.scene.add(this.model)
+          // Apply initial rotation
+          this.model = gltf.scene
+          this.scene.add(this.model)
 
-        // Build node tree structure
-        this.buildNodeTree(this.model)
+          // Build node tree structure
+          this.buildNodeTree(this.model)
 
-        // Prepare for interaction
-        this.prepareModelForInteraction(this.model)
-        this.fitCameraToModel()
-      })
+          // Prepare for interaction
+          this.prepareModelForInteraction(this.model)
+          this.fitCameraToModel()
+        }, // 加载进度回调
+        (xhr) => {
+          this.percentage = parseInt((xhr.loaded / xhr.total) * 100)
+        },
+
+        // 加载失败回调
+        (error) => {
+          console.error('模型加载过程中发生错误:', error)
+        },
+      )
     },
 
     buildNodeTree(object, parentNode = null, depth = 0) {
@@ -579,15 +600,22 @@ export default {
     },
 
     fitCameraToModel() {
+      // a. 获取模型的边界框
+      this.camera.position.set(0, 2, 5) // 将相机放在 x=0, y=1, z=5 的位置
       const box = new THREE.Box3().setFromObject(this.model)
-      const size = box.getSize(new THREE.Vector3())
       const center = box.getCenter(new THREE.Vector3())
+      const size = box.getSize(new THREE.Vector3())
 
       const maxDim = Math.max(size.x, size.y, size.z)
-      const distance = maxDim * 2
+      const targetScale = 4.0 / maxDim
 
-      this.camera.position.set(0, center.y + distance * 0.8, distance * 0.5)
-      this.camera.lookAt(center)
+      // c. 计算缩放比例
+      // 我们希望模型最大为 4 个单位，可以根据需要调整这个 '4.0'
+      this.model.scale.multiplyScalar(targetScale)
+      // d. 将模型居中 (使其中心位于世界坐标原点)
+      this.model.position.sub(center.multiplyScalar(targetScale))
+      // --- 核心逻辑结束 ---
+      // 将处理好的模型添加到场景中
 
       if (this.controls) {
         this.controls.target.copy(center)
@@ -629,6 +657,7 @@ export default {
         this.model.rotation.set(0, 0, 0) // 重置旋转
         this.model.scale.set(1, 1, 1) // 恢复原始大小
       }
+      this.camera.position.set(0, 2, 5)
       this.selectedNodeId = ''
       if (!isFirst) {
         // 3. 清除所有选中和高亮状态
@@ -803,5 +832,12 @@ export default {
 /* 确保模型容器可以接收鼠标事件 */
 .scene-container {
   pointer-events: auto !important;
+}
+.progress-box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 1;
+  width: 200px;
 }
 </style>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Three.js 400x400 俯视图</title>
+    <style>
+        /* 1. 移除默认的浏览器边距 */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* 防止页面滚动条出现 */
+        }
+
+        /* 2. 将 canvas 容器设置为视口的中心 */
+        #canvas-container {
+            width: 100%;
+            height: 100vh; /* 使用视口高度 */
+            display: flex;          /* 使用 Flexbox 布局 */
+            justify-content: center; /* 水平居中 */
+            align-items: center;     /* 垂直居中 */
+            background-color: #f0f0f0; /* 设置一个背景色以便观察 */
+        }
+
+        /* 3. 设置 canvas 自身的尺寸 */
+        #myCanvas {
+            width: 400px;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 用于放置 Three.js 渲染结果的 div -->
+    <div id="canvas-container">
+        <!-- Three.js 的 canvas 将被插入这里 -->
+    </div>
+
+    <!-- 4. 引入 Three.js 库 (从 CDN) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // --- 核心代码 ---
+
+        // 5. 设置场景
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0xe0e0e0); // 设置一个比 body 稍亮的灰色背景
+
+        // 6. 设置相机
+        const camera = new THREE.PerspectiveCamera(
+            75,  // 视角
+            400 / 400, // 宽高比 (必须是 1:1)
+            0.1, // 近裁剪面
+            1000  // 远裁剪面
+        );
+        camera.position.set(0, 10, 0); // 将相机放在正上方
+        camera.lookAt(0, 0, 0);       // 让相机看向场景中心
+
+        // 7. 设置渲染器
+        // 让 renderer 自动将 canvas 的尺寸设置为 CSS 中定义的尺寸
+        const renderer = new THREE.WebGLRenderer({ antialias: true }); // antialias 使边缘更平滑
+
+        // 关键：渲染器会读取其 DOM 元素 (canvas) 的 CSS 样式来确定宽高
+        // 我们已经在 CSS 中将 #myCanvas 的宽高设置为 400px
+        renderer.setSize(400, 400); // 设置设备的像素比
+
+        // 将渲染器的 canvas 添加到页面中
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        renderer.domElement.id = 'myCanvas'; // 给 canvas 一个 id，方便我们通过 CSS 控制它
+
+        // 8. 创建场景中的物体
+        // a. 地面
+        const groundGeometry = new THREE.PlaneGeometry(10, 10);
+        const groundMaterial = new THREE.MeshStandardMaterial({
+            color: 0xcccccc,
+            side: THREE.DoubleSide // 让平面两面都可见
+        });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2; // 将平面旋转成水平状态（-90度）
+        scene.add(ground);
+
+        // b. 一个中心物体 (例如立方体)
+        const cubeGeometry = new THREE.BoxGeometry(2, 2, 2);
+        const cubeMaterial = new THREE.MeshStandardMaterial({
+            color: 0x0077ff,
+            metalness: 0.5,
+            roughness: 0.2
+        });
+        const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+        cube.position.y = 1; // 放在地面上方
+        scene.add(cube);
+
+        // 9. 添加灯光 (为了让物体有立体感)
+        // a. 环境光 - 提供基础照明
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        // b. 点光源 - 会移动，产生动态阴影
+        const pointLight = new THREE.PointLight(0xffffff, 1);
+        pointLight.position.set(5, 10, 5);
+        scene.add(pointLight);
+
+        // 10. 动画循环
+        function animate() {
+            requestAnimationFrame(animate); // 循环调用
+
+            // 让立方体缓慢自转，证明场景是活动的
+            // cube.rotation.x += 0.005;
+            // cube.rotation.y += 0.005;
+
+            // // 让点光源绕着中心转圈
+            // const time = Date.now() * 0.001; // 获取当前时间（秒）
+            // pointLight.position.x = Math.cos(time) * 8;
+            // pointLight.position.z = Math.sin(time) * 8;
+
+            // // 让点光源始终照射立方体
+            pointLight.lookAt(cube.position);
+
+            // 渲染场景
+            renderer.render(scene, camera);
+        }
+
+        // 启动动画
+        animate();
+
+    </script>
+
+</body>
+</html>

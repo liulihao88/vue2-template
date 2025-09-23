@@ -213,6 +213,7 @@ export default {
         0.1,
         1000,
       )
+      this.camera.position.set(0, 3, 5)
 
       // Lighting
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
@@ -253,7 +254,6 @@ export default {
             this.meshNodeMap.clear()
 
             // Apply initial rotation
-            gltf.scene.rotation.y = Math.PI
             this.model = gltf.scene
             this.scene.add(this.model)
 
@@ -570,16 +570,39 @@ export default {
       })
     },
 
+    async resetModel(isFirst = false) {
+      // 1. 恢复模型的初始位置/旋转/缩放
+      if (this.model) {
+        this.model.position.set(0, 0, 0) // 重置位置
+        this.model.rotation.set(0, 0, 0) // 重置旋转
+        this.model.scale.set(1, 1, 1) // 恢复原始大小
+      }
+      this.camera.position.set(0, 3, 5)
+      this.selectedNodeId = ''
+      if (!isFirst) {
+        // 3. 清除所有选中和高亮状态
+        this.clearHighlight()
+        // 4. 重新适应模型到视图
+        this.fitCameraToModel()
+      }
+    },
     fitCameraToModel() {
+      // a. 获取模型的边界框
       const box = new THREE.Box3().setFromObject(this.model)
-      const size = box.getSize(new THREE.Vector3())
       const center = box.getCenter(new THREE.Vector3())
+      console.log(`87 center`, center);
+      const size = box.getSize(new THREE.Vector3())
+      console.log(`56 size`, size);
 
       const maxDim = Math.max(size.x, size.y, size.z)
-      const distance = maxDim * 2
+      console.log(`44 maxDim`, maxDim);
+      const targetScale = 10.0 / maxDim
 
-      this.camera.position.set(0, center.y + distance * 0.8, distance * 0.5)
-      this.camera.lookAt(center)
+      // c. 计算缩放比例
+      // 我们希望模型最大为 4 个单位，可以根据需要调整这个 '4.0'
+      this.model.scale.multiplyScalar(targetScale)
+      // d. 将模型居中 (使其中心位于世界坐标原点)
+      this.model.position.sub(center.multiplyScalar(targetScale))
 
       if (this.controls) {
         this.controls.target.copy(center)
