@@ -1,5 +1,5 @@
 <template>
-  <absolute-box :customStyle="{ right: '0', top: 'calc(0% + 56px)', height: 'calc(50vh - 56px)' }" title="审查列表">
+  <absolute-box :customStyle="{ right: '0', top: 'calc(0% + 56px)', height: 'calc(50vh - 56px)' }" title="审查">
     <template #right>
       <el-button type="text" icon="el-icon-plus">新增</el-button>
       <el-button type="text" icon="el-icon-close" @click="closeReview">关闭</el-button>

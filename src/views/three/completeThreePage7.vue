@@ -280,7 +280,7 @@ export default {
         loader.setDRACOLoader(dracoLoader)
       }
       loader.load(
-        '/3.glb',
+        '/2.glb',
         (gltf) => {
           this.isLoaded = true
           this.sceneNodes = []
