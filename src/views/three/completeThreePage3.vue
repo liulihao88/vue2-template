@@ -16,7 +16,7 @@
           left: 0,
           top: '0%',
         }"
-        title="部位属性">
+        title="全部构件">
         <div
           v-for="(part, i) in partLists"
           :key="part.id"

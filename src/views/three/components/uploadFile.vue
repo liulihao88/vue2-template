@@ -1,8 +1,8 @@
 <template>
   <div>
-    <absolute-box :customStyle="{ right: 0, top: '50%' }" title="新增审查">
+    <absolute-box :customStyle="{ right: 0, top: 'calc(0% + 56px)', height: 'calc(50vh - 56px)' }" title="新增审查">
       <template #right>
-        <el-button type="text" icon="el-icon-edit" @click="handleDrawEdit">
+        <el-button type="text" :icon="isShowDraw ? 'el-icon-close' : 'el-icon-edit'" @click="handleDrawEdit">
           {{ isShowDraw ? '取消' : '编辑' }}
         </el-button>
       </template>

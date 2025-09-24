@@ -7,7 +7,7 @@
 
     <div ref="sceneContainer" class="scene-container" v-if="modelLoaded"></div>
     <template v-if="modelLoaded">
-      <g-absolute-box :customStyle="{ left: 0, top: '0%' }" title="部位属性">
+      <g-absolute-box :customStyle="{ left: 0, top: '0%' }" title="全部构件">
         <div
           v-for="(part, i) in partLists"
           :key="part.id"

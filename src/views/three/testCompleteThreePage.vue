@@ -1,8 +1,8 @@
 <template>
   <div>
-    <g-absolute-box :customStyle="{ left: 0, top: '0%' }" title="部位属性"></g-absolute-box>
+    <g-absolute-box :customStyle="{ left: 0, top: '0%' }" title="全部构件"></g-absolute-box>
     <g-check-photo ref="checkPhotoRef"></g-check-photo>
-    <g-absolute-box :customStyle="{ left: 0, top: '50%' }" title="元素属性"></g-absolute-box>
+    <g-absolute-box :customStyle="{ left: 0, top: '50%' }" title="构件属性"></g-absolute-box>
 
     <g-absolute-box :customStyle="{ right: 0, top: '0%' }" title="检查">
       <TableBlack></TableBlack>

@@ -24,7 +24,7 @@
               left: 0,
               top: 'calc(0% + 56px)',
             }"
-            title="部位属性">
+            title="全部构件">
             <div class="node-tree">
               <node-item
                 v-for="node in sceneNodes"
@@ -590,12 +590,12 @@ export default {
       // a. 获取模型的边界框
       const box = new THREE.Box3().setFromObject(this.model)
       const center = box.getCenter(new THREE.Vector3())
-      console.log(`87 center`, center);
+      console.log(`87 center`, center)
       const size = box.getSize(new THREE.Vector3())
-      console.log(`56 size`, size);
+      console.log(`56 size`, size)
 
       const maxDim = Math.max(size.x, size.y, size.z)
-      console.log(`44 maxDim`, maxDim);
+      console.log(`44 maxDim`, maxDim)
       const targetScale = 10.0 / maxDim
 
       // c. 计算缩放比例

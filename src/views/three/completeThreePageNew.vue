@@ -7,7 +7,7 @@
 
     <div ref="sceneContainer" class="scene-container" v-if="modelLoaded"></div>
     <template v-if="modelLoaded">
-      <g-absolute-box :customStyle="{ left: 0, top: '0%' }" title="部位属性">
+      <g-absolute-box :customStyle="{ left: 0, top: '0%' }" title="全部构件">
         <div
           v-for="(part, i) in partLists"
           :key="part.id"
@@ -16,7 +16,7 @@
           <div>{{ part.name }}: {{ part.id }}</div>
         </div>
       </g-absolute-box>
-      <g-absolute-box :customStyle="{ left: 0, top: '50%' }" title="元素属性">
+      <g-absolute-box :customStyle="{ left: 0, top: '50%' }" title="构件属性">
         <div v-if="selectedPartMesh">
           <div v-for="(value, key) of selectedPartMesh" :key="key">
             <div class="">{{ key }}</div>

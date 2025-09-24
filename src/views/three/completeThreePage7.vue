@@ -31,7 +31,7 @@
               top: 'calc(0% + 56px)',
               height: 'calc(50vh - 56px)',
             }"
-            title="部位属性">
+            title="全部构件">
             <div class="node-tree">
               <node-item
                 v-for="node in sceneNodes"

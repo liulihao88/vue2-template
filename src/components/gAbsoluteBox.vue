@@ -13,7 +13,7 @@
       </section>
     </section>
     <div class="box-container">
-      <el-scrollbar>
+      <el-scrollbar style="height: 100%">
         <slot></slot>
       </el-scrollbar>
     </div>
