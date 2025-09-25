@@ -1,21 +1,45 @@
 <template>
   <div>
-    <absolute-box :customStyle="{ right: 0, top: 'calc(0% + 56px)', height: 'calc(50vh - 56px)' }" title="新增审查">
+    <absolute-box :customStyle="{ right: 0, top: 'calc(0% + 56px)', height: 'calc(50vh - 56px)' }" :title="title">
       <template #right>
-        <el-button type="text" :icon="isShowDraw ? 'el-icon-close' : 'el-icon-edit'" @click="handleDrawEdit">
-          {{ isShowDraw ? '取消' : '编辑' }}
+        <el-button
+          type="text"
+          :icon="isShowDraw ? 'el-icon-close' : 'el-icon-edit'"
+          @click="handleCanEdit"
+          v-if="isEdit && !canEdit">
+          {{ '编辑' }}
         </el-button>
+        <el-button
+          type="text"
+          :icon="isShowDraw ? 'el-icon-close' : 'el-icon-edit'"
+          @click="handleDrawEdit"
+          v-if="!isEdit || canEdit">
+          {{ isShowDraw ? '取消' : '批注' }}
+        </el-button>
+        <el-button type="text" @click="handleSave" icon="el-icon-check" v-if="!isEdit || canEdit">保存</el-button>
+        <el-button type="text" @click="deleteItem" icon="el-icon-delete" v-if="isEdit && canEdit">删除</el-button>
       </template>
       <DrawThree ref="drawThreeRef" v-if="isShowDraw"></DrawThree>
-      <el-form ref="form" :model="form" label-width="80px" class="dark-form">
-        <el-form-item>
+      <el-form
+        ref="formRef"
+        :model="form"
+        label-width="auto"
+        class="dark-form"
+        :disabled="isEdit && !canEdit"
+        :rules="rules">
+        <el-form-item prop="auditPics">
           <template #label>
+            <el-tooltip content="只能上传jpg/png文件" style="display: inline-block">
+              <div>审查截图</div>
+            </el-tooltip>
+          </template>
+          <!-- <template #label>
             <div>
               <el-tooltip content="只能上传jpg/png文件">
                 <div>审查截图</div>
               </el-tooltip>
             </div>
-          </template>
+          </template> -->
           <el-upload
             class="upload-demo"
             action="/admin/sys-file-up;pad?bucketName=prjfilebimauditdetail"
@@ -36,11 +60,22 @@
             <div v-if="uploading" slot="tip" class="uploading-text">上传中...请稍候</div>
           </el-upload>
         </el-form-item>
-        <el-form-item label="审查类别">
-          <el-input v-model="form.standardId" placeholder="请输入"></el-input>
+        <el-form-item label="审查类别" prop="standardId">
+          <el-select
+            v-model="form.standardId"
+            placeholder="请选择标准名称"
+            style="width: 100%"
+            popper-class="dark-select-dropdown"
+            class="custom-dark-select">
+            <el-option
+              v-for="item in standardOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"></el-option>
+          </el-select>
         </el-form-item>
 
-        <el-form-item label="审查内容">
+        <el-form-item label="审查内容" prop="auditContent">
           <el-input v-model="form.auditContent" type="textarea" placeholder="请输入" />
         </el-form-item>
       </el-form>
@@ -54,6 +89,7 @@
 <script>
 import AbsoluteBox from './absoluteBox.vue'
 import DrawThree from './drawThree.vue'
+import { clone } from '@/utils/gFunc.js'
 export default {
   name: 'T4',
   components: {
@@ -63,23 +99,80 @@ export default {
   props: {},
   data() {
     return {
+      rules: {
+        standardId: [{ required: true, message: '审查类别必须选择', trigger: 'blur' }],
+        auditPics: [{ required: true, message: '审查截图必须选择', trigger: 'blur' }],
+        auditContent: [{ required: true, message: '审查内容必须填写', trigger: 'blur' }],
+      },
       isShowDraw: false,
       dialogVisible: false,
       dialogImageUrl: '',
+      canEdit: false,
+      isEdit: false,
       form: {
         standardId: '',
         auditContent: '',
         auditPics: '',
       },
+      standardOptions: [],
       fileList: [], // 已上传文件列表
       uploading: false, // 上传状态
     }
   },
-  computed: {},
+  computed: {
+    title() {
+      if (this.isEdit) {
+        return this.form.standardId
+      } else {
+        return '新增审查'
+      }
+    },
+  },
   watch: {},
-  created() {},
+  created() {
+    this.$mitt.on('mEditItem', this.editItem)
+    this.initOptions()
+  },
+  beforeDestroy() {
+    this.$mitt.off('mEditItem')
+    this.reset()
+  },
   mounted() {},
   methods: {
+    async initOptions() {
+      // let res = await getStandardOptions()
+      // if (res.data.code === 0) {
+      // this.standardOptions = res.data.data
+      // }
+      this.standardOptions = [
+        {
+          label: '类别1',
+          value: '1',
+        },
+        {
+          label: '类别2',
+          value: '2',
+        },
+      ]
+    },
+    handleCanEdit() {
+      this.canEdit = true
+    },
+    editItem(row) {
+      console.log(`85 row`, row)
+      this.reset()
+      if (!row) {
+        this.isEdit = false
+        this.form = {}
+      } else {
+        this.isEdit = true
+        this.form = clone(row)
+      }
+    },
+    reset() {
+      this.isShowDraw = false
+      this.canEdit = false
+    },
     handleDrawEdit() {
       this.isShowDraw = !this.isShowDraw
     },
@@ -113,6 +206,45 @@ export default {
     handlePictureCardPreview(file) {
       this.dialogImageUrl = file.url
       this.dialogVisible = true
+    },
+    handleSave() {
+      this.$refs.formRef.validate(async (valid) => {
+        if (valid) {
+          this.$message('chengg')
+          // let params = {
+          //   bimId: this.baseInfo.id,
+          //   standardId: this.form.standardId,
+          //   auditContent: this.form.auditContent,
+          //   auditPics: this.form.auditPics
+          // }
+          // let res = {}
+          // if (Object.keys(this.editRow).length > 0) {
+          //   params.id = this.editRow.id
+          //   res = await putPrjfilebimauditdetail(params)
+          // } else {
+          //   res = await postPrjfilebimauditdetail(params)
+          // }
+          // if (res?.data?.code === 0) {
+          //   this.$message.success('保存成功')
+          //   this.$emit('success')
+          // }
+        }
+      })
+    },
+    deleteItem() {
+      this.$confirm('是否确认删除？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        customClass: 'dark-theme-dialog',
+      })
+        .then(function () {
+          // return deletePrjfilebimauditdetail(this.form.id)
+        })
+        .then((data) => {
+          this.$message.success('删除成功')
+          // this.init()
+        })
     },
   },
 }

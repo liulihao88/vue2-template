@@ -56,9 +56,6 @@ export default {
   created() {},
   mounted() {},
   methods: {
-    // clipboardHandler() {
-    //   this.toggleVar('clipboard')
-    // },
     reviewHandler() {
       this.toggleVar('review')
     },

@@ -1,8 +1,7 @@
 <template>
   <g-absolute-box :customStyle="{ right: '0', top: '50%' }" title="审查列表">
     <template #right>
-      <el-button type="text" icon="el-icon-plus">新增</el-button>
-      <!-- <el-button type="text" icon="el-icon-close" @click="closeReview">关闭</el-button> -->
+      <el-button type="text" icon="el-icon-plus" @click="newAdd">新增</el-button>
     </template>
     <div class="list-box">
       <!--
@@ -10,28 +9,33 @@
         在实际应用中，这个 list_data 应该从 props 传入或从 API 获取。
       -->
       <div class="list-page__wrap">
-        <div v-for="(item, index) in listData" :key="index" class="list-page__item">
+        <div
+          v-for="(item, index) in listData"
+          :key="index"
+          class="list-page__item"
+          @click="editItem(item, index)"
+          :class="{ active: cIndex === index }">
           <!-- 左侧图片 -->
           <div class="list-page__image-container">
-            <el-image :src="item.imageUrl" fit="contain" style="height: 100%; width: 100%"></el-image>
+            <el-image :src="item.auditPics" fit="contain" style="height: 100%; width: 100%"></el-image>
           </div>
           <!-- 右侧信息区 -->
           <div class="list-page__info">
             <!-- 审查类别 (上方) -->
-            <h2 class="list-page__category">
-              {{ item.category }}
+            <h2 class="list-page__standardId">
+              {{ item.standardId }}
             </h2>
 
             <!-- 审查批注内容 (下方) -->
             <p class="list-page__content">
               <el-tooltip
-                :content="item.annotation"
+                :content="item.auditContent"
                 effect="dark"
                 placement="top-start"
-                :disabled="item.annotation.length < 60">
+                :disabled="item.auditContent.length < 60">
                 <div>
-                  {{ item.annotation.length }}
-                  {{ item.annotation }}
+                  {{ item.auditContent.length }}
+                  {{ item.auditContent }}
                 </div>
               </el-tooltip>
             </p>
@@ -54,32 +58,38 @@ export default {
   },
   data() {
     return {
+      cIndex: -1,
       listData: [
         {
-          category: '设计规范',
-          annotation: '这不符合我们的设计系统规范，请调整。',
-          imageUrl: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
+          id: 1,
+          standardId: '设计规范',
+          auditContent: '这不符合我们的设计系统规范，请调整。',
+          auditPics: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
         },
         {
-          category: '文案错误',
-          annotation: '确认按钮的文案应为“确认提交”，目前是“确定提交”。“确认”更符合用户在提交前的最后心理暗示。',
-          imageUrl: 'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg',
+          id: 2,
+          standardId: '文案错误',
+          auditContent: '确认按钮的文案应为“确认提交”，目前是“确定提交”。“确认”更符合用户在提交前的最后心理暗示。',
+          auditPics: 'https://fuss10.elemecdn.com/8/27/f01c15bb73e1ef3793e64e6b7bbccjpeg.jpeg',
         },
         {
-          category: '功能逻辑',
-          annotation: '当用户点击“重置”按钮时，除了清空表单，不应刷新整个页面。这会中断用户的操作流，体验不佳。',
-          imageUrl: 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
+          id: 3,
+          standardId: '功能逻辑',
+          auditContent: '当用户点击“重置”按钮时，除了清空表单，不应刷新整个页面。这会中断用户的操作流，体验不佳。',
+          auditPics: 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg',
         },
         {
-          category: '用户体验',
-          annotation:
+          id: 4,
+          standardId: '用户体验2',
+          auditContent:
             '加载动画使用了 Lottie 动画，但加载时间超过 3 秒时，未显示“预计还需 X 秒”的文字提示，容易让用户失去耐心。',
-          imageUrl: 'https://fuss10.elemecdn.com/3/28/bbf893f792f03a54408b3b7a7ebf0jpeg.jpeg',
+          auditPics: 'https://fuss10.elemecdn.com/3/28/bbf893f792f03a54408b3b7a7ebf0jpeg.jpeg',
         },
         {
-          category: '用户体验',
-          annotation: '加载动画使用了 Lottie 动画，但加载时间超过 3 秒时，未显示“预计还需 X 秒”的文字提示的的',
-          imageUrl: 'https://fuss10.elemecdn.com/3/28/bbf893f792f03a54408b3b7a7ebf0jpeg.jpeg',
+          id: 5,
+          standardId: '用户体验3',
+          auditContent: '加载动画使用了 Lottie 动画，但加载时间超过 3 秒时，未显示“预计还需 X 秒”的文字提示的的',
+          auditPics: 'https://fuss10.elemecdn.com/3/28/bbf893f792f03a54408b3b7a7ebf0jpeg.jpeg',
         },
       ],
     }
@@ -88,6 +98,15 @@ export default {
     this.list = clone(this.list, 10)
   },
   methods: {
+    editItem(v, i) {
+      this.cIndex = i
+      console.log(`37 v`, v)
+      this.$mitt.emit('mEditItem', v)
+    },
+    newAdd() {
+      this.cIndex = -1
+      this.$mitt.emit('mEditItem')
+    },
     closeReview() {
       this.$emit('closeReview')
     },
@@ -125,16 +144,24 @@ export default {
   background-color: #1a1a1a;
   border-radius: 8px;
   overflow: hidden;
+  cursor: pointer;
   height: 100px;
   margin-bottom: 8px;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
   border: 1px solid #333; /* 微妙的边框 */
+  &.active {
+    background-color: #333333; /* 被点击时背景色更深，模拟按下的感觉 */
+    box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0.3); /* 阴影向内，模拟凹陷效果 */
+    transform: scale(0.98); /* 稍微缩小一点，增强按压感 */
+  }
 }
+
 .list-page__item:hover {
-  // transform: translateY(-2px);
-  // box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
+  background-color: #252525; /* 背景色变亮一些 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* 添加一个柔和的阴影，增加层次感 */
+  border-color: #4fc3f7; /* 边框颜色变为与标题色一致 */
 }
 /* 图片容器 */
 .list-page__image-container {
@@ -160,7 +187,7 @@ export default {
   justify-content: space-between; /* 让类别和内容上下分布，两端对齐 */
 }
 /* 审查类别 (标题) */
-.list-page__category {
+.list-page__standardId {
   margin: 0 0 8px 0;
   font-weight: 500;
   font-size: 16px;

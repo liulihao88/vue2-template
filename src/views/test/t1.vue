@@ -18,23 +18,25 @@ export default {
   },
   computed: {},
   watch: {},
-  created() {},
+  created() {
+    this.$confirm('是否确认删除？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+      customClass: 'dark-theme-dialog',
+    })
+      .then(function () {
+        // return deletePrjfilebimauditdetail(this.editRow.id)
+      })
+      .then((data) => {
+        this.$message.success('删除成功')
+        // this.init()
+      })
+  },
   mounted() {},
   methods: {},
 }
 </script>
 <style scoped lang="scss">
-.full-screen-overlay {
-  position: fixed; /* 关键！相对于视口定位 */
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255, 255, 0, 0.9);
-  color: #333;
-  z-index: 1; /* 确保它在下面 */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+
 </style>

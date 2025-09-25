@@ -116,4 +116,9 @@
   .el-dialog__wrapper {
     background-color: rgba(0, 0, 0, 0.8);
   }
+
+  // 通过this.$dialog生成的样式
+  .el-message-box__title, .el-message-box__message {
+    color: #fff;
+  }
 }
