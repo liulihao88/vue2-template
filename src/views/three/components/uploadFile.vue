@@ -122,7 +122,7 @@ export default {
   computed: {
     title() {
       if (this.isEdit) {
-        return this.form.standardIdCopy
+        return '编辑审查'
       } else {
         return '新增审查'
       }
