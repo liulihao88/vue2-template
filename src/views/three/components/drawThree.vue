@@ -250,58 +250,6 @@ export default {
 
     // ================= 绘图相关方法 =================
 
-    handleMouseDown(e) {
-      if (!this.isInteracting) return
-      if (!this.currentTool || this.currentTool === 'text') return
-
-      const pos = this.stage.getPointerPosition()
-      if (!pos) return
-
-      this.startPos = { x: pos.x, y: pos.y }
-
-      // 根据工具类型创建不同的形状
-      switch (this.currentTool) {
-        case 'arrow':
-          this.tempShape = new Konva.Arrow({
-            points: [pos.x, pos.y, pos.x, pos.y],
-            stroke: this.strokeColor,
-            strokeWidth: 3,
-            name: 'shape',
-          })
-          break
-
-        case 'rect':
-          this.tempShape = new Konva.Rect({
-            x: pos.x,
-            y: pos.y,
-            width: 0,
-            height: 0,
-            stroke: this.strokeColor,
-            strokeWidth: 2,
-            name: 'shape',
-          })
-          break
-
-        case 'circle':
-          this.tempShape = new Konva.Ellipse({
-            x: pos.x,
-            y: pos.y,
-            radiusX: 0,
-            radiusY: 0,
-            stroke: this.strokeColor,
-            strokeWidth: 2,
-            name: 'shape',
-          })
-          break
-      }
-
-      if (this.tempShape) {
-        this.configureShapeEvents(this.tempShape)
-        this.layer.add(this.tempShape)
-        this.isDrawing = true
-      }
-    },
-
     // 配置形状事件
     configureShapeEvents(node) {
       // 通用点击选择逻辑
@@ -330,34 +278,6 @@ export default {
           this.openTextInput(pos.x, pos.y, node.text())
         })
       }
-    },
-    handleMouseMove(e) {
-      if (!this.isInteracting) return
-      if (!this.isDrawing || !this.tempShape) return
-
-      const pos = this.stage.getPointerPosition()
-      if (!pos) return
-
-      // 根据工具类型更新形状
-      switch (this.currentTool) {
-        case 'arrow':
-          this.tempShape.points([this.startPos.x, this.startPos.y, pos.x, pos.y])
-          break
-
-        case 'rect':
-          this.tempShape.width(pos.x - this.startPos.x)
-          this.tempShape.height(pos.y - this.startPos.y)
-          break
-
-        case 'circle':
-          const dx = pos.x - this.startPos.x
-          const dy = pos.y - this.startPos.y
-          this.tempShape.radiusX(Math.abs(dx))
-          this.tempShape.radiusY(Math.abs(dy))
-          break
-      }
-
-      this.layer.batchDraw()
     },
 
     handleMouseUp() {
@@ -939,8 +859,23 @@ export default {
           break
 
         case 'rect':
-          this.tempShape.width(pos.x - this.startPos.x)
-          this.tempShape.height(pos.y - this.startPos.y)
+          // 优化后的矩形逻辑
+          const rectEndX = pos.x
+          const rectEndY = pos.y
+          const rectStartX = this.startPos.x
+          const rectStartY = this.startPos.y
+          // 计算宽度和高度（使用 Math.abs 保证为正数）
+          const rectWidth = Math.abs(rectEndX - rectStartX)
+          const rectHeight = Math.abs(rectEndY - rectStartY)
+          // 计算矩形的左上角坐标
+          const rectX = Math.min(rectStartX, rectEndX)
+          const rectY = Math.min(rectStartY, rectEndY)
+          // 更新 tempShape 的所有必要属性
+          // 这确保了无论鼠标向哪个方向拖动，矩形都能正确显示和更新
+          this.tempShape.x(rectX)
+          this.tempShape.y(rectY)
+          this.tempShape.width(rectWidth)
+          this.tempShape.height(rectHeight)
           break
 
         case 'circle':
