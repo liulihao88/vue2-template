@@ -122,7 +122,7 @@ export default {
   computed: {
     title() {
       if (this.isEdit) {
-        return this.form.standardId
+        return this.form.standardIdCopy
       } else {
         return '新增审查'
       }
@@ -167,6 +167,7 @@ export default {
       } else {
         this.isEdit = true
         this.form = clone(row)
+        this.form.standardIdCopy = this.form.standardId
       }
     },
     reset() {
