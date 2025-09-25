@@ -23,7 +23,8 @@
           <div class="list-page__info">
             <!-- 审查类别 (上方) -->
             <h2 class="list-page__standardId">
-              {{ item.standardId }}
+              <g-tooltip :content="item.standardId" style="width: 100%"></g-tooltip>
+              <!-- {{ item.standardId }} -->
             </h2>
 
             <!-- 审查批注内容 (下方) -->
@@ -62,7 +63,7 @@ export default {
       listData: [
         {
           id: 1,
-          standardId: '设计规范',
+          standardId: '壹贰叁肆伍陆柒捌玖拾拾壹拾贰拾叁拾肆拾伍拾陆拾柒拾捌拾玖贰拾',
           auditContent: '这不符合我们的设计系统规范，请调整。',
           auditPics: 'https://fuss10.elemecdn.com/e/5d/4a731a90594a4af544c0c25941171jpeg.jpeg',
         },

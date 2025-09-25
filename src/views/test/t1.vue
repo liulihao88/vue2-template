@@ -1,10 +1,12 @@
 <template>
   <div>
-    <g-absolute-box title="我想测试全屏">
-      你好啊
+    <g-tooltip :content="item.standardId" style="width: 100px">
+      {{ item.standardId }}
+    </g-tooltip>
 
-      <div class="full-screen-overlay">我是全屏</div>
-    </g-absolute-box>
+    <g-tooltip :content="item.short" style="width: 100px">
+      {{ item.short }}
+    </g-tooltip>
   </div>
 </template>
 
@@ -14,29 +16,19 @@ export default {
   components: {},
   props: {},
   data() {
-    return {}
+    return {
+      item: {
+        short: '123',
+        standardId:
+          ' Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatibus eius quia consequatur rerum quis expedita fugit dolores ex est iure, ad sapiente maxime reiciendis optio ut. Quisquam sequi alias laboriosam.',
+      },
+    }
   },
   computed: {},
   watch: {},
-  created() {
-    this.$confirm('是否确认删除？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
-      customClass: 'dark-theme-dialog',
-    })
-      .then(function () {
-        // return deletePrjfilebimauditdetail(this.editRow.id)
-      })
-      .then((data) => {
-        this.$message.success('删除成功')
-        // this.init()
-      })
-  },
+  created() {},
   mounted() {},
   methods: {},
 }
 </script>
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>
