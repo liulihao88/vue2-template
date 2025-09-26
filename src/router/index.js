@@ -85,6 +85,14 @@ export const constantRoutes = [
         },
       },
       {
+        path: 'JsonToGlb',
+        name: 'JsonToGlb',
+        component: () => import('@/views/three/jsonToGlb'),
+        meta: {
+          title: 'JsonToGlb',
+        },
+      },
+      {
         path: 'canClickThree',
         name: 'canClickThree',
         component: () => import('@/views/three/canClickThree'),
