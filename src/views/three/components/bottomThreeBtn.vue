@@ -14,6 +14,14 @@
           :class="[isPageFullscreen ? 'icon-outquanping' : ' iconquanping']"></div>
         <span data-v-6fec4127="" class="text">{{ isPageFullscreen ? '退出全屏' : '全屏' }}</span>
       </div>
+      <div
+        class="image-button-checkbox"
+        :class="{ 'is-active': sActiveArr.includes('statistics') }"
+        @click="statisticsHandler">
+        <div id="bimi_tbSummary" class="myfont icontongji" title="统计"></div>
+        <span data-v-6fec4127="" class="text">统计</span>
+      </div>
+
       <div class="image-button-checkbox" :class="{ 'is-active': sActiveArr.includes('mouse') }" @click="mouseCatch">
         <div id="bimi_tbMouseCapture" class="myfont iconmouse" title="鼠标捕捉"></div>
         <span data-v-6fec4127="" class="text">鼠标捕获</span>
@@ -35,7 +43,7 @@ export default {
   components: {},
   props: {
     activeArr: {
-      // [clipboard, review, mouse]
+      // [clipboard, review, mouse, statistics]
       type: Array,
       default: () => {
         return []
@@ -71,8 +79,11 @@ export default {
         this.isPageFullscreen = true
       }
     },
+    statisticsHandler() {
+      this.toggleVar('statistics')
+    },
     mouseCatch() {
-      this.toggleVar('mouseCatch')
+      this.toggleVar('mouse')
     },
     reviewHandler() {
       this.toggleVar('review')

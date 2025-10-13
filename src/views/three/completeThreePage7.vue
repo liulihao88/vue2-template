@@ -42,6 +42,18 @@
                 @node-select="handleNodeSelect" />
             </div>
           </absolute-box>
+          <absolute-box
+            :customStyle="{
+              left: '301px',
+              top: 'calc(0% + 56px)',
+              height: 'calc(50vh - 56px)',
+            }"
+            title="模型信息"
+            v-if="isShowStatistics">
+            <div v-for="(part, i) in partLists" :key="part.id" class="part-item" @click="onPartListClick(part)">
+              <div>{{ part.name }}: {{ part.id }} : {{ materialMeshMap.get(part.id).length }}</div>
+            </div>
+          </absolute-box>
 
           <ElementAttribute :attribute="elementAttributeData"></ElementAttribute>
           <template v-if="isShowReview">
@@ -58,7 +70,7 @@
         <ClipboardPhoto
           :scene="scene"
           :knovaCanvasRef="knovaCanvasRef"
-        :renderer="renderer"
+          :renderer="renderer"
           :screenshotTargetArea="$refs.allContainerRef"
           @toggleControls="toggleControls"
           :container="$refs.sceneContainer"
@@ -142,6 +154,8 @@ export default {
       isCurrentlyDragging: false,
       isLoaded: false,
       percentage: 0,
+      isShowStatistics: false,
+      partLists: [],
       hoverCoords: {
         visible: false, // 控制信息框的显示/隐藏
         x: 0,
@@ -151,6 +165,7 @@ export default {
       // 为了性能，我们存储 Raycaster 和鼠标向量，避免在函数中重复创建
       raycaster: new THREE.Raycaster(),
       mouse: new THREE.Vector2(),
+      materialMeshMap: new Map(), // 材质ID => 对应的Mesh数组
     }
   },
   created() {
@@ -196,6 +211,12 @@ export default {
         this.isShowReview = true
       } else {
         this.isShowReview = false
+      }
+
+      if (arr.includes('statistics')) {
+        this.isShowStatistics = true
+      } else {
+        this.isShowStatistics = false
       }
       this.activeArr = arr
     },
@@ -295,6 +316,7 @@ export default {
       loader.load(
         '/2.glb',
         (gltf) => {
+          this.partLists = []
           this.isLoaded = true
           this.sceneNodes = []
           this.nodeMap.clear()
@@ -606,6 +628,21 @@ export default {
           child.userData.selectable = true
           child.castShadow = true
           child.receiveShadow = true
+
+          const matId = child.material.id
+          // 建立材质与Mesh的映射
+          if (!this.materialMeshMap.has(matId)) {
+            this.materialMeshMap.set(matId, [])
+            // let cloneMaterial = clone(child.material)
+            this.partLists.push({
+              // 去重部件列表
+              name: child.material.name || `部件_${matId}`,
+              id: matId,
+              // ...cloneMaterial,
+            })
+          }
+          this.materialMeshMap.get(matId).push(child) // 关联Mesh
+          child.userData.originalMaterial = child.material // 保存原始材质
         }
       })
     },
@@ -882,5 +919,11 @@ export default {
   left: 50%;
   z-index: 1;
   width: 200px;
+}
+.part-item {
+  height: 30px;
+  line-height: 30px;
+  padding: 2px;
+  color: #4fc3f7;
 }
 </style>
