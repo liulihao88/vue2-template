@@ -1,10 +1,14 @@
 <template>
   <div>
-    <div
-      id="bimi_tbMouseCapture"
-      class="bim-button myfont iconmouse"
-      style="float: left; color: #000"
-      title="鼠标捕捉"></div>
+    <div id="" class="iconfont icon-revert"></div>
+    <div id="" class="myfont icon-revert"></div>
+    <div id="" class="iconfont icon-clipboard"></div>
+    <span id="" class="myfont icon-clipboard"></span>
+    <div id="" class="myfont icon-check"></div>
+    <div id="" class="iconfont icon-color"></div>
+    <div id="" class="iconfont icon-prev"></div>
+    <div id="" class="iconfont icon-next"></div>
+    <div id="" class="iconfont icon-delete"></div>
   </div>
 </template>
 

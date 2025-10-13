@@ -21,23 +21,32 @@
       <!-- 撤销/重做 -->
 
       <div class="anno-btn bim-button bim-button myfont" title="上一步" :class="[canUndo && 'active']">
-        <svg-icon
+        <div
+          id=""
+          class="iconfont icon-prev"
+          :class="{ 'prev-disabled': !canUndo }"
+          :disabled="!canUndo"
+          @click="undo"></div>
+        <!-- <svg-icon
           iconClass="iconprev"
           :class="{ 'prev-disabled': !canUndo }"
           :disabled="!canUndo"
-          @click="undo"></svg-icon>
+          @click="undo"></svg-icon> -->
       </div>
       <div class="anno-btn bim-button bim-button myfont" title="下一步" :class="[canRedo && 'active']">
-        <svg-icon iconClass="iconnext" :class="{ 'next-disabled': !canRedo }" @click="redo"></svg-icon>
+        <div id="" class="iconfont icon-next" :class="{ 'next-disabled': !canRedo }" @click="redo"></div>
+        <!-- <svg-icon iconClass="iconnext" :class="{ 'next-disabled': !canRedo }" @click="redo"></svg-icon> -->
       </div>
       <div class="anno-btn bim-button bim-button myfont" title="剪切" :class="[isClipboard && 'active']">
-        <svg-icon iconClass="clipboard" @click="clipboardHandler"></svg-icon>
+        <div class="myfont icon-clipboard" @click="clipboardHandler"></div>
+        <!-- <svg-icon iconClass="clipboard" @click="clipboardHandler"></svg-icon> -->
       </div>
       <div class="anno-btn bim-button bim-button myfont">
-        <svg-icon
+        <div id="" class="iconfont icon-delete" @click="clearCanvas"></div>
+        <!-- <svg-icon
           iconClass="delete"
           class="anno-btn bim-button bim-button myfont iconjiantou"
-          @click="clearCanvas"></svg-icon>
+          @click="clearCanvas"></svg-icon> -->
       </div>
     </div>
 

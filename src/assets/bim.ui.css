@@ -2053,3 +2053,32 @@
   color: blue;
   background-image: url('./iconprev.svg');
 }
+
+
+.icon-next:before {
+  content: "\e9ce";
+}
+
+.icon-prev:before {
+  content: "\e9cd";
+}
+
+.icon-clipboard:before {
+  content: "\e600";
+}
+
+.icon-revert:before {
+  content: "\e6f3";
+}
+
+.icon-color:before {
+  content: "\e881";
+}
+
+.icon-delete:before {
+  content: "\ec7b";
+}
+
+.icon-check:before {
+  content: "\e751";
+}

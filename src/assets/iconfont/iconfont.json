@@ -1,0 +1,58 @@
+{
+  "id": "5039355",
+  "name": "vue2-template",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "32538049",
+      "name": "下一步",
+      "font_class": "next",
+      "unicode": "e9ce",
+      "unicode_decimal": 59854
+    },
+    {
+      "icon_id": "32538020",
+      "name": "上一步",
+      "font_class": "prev",
+      "unicode": "e9cd",
+      "unicode_decimal": 59853
+    },
+    {
+      "icon_id": "1117",
+      "name": "剪切",
+      "font_class": "clipboard",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "1790483",
+      "name": "分析还原",
+      "font_class": "review",
+      "unicode": "e6f3",
+      "unicode_decimal": 59123
+    },
+    {
+      "icon_id": "2279663",
+      "name": "选择颜色",
+      "font_class": "color",
+      "unicode": "e881",
+      "unicode_decimal": 59521
+    },
+    {
+      "icon_id": "6061533",
+      "name": "删除",
+      "font_class": "delete",
+      "unicode": "ec7b",
+      "unicode_decimal": 60539
+    },
+    {
+      "icon_id": "6773141",
+      "name": "文件-文书审查",
+      "font_class": "check",
+      "unicode": "e751",
+      "unicode_decimal": 59217
+    }
+  ]
+}
