@@ -7,7 +7,11 @@
         <span data-v-6fec4127="" class="text">复位</span>
       </div>
       <div class="image-button-checkbox" @click="fullScreen">
-        <div id="bimi_tbFullScreen" class="myfont iconquanping" title="全屏"></div>
+        <div
+          id="bimi_tbFullScreen"
+          class="myfont"
+          title="全屏"
+          :class="[isPageFullscreen ? 'icon-outquanping' : ' iconquanping']"></div>
         <span data-v-6fec4127="" class="text">{{ isPageFullscreen ? '退出全屏' : '全屏' }}</span>
       </div>
       <div class="image-button-checkbox" :class="{ 'is-active': sActiveArr.includes('mouse') }" @click="mouseCatch">

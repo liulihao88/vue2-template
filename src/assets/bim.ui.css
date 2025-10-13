@@ -696,6 +696,7 @@
   content: '';
 }
 
+
 .iconceliang:before {
   content: '';
 }
@@ -2055,6 +2056,9 @@
 }
 
 
+.icon-outquanping:before {
+  content: "\e79d";
+}
 .icon-next:before {
   content: "\e9ce";
 }
