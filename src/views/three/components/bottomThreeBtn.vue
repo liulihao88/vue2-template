@@ -12,10 +12,12 @@
         <svg-icon icon-class="clipboard" class="icon-dom" crossorigin="anonymous" />
         <span data-v-6fec4127="" class="text">剪切</span>
       </div> -->
-      <div
-        class="image-button-checkbox"
-        :class="{ 'is-active': sActiveArr.includes('review') }"
-        @click="reviewHandler">
+      <div class="image-button-checkbox" :class="{ 'is-active': sActiveArr.includes('mouse') }" @click="mouseCatch">
+        <div id="bimi_tbMouseCapture" class="myfont iconmouse" title="鼠标捕捉"></div>
+        <span data-v-6fec4127="" class="text">鼠标捕获</span>
+      </div>
+
+      <div class="image-button-checkbox" :class="{ 'is-active': sActiveArr.includes('review') }" @click="reviewHandler">
         <svg-icon icon-class="review" class="icon-dom" />
         <span data-v-6fec4127="" class="text">审查</span>
       </div>
@@ -30,7 +32,8 @@ export default {
   name: 'T3',
   components: {},
   props: {
-    activeArr: { // [clipboard, review]
+    activeArr: {
+      // [clipboard, review, mouse]
       type: Array,
       default: () => {
         return []
@@ -56,6 +59,9 @@ export default {
   created() {},
   mounted() {},
   methods: {
+    mouseCatch() {
+      this.toggleVar('mouseCatch')
+    },
     reviewHandler() {
       this.toggleVar('review')
     },
