@@ -11,7 +11,7 @@
 
     <el-dialog
       :visible.sync="modelLoaded"
-      title="我要变黑色"
+      :title="hoverCoords"
       append-to-body
       :close-on-click-modal="false"
       fullscreen
@@ -138,6 +138,15 @@ export default {
       isCurrentlyDragging: false,
       isLoaded: false,
       percentage: 0,
+      hoverCoords: {
+        visible: false, // 控制信息框的显示/隐藏
+        x: 0,
+        y: 0,
+        z: 0,
+      },
+      // 为了性能，我们存储 Raycaster 和鼠标向量，避免在函数中重复创建
+      raycaster: new THREE.Raycaster(),
+      mouse: new THREE.Vector2(),
     }
   },
   created() {
@@ -673,6 +682,7 @@ export default {
     },
     // 鼠标移动时，检查并标记为“正在拖动”
     onMouseMoveHandler(event) {
+      this.getMouseXYZ()
       // 如果 isCurrentlyDragging 已经是 true，就没必要再检查了
       if (this.isCurrentlyDragging) {
         return
@@ -692,6 +702,42 @@ export default {
         this.isCurrentlyDragging = true
         this.lastMousePos = { x: event.clientX, y: event.clientY } // 更新位置
       }
+    },
+    getMouseXYZ() {
+      const rect = this.renderer.domElement.getBoundingClientRect()
+      console.log(`12 rect`, rect)
+      this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+      this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+      // 2. 更新光线投射器，使其从相机出发，穿过鼠标点
+      this.raycaster.setFromCamera(this.mouse, this.camera)
+      // 3. 选择要进行碰撞检测的对象
+      // 为了性能，最好只让需要交互的物体参与检测。
+      // 例如，如果你的场景很大，可以先找出所有参与交互的 mesh。
+      // 如果模型结构不复杂，直接检测整个场景也可以。
+      const intersects = this.raycaster.intersectObjects(this.scene.children, true)
+      console.log(`25 intersects`, intersects)
+      // 4. 分析结果
+      if (intersects.length > 0) {
+        // 获取第一个（也就是最近的）交点信息
+        const intersect = intersects[0]
+
+        // --- 关键 ---
+        // `intersect.point` 就是鼠标在 3D 空间中指向的那个点的世界坐标！
+        // 这是一个 THREE.Vector3 对象
+        const point = intersect.point
+        // 5. 更新我们的 data，从而更新 UI
+        this.hoverCoords = {
+          visible: true,
+          x: point.x.toFixed(3),
+          y: point.y.toFixed(3),
+          z: point.z.toFixed(3),
+        }
+      } else {
+        // 如果鼠标没有悬停在任何物体上，则隐藏坐标信息
+        this.hoverCoords.visible = false
+      }
+      console.log(`33***** this.hoverCoords ***** 735行 three/completeThreePage7.vue  `)
+      console.log(JSON.stringify(this.hoverCoords, null, '\t'))
     },
     // 鼠标松开时，根据 isCurrentlyDragging 标志决定是否触发点击
     onMouseUpHandler(event) {
