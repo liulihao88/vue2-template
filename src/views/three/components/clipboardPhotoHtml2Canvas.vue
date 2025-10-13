@@ -11,8 +11,7 @@ export default {
   props: {
     // 截图的目标区域容器，我们直接截它
     screenshotTargetArea: {
-      type: HTMLElement,
-      required: true,
+      type: [HTMLElement],
     },
     // Konva Stage 的实例
   },

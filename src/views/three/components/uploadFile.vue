@@ -14,10 +14,11 @@
           :icon="isShowDraw ? 'el-icon-close' : 'el-icon-edit'"
           @click="handleDrawEdit"
           v-if="!isEdit || canEdit">
-          {{ isShowDraw ? '取消' : '批注' }}
+          {{ isShowDraw ? '取消标注' : '批注' }}
         </el-button>
         <el-button type="text" @click="handleSave" icon="el-icon-check" v-if="!isEdit || canEdit">保存</el-button>
         <el-button type="text" @click="deleteItem" icon="el-icon-delete" v-if="isEdit && canEdit">删除</el-button>
+        <el-button type="text" @click="cancelEdit" icon="el-icon-close" v-if="isEdit && canEdit">取消</el-button>
       </template>
       <DrawThree ref="drawThreeRef" v-if="isShowDraw"></DrawThree>
       <el-form
@@ -76,7 +77,7 @@
         </el-form-item>
 
         <el-form-item label="审查内容" prop="auditContent">
-          <el-input v-model="form.auditContent" type="textarea" placeholder="请输入" />
+          <el-input v-model="form.auditContent" type="textarea" placeholder="请输入" :rows="5" />
         </el-form-item>
       </el-form>
     </absolute-box>
@@ -139,6 +140,9 @@ export default {
   },
   mounted() {},
   methods: {
+    cancelEdit() {
+      this.canEdit = false
+    },
     async initOptions() {
       // let res = await getStandardOptions()
       // if (res.data.code === 0) {

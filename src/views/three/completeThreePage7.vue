@@ -58,7 +58,7 @@
         <ClipboardPhoto
           :scene="scene"
           :knovaCanvasRef="knovaCanvasRef"
-          :renderer="renderer"
+        :renderer="renderer"
           :screenshotTargetArea="$refs.allContainerRef"
           @toggleControls="toggleControls"
           :container="$refs.sceneContainer"
@@ -105,12 +105,9 @@ export default {
     knovaCanvasRef() {
       // 从最外层开始，一步一步判断，确保每一步都存在
       const uploadFileComp = this.$refs.uploadFileRef
-      console.log(`75 uploadFileComp`, uploadFileComp)
       if (!uploadFileComp) return null
       const drawThreeComp = uploadFileComp.$refs.drawThreeRef
-      console.log(`69 drawThreeComp`, drawThreeComp)
       if (!drawThreeComp) return null
-      console.log(`58 drawThreeComp.$refs.containerRef`, drawThreeComp.$refs.containerRef)
       return drawThreeComp.$refs.containerRef
     },
   },
@@ -528,7 +525,6 @@ export default {
     },
 
     onCanvasClick(event) {
-      console.log(`46 event`, event)
       if (!this.model) return
 
       // Calculate mouse position in normalized device coordinates
@@ -564,7 +560,6 @@ export default {
               if (nodeElement) {
               }
               this.findClosestBySelector(nodeElement)
-              // console.log(`14 res`, res)
               // res.style.display = 'block'
               setTimeout(() => {
                 nodeElement.scrollIntoView({
@@ -712,7 +707,6 @@ export default {
     },
     getMouseXYZ() {
       const rect = this.renderer.domElement.getBoundingClientRect()
-      console.log(`12 rect`, rect)
       this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
       this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
       // 2. 更新光线投射器，使其从相机出发，穿过鼠标点
@@ -722,7 +716,6 @@ export default {
       // 例如，如果你的场景很大，可以先找出所有参与交互的 mesh。
       // 如果模型结构不复杂，直接检测整个场景也可以。
       const intersects = this.raycaster.intersectObjects(this.scene.children, true)
-      console.log(`25 intersects`, intersects)
       // 4. 分析结果
       if (intersects.length > 0) {
         // 获取第一个（也就是最近的）交点信息
@@ -743,8 +736,6 @@ export default {
         // 如果鼠标没有悬停在任何物体上，则隐藏坐标信息
         this.hoverCoords.visible = false
       }
-      console.log(`33***** this.hoverCoords ***** 735行 three/completeThreePage7.vue  `)
-      console.log(JSON.stringify(this.hoverCoords, null, '\t'))
     },
     // 鼠标松开时，根据 isCurrentlyDragging 标志决定是否触发点击
     onMouseUpHandler(event) {
@@ -759,7 +750,6 @@ export default {
       // 关键判断：如果没拖动，就执行点击
       if (!this.isCurrentlyDragging) {
         const parent = event.target?.parentNode
-        console.log(`25 parent`, parent)
         if (!parent) {
           return
         }
