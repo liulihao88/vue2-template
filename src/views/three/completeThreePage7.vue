@@ -50,8 +50,24 @@
             }"
             title="模型信息"
             v-if="isShowStatistics">
-            <div v-for="(part, i) in partLists" :key="part.id" class="part-item" @click="onPartListClick(part)">
+            <div v-for="(part, i) in partLists" :key="part.id" class="part-item" w>
               <div>{{ part.name }}: {{ part.id }} : {{ materialMeshMap.get(part.id).length }}</div>
+            </div>
+          </absolute-box>
+          <absolute-box
+            :customStyle="{
+              left: '301px',
+              top: '50%',
+            }"
+            title="鼠标捕获"
+            v-if="isShowMouse">
+            <div>
+              <div>当前坐标</div>
+              <div style="margin-top: 8px" v-if="hoverCoords.visible">
+                <span style="margin-right: 8px">x: {{ hoverCoords.x }}</span>
+                <span style="margin-right: 8px">y: {{ hoverCoords.y }}</span>
+                <span style="margin-right: 8px">z: {{ hoverCoords.z }}</span>
+              </div>
             </div>
           </absolute-box>
 
@@ -166,6 +182,7 @@ export default {
       raycaster: new THREE.Raycaster(),
       mouse: new THREE.Vector2(),
       materialMeshMap: new Map(), // 材质ID => 对应的Mesh数组
+      isShowMouse: false,
     }
   },
   created() {
@@ -217,6 +234,11 @@ export default {
         this.isShowStatistics = true
       } else {
         this.isShowStatistics = false
+      }
+      if (arr.includes('mouse')) {
+        this.isShowMouse = true
+      } else {
+        this.isShowMouse = false
       }
       this.activeArr = arr
     },
