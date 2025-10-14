@@ -7,10 +7,11 @@
       :on-success="handleAvatarSuccess"
       disabled
       :before-upload="beforeAvatarUpload">
-      <img v-if="imageUrl" :src="imageUrl" class="avatar" />
-      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+      <div class="image-container" v-if="imageUrl">
+        <el-image :src="imageUrl" fit="contain" :preview-src-list="[imageUrl]" />
+      </div>
+      <i v-else class="el-icon-plus avatar-uploader-icon" disabled></i>
     </el-upload>
-    <!-- {{ imageUrl }} -->
   </div>
 </template>
 
@@ -22,16 +23,25 @@ export default {
   data() {
     return {
       imageUrl: '',
+      fileRaw: {},
     }
   },
   computed: {},
   watch: {},
-  created() {},
+  created() {
+    this.$mitt.on('mClipboardPhotoDone', (url) => {
+      if (url) {
+        this.fileRaw = url
+        this.imageUrl = URL.createObjectURL(url)
+      } else {
+        this.fileRaw = ''
+        this.imageUrl = ''
+      }
+    })
+  },
   mounted() {},
   methods: {
     handleAvatarSuccess(res, file) {
-      console.log(`87 file`, file)
-      console.log(`26 file.raw`, file.raw)
       this.imageUrl = URL.createObjectURL(file.raw)
     },
     beforeAvatarUpload(file) {
@@ -59,11 +69,11 @@ export default {
   border: 1px dashed #d9d9d9;
 
   border-radius: 6px;
-  cursor: pointer;
   position: relative;
   overflow: hidden;
 }
 .avatar-uploader .el-upload:hover {
+  cursor: not-allowed;
   border-color: #409eff;
 }
 .avatar-uploader-icon {
@@ -73,10 +83,21 @@ export default {
   height: 178px;
   line-height: 178px;
   text-align: center;
+  cursor: not-allowed;
 }
-.avatar {
+.image-container {
   width: 178px;
   height: 178px;
-  display: block;
+  display: flex; /* 关键：激活 Flexbox 布局 */
+  justify-content: center; /* 子元素在主轴（水平）上居中 */
+  align-items: center; /* 关键：子元素在交叉轴（垂直）上居中 */
+  ::v-deep .el-image {
+    width: 100%; /* 关键：让图片宽度占满 .image-container 的宽度 */
+    height: 100%; /* 关键：让图片高度自适应，保持原始宽高比 */
+  }
+  img {
+    width: 100%; /* 关键：让图片宽度占满 .image-container 的宽度 */
+    height: 100%; /* 关键：让图片高度自适应，保持原始宽高比 */
+  }
 }
 </style>

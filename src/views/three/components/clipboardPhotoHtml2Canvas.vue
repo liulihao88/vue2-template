@@ -178,18 +178,23 @@ export default {
 
         // 4. 下载混合后的最终画布
         canvasKonva.toBlob((blob) => {
+          const fileObject = new File([blob], '审核.png', { type: 'image/png' })
+          console.log(`02 fileObject`, fileObject);
+          console.log(`82 blob`, blob)
           const url = URL.createObjectURL(blob)
-          const a = document.createElement('a')
-          a.href = url
-          a.download = 'threejs-knova-screenshot.png'
-          document.body.appendChild(a)
-          a.click()
-          document.body.removeChild(a)
-          URL.revokeObjectURL(url)
+          // const a = document.createElement('a')
+          // a.href = url
+          // a.download = 'threejs-knova-screenshot.png'
+          // document.body.appendChild(a)
+          // a.click()
+          // document.body.removeChild(a)
+          // URL.revokeObjectURL(url)
+          this.$mitt.emit('mClipboardPhotoDone', fileObject)
         }, 'image/png')
 
         // 将我们合成的 canvas 转换为 URL 用于下载和显示
         const finalImageUrl = canvasKonva.toDataURL('image/png')
+        console.log(`82 finalImageUrl`, finalImageUrl)
         const finalImageElement = document.createElement('img')
         finalImageElement.src = finalImageUrl
         finalImageElement.style.position = 'fixed'

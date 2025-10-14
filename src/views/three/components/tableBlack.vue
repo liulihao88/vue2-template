@@ -17,7 +17,11 @@
           :class="{ active: cIndex === index }">
           <!-- 左侧图片 -->
           <div class="list-page__image-container">
-            <el-image :src="item.auditPics" fit="contain" style="height: 100%; width: 100%"></el-image>
+            <el-image
+              :src="item.auditPics"
+              fit="contain"
+              style="height: 100%; width: 100%"
+              :preview-src-list="[item.auditPics]"></el-image>
           </div>
           <!-- 右侧信息区 -->
           <div class="list-page__info">

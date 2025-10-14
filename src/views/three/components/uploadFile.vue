@@ -170,7 +170,7 @@ export default {
       this.canEdit = true
     },
     editItem(row) {
-      console.log(`85 row`, row)
+      this.$refs.formRef.clearValidate()
       this.reset()
       if (!row) {
         this.isEdit = false
