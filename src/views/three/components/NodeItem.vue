@@ -106,6 +106,7 @@ export default {
 .node-active {
   background-color: rgba(0, 255, 0, 0.2) !important;
   font-weight: bold;
+  position: relative;
 }
 .node-mesh {
   color: #4fc3f7;

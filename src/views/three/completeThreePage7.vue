@@ -124,11 +124,7 @@ export default {
   },
   computed: {
     hoverCoordsTitle() {
-      if (this.hoverCoords.visible) {
-        return `坐标: X: ${this.hoverCoords.x} Y: ${this.hoverCoords.y} Z: ${this.hoverCoords.z}`
-      } else {
-        return 'glb文件'
-      }
+      return 'glb文件'
     },
     knovaCanvasRef() {
       // 从最外层开始，一步一步判断，确保每一步都存在
