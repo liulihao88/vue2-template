@@ -118,7 +118,25 @@
   }
 
   // 通过this.$dialog生成的样式
-  .el-message-box__title, .el-message-box__message {
+  .el-message-box__title,
+  .el-message-box__message {
     color: #fff;
+  }
+
+  .el-message-box__btns {
+    .el-button {
+      background-color: #303133; /* 深色背景 */
+      color: #ffffff; /* 白色文字 */
+      border: none; /* 可选：移除边框，看起来更统一 */
+    }
+    .el-button:hover {
+      background-color: #606266;
+    }
+    .el-button:active {
+      background-color: #404244;
+    }
+    .el-button--primary {
+      // background-color: #909399;
+    }
   }
 }

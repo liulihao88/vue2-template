@@ -10,7 +10,6 @@
         :class="[currentTool === tool.name && 'active', tool.className]"
         :title="tool.label"
         @click="setTool(tool.name)">
-        <!-- {{ tool.label }} -->
       </div>
 
       <!-- 颜色选择 -->
@@ -40,7 +39,6 @@
       </div>
       <div class="anno-btn bim-button bim-button myfont" title="剪切" :class="[isClipboard && 'active']">
         <div class="myfont icon-clipboard" @click="clipboardHandler"></div>
-        <!-- <svg-icon iconClass="clipboard" @click="clipboardHandler"></svg-icon> -->
       </div>
       <div class="anno-btn bim-button bim-button myfont">
         <div id="" class="iconfont icon-delete" @click="clearCanvas"></div>
