@@ -51,7 +51,7 @@
             title="模型信息"
             v-if="isShowStatistics">
             <div v-for="(part, i) in partLists" :key="part.id" class="part-item" w>
-              <div>{{ part.name }}: {{ part.id }} : {{ materialMeshMap.get(part.id).length }}</div>
+              <div>{{ part.name }}: {{ materialMeshMap.get(part.id).length }}个</div>
             </div>
           </absolute-box>
           <absolute-box

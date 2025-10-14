@@ -15,10 +15,11 @@
 
       <!-- 颜色选择 -->
       <div class="anno-btn bim-button bim-button myfont color-picker" title="选择颜色">
-        <input type="color" id="stroke-color" v-model="strokeColor" @change="updateCurrentColor" />
+        <input type="color" v-model="strokeColor" @change="updateCurrentColor" v-if="!isInteracting" />
+        <div class="replace-color" v-else>
+          <div class="replace-color-inner" :style="{ background: strokeColor }"></div>
+        </div>
       </div>
-
-      <!-- 撤销/重做 -->
 
       <div class="anno-btn bim-button bim-button myfont" title="上一步" :class="[canUndo && 'active']">
         <div
@@ -1360,5 +1361,33 @@ export default {
 .next-disabled,
 .prev-disabled {
   cursor: not-allowed;
+}
+.replace-color {
+  appearance: auto;
+  inline-size: 50px;
+  block-size: 27px;
+  cursor: default;
+  box-sizing: border-box;
+  background-color: buttonface;
+  color: buttontext;
+  border-width: 1px;
+  border-style: solid;
+  border-color: buttonborder;
+  border-image: initial;
+  padding: 1px 2px;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .replace-color-inner {
+    width: 80%;
+    border: 1px solid rgb(142, 142, 142);
+    height: 62%;
+  }
 }
 </style>
