@@ -14,7 +14,7 @@
 
       <!-- 颜色选择 -->
       <div class="anno-btn bim-button bim-button myfont color-picker" title="选择颜色">
-        <input type="color" v-model="strokeColor" @change="updateCurrentColor" v-if="!isInteracting" />
+        <input type="color" v-model="strokeColor" @change="updateCurrentColor" v-if="!isClipboard" />
         <div class="replace-color" v-else>
           <div class="replace-color-inner" :style="{ background: strokeColor }"></div>
         </div>
