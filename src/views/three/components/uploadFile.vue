@@ -44,18 +44,12 @@
         :rules="rules">
         <el-form-item prop="auditPics">
           <template #label>
-            <el-tooltip content="只能上传jpg/png文件" style="display: inline-block">
+            <el-tooltip content="只能上传jpg/png文件,且大小不超过2MB" style="display: inline-block">
               <div>审查截图</div>
             </el-tooltip>
           </template>
-          <!-- <template #label>
-            <div>
-              <el-tooltip content="只能上传jpg/png文件">
-                <div>审查截图</div>
-              </el-tooltip>
-            </div>
-          </template> -->
-          <el-upload
+
+          <!-- <el-upload
             class="upload-demo"
             action="/admin/sys-file-up;pad?bucketName=prjfilebimauditdetail"
             :on-preview="handlePictureCardPreview"
@@ -67,13 +61,12 @@
             :on-success="handleSuccess"
             :file-list="fileList">
             <template v-if="fileList.length === 0">
-              <!-- 没有文件时显示上传按钮 -->
               <el-button size="small" type="primary">点击上传</el-button>
             </template>
 
-            <!-- 上传中的提示 -->
             <div v-if="uploading" slot="tip" class="uploading-text">上传中...请稍候</div>
-          </el-upload>
+          </el-upload> -->
+          <g-upload-file></g-upload-file>
         </el-form-item>
         <el-form-item label="审查类别" prop="standardId">
           <el-select

@@ -1,14 +1,16 @@
 <template>
   <div>
-    <div id="" class="iconfont icon-revert"></div>
-    <div id="" class="myfont icon-revert"></div>
-    <div id="" class="iconfont icon-clipboard"></div>
-    <span id="" class="myfont icon-clipboard"></span>
-    <div id="" class="myfont icon-check"></div>
-    <div id="" class="iconfont icon-color"></div>
-    <div id="" class="iconfont icon-prev"></div>
-    <div id="" class="iconfont icon-next"></div>
-    <div id="" class="iconfont icon-delete"></div>
+    <g-upload-file></g-upload-file>
+    <g-absolute-box :customStyle="{ right: 0, top: 'calc(0% + 56px)', height: 'calc(50vh - 56px)' }" :title="'123'">
+      <el-form ref="formRef" :model="form" :rules="rules">
+        <el-form-item label="名称" prop="name">
+          <g-upload-file></g-upload-file>
+        </el-form-item>
+        <el-form-item label="年龄" prop="age">
+          <el-input-number v-model="form.age" />
+        </el-form-item>
+      </el-form>
+    </g-absolute-box>
   </div>
 </template>
 
@@ -18,7 +20,10 @@ export default {
   components: {},
   props: {},
   data() {
-    return {}
+    return {
+      form: {},
+      rules: {},
+    }
   },
   computed: {},
   watch: {},
