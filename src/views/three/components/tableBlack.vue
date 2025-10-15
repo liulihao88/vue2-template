@@ -102,10 +102,12 @@ export default {
   created() {
     this.list = clone(this.list, 10)
   },
+  beforeDestroy() {
+    this.$mitt.off('mEditItem')
+  },
   methods: {
     editItem(v, i) {
       this.cIndex = i
-      console.log(`37 v`, v)
       this.$mitt.emit('mEditItem', v)
     },
     newAdd() {
@@ -136,7 +138,7 @@ export default {
 .list-box {
   display: flex;
   box-sizing: border-box; /* 推荐加上，这样padding不会撑大元素 */
-  height: calc(50vh - 100px);
+  height: calc(50vh - 156px);
   overflow: auto;
   flex-direction: column;
   .list-page__wrap {

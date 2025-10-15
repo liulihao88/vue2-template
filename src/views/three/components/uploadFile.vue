@@ -1,6 +1,6 @@
 <template>
   <div>
-    <absolute-box :customStyle="{ right: 0, top: 'calc(50% + 10px)', height: 'calc(50vh - 10px)' }" :title="title">
+    <absolute-box :customStyle="{ right: 0, top: 'calc(50% + 10px)', height: 'calc(50vh - 10px)' }" :title="title" v-show="isShow">
       <template #right>
         <el-button
           type="text"
@@ -71,7 +71,7 @@
         </el-form-item>
 
         <el-form-item label="审查内容" prop="auditContent">
-          <el-input v-model="form.auditContent" type="textarea" placeholder="请输入" :rows="3" />
+          <el-input v-model="form.auditContent" type="textarea" placeholder="请输入" :rows="5" />
         </el-form-item>
       </el-form>
     </absolute-box>
@@ -111,6 +111,7 @@ export default {
         auditContent: '',
         auditPics: '',
       },
+      isShow: false,
       standardOptions: [],
       fileList: [], // 已上传文件列表
       uploading: false, // 上传状态
@@ -159,6 +160,7 @@ export default {
       this.canEdit = true
     },
     editItem(row) {
+      this.isShow = true
       this.$refs.formRef.clearValidate()
       this.$refs.drawThreeRef.clearCanvas()
       this.reset()
