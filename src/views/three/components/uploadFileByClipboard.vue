@@ -88,15 +88,15 @@ export default {
 .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
-  width: 178px;
-  height: 178px;
-  line-height: 178px;
+  width: 78px;
+  height: 78px;
+  line-height: 78px;
   text-align: center;
   cursor: not-allowed;
 }
 .image-container {
-  width: 178px;
-  height: 178px;
+  width: 78px;
+  height: 78px;
   display: flex; /* 关键：激活 Flexbox 布局 */
   justify-content: center; /* 子元素在主轴（水平）上居中 */
   align-items: center; /* 关键：子元素在交叉轴（垂直）上居中 */

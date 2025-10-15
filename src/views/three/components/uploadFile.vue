@@ -71,7 +71,7 @@
         </el-form-item>
 
         <el-form-item label="审查内容" prop="auditContent">
-          <el-input v-model="form.auditContent" type="textarea" placeholder="请输入" :rows="5" />
+          <el-input v-model="form.auditContent" type="textarea" placeholder="请输入" :rows="7" />
         </el-form-item>
       </el-form>
     </absolute-box>
