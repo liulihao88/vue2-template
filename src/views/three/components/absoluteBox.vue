@@ -56,7 +56,6 @@ export default {
   methods: {
     checkTitleOverflow() {
       if (!this.$refs.titleRef || !this.$refs.controlsRef) return
-
       const headerWidth = this.$el.clientWidth
       const controlsWidth = this.$refs.controlsRef.clientWidth
       const paddingRight = 20 // .lm_controls 的 right: 20px
