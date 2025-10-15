@@ -66,7 +66,7 @@
 
             <div v-if="uploading" slot="tip" class="uploading-text">上传中...请稍候</div>
           </el-upload> -->
-          <g-upload-file></g-upload-file>
+          <UploadFileByClipboard v-model="form.auditPics"></UploadFileByClipboard>
         </el-form-item>
         <el-form-item label="审查类别" prop="standardId">
           <el-select
@@ -98,11 +98,13 @@
 import AbsoluteBox from './absoluteBox.vue'
 import DrawThree from './drawThree.vue'
 import { clone } from '@/utils/gFunc.js'
+import UploadFileByClipboard from './uploadFileByClipboard.vue'
 export default {
   name: 'T4',
   components: {
     AbsoluteBox,
     DrawThree,
+    UploadFileByClipboard,
   },
   props: {},
   data() {

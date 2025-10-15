@@ -16,7 +16,7 @@
           @click="editItem(item, index)"
           :class="{ active: cIndex === index }">
           <!-- 左侧图片 -->
-          <div class="list-page__image-container">
+          <div class="list-page__image-container" @click.stop>
             <el-image
               :src="item.auditPics"
               fit="contain"
