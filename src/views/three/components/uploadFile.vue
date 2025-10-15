@@ -1,6 +1,6 @@
 <template>
   <div>
-    <absolute-box :customStyle="{ right: 0, top: 'calc(0% + 56px)', height: 'calc(50vh - 56px)' }" :title="title">
+    <absolute-box :customStyle="{ right: 0, top: 'calc(50% + 10px)', height: 'calc(50vh - 10px)' }" :title="title">
       <template #right>
         <el-button
           type="text"

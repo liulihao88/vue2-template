@@ -1,5 +1,5 @@
 <template>
-  <absolute-box :customStyle="{ left: 0, top: '50%' }" title="构件属性">
+  <absolute-box :customStyle="{ left: 0, top: 'calc(50% + 10px)', height: 'calc(50vh - 10px)' }" title="构件属性">
     <template v-if="sAttribute && Object.keys(sAttribute).length > 0">
       <el-collapse :value="'base'">
         <el-collapse-item title="基础属性" name="base">

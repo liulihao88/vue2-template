@@ -1,5 +1,5 @@
 <template>
-  <g-absolute-box :customStyle="{ right: '0', top: '50%' }" title="审查列表">
+  <absolute-box :customStyle="{ right: '0', top: 'calc(0% + 56px)', height: 'calc(50vh - 56px)' }" title="审查列表">
     <template #right>
       <el-button type="text" icon="el-icon-plus" @click="newAdd">新增</el-button>
     </template>
@@ -49,16 +49,16 @@
       </div>
     </div>
     <threePagination></threePagination>
-  </g-absolute-box>
+  </absolute-box>
 </template>
 
 <script>
-// import AbsoluteBox from './absoluteBox.vue'
+import AbsoluteBox from './absoluteBox.vue'
 import { clone } from '@/utils/gFunc'
 import threePagination from './threePagination.vue'
 export default {
   components: {
-    // AbsoluteBox,
+    AbsoluteBox,
     threePagination,
   },
   data() {

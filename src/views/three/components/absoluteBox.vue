@@ -112,19 +112,18 @@ export default {
         font-size: 12px;
         color: #fff;
         box-shadow: rgba(0, 0, 0, 0.5) 2px -2px 2px;
-        margin-right: 2px;
         padding-bottom: 2px;
         padding-top: 2px;
         cursor: pointer;
         float: left;
         height: 100%;
-        margin-top: 1px;
         position: relative;
         touch-action: none;
         padding: 2px 25px 2px 10px;
         background: #3b4453;
         border-radius: 0px 4px 0px 0px;
         max-width: 100%;
+        margin: 1px 2px 0 10px;
 
         .lm_title {
           display: inline-block;

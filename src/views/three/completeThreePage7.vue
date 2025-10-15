@@ -57,7 +57,8 @@
           <absolute-box
             :customStyle="{
               left: '301px',
-              top: '50%',
+              top: 'calc(50% + 10px)',
+              height: 'calc(50vh - 10px)',
             }"
             title="鼠标捕获"
             v-if="isShowMouse">
