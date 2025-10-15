@@ -53,7 +53,6 @@ export default {
       if (!attrs.content) {
         return true
       }
-      console.log(`86  this.isDisabled`, this.isDisabled)
       return this.isDisabled
     },
   },

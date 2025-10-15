@@ -9,32 +9,19 @@
           v-if="isEdit && !canEdit">
           {{ '编辑' }}
         </el-button>
-        <el-button
+        <!-- <el-button
           type="text"
           :icon="isShowDraw ? 'el-icon-close' : 'el-icon-edit'"
           @click="handleDrawEdit"
           v-if="!isEdit || canEdit">
           {{ isShowDraw ? '取消批注' : '批注' }}
-        </el-button>
-        <el-tooltip
-          class="item"
-          effect="dark"
-          content="保存"
-          placement="top-start"
-          v-if="!isEdit || canEdit"
-          :disabled="!isEdit">
-          <el-button type="text" @click="handleSave" icon="el-icon-check">
-            {{ isEdit ? '' : '保存' }}
-          </el-button>
-        </el-tooltip>
-        <el-tooltip class="item" effect="dark" content="删除" placement="top-start" v-if="isEdit && canEdit">
-          <el-button type="text" @click="deleteItem" icon="el-icon-delete"></el-button>
-        </el-tooltip>
-        <el-tooltip class="item" effect="dark" content="取消" placement="top-start" v-if="isEdit && canEdit">
-          <el-button type="text" @click="cancelEdit" icon="el-icon-close"></el-button>
-        </el-tooltip>
+        </el-button> -->
+
+        <el-button type="text" @click="handleSave" icon="el-icon-check" v-if="!isEdit || canEdit">保存</el-button>
+        <el-button type="text" @click="deleteItem" icon="el-icon-delete" v-if="isEdit && canEdit">删除</el-button>
+        <el-button type="text" @click="cancelEdit" icon="el-icon-close" v-if="isEdit && canEdit">取消</el-button>
       </template>
-      <DrawThree ref="drawThreeRef" v-if="isShowDraw"></DrawThree>
+      <DrawThree ref="drawThreeRef"></DrawThree>
       <el-form
         ref="formRef"
         :model="form"
@@ -114,7 +101,7 @@ export default {
         auditPics: [{ required: true, message: '审查截图必须选择', trigger: 'blur' }],
         auditContent: [{ required: true, message: '审查内容必须填写', trigger: 'blur' }],
       },
-      isShowDraw: false,
+      isShowDraw: true,
       dialogVisible: false,
       dialogImageUrl: '',
       canEdit: false,
