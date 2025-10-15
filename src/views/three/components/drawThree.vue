@@ -9,8 +9,7 @@
         class="anno-btn bim-button bim-button myfont"
         :class="[currentTool === tool.name && 'active', tool.className]"
         :title="tool.label"
-        @click="setTool(tool.name)">
-      </div>
+        @click="setTool(tool.name)"></div>
 
       <!-- 颜色选择 -->
       <div class="anno-btn bim-button bim-button myfont color-picker" title="选择颜色">
@@ -132,7 +131,7 @@ export default {
       return this.currentHistoryIndex > 0
     },
     canRedo() {
-      return this.currentHistoryIndex < this.history.length - 1
+      return this.currentHistoryIndex !== -1 && this.currentHistoryIndex < this.history.length - 1
     },
   },
   created() {
@@ -779,7 +778,10 @@ export default {
       this.layer.destroyChildren()
       this.layer.draw()
       this.cancelText()
-      this.saveHistory({ immediate: true })
+      this.history = []
+      this.currentHistoryIndex = -1
+      this.currentTool = ''
+      this.saveHistory()
     },
 
     // ================= 键盘事件处理 =================
@@ -1129,14 +1131,6 @@ export default {
       this.saveHistory({ immediate: true })
     },
     // ================= 撤销/重做功能 =================
-
-    // 清空画布
-    clearCanvas() {
-      this.layer.destroyChildren()
-      this.layer.draw()
-      this.cancelText()
-      this.saveHistory()
-    },
 
     // ================= 键盘事件处理 =================
 

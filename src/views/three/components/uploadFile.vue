@@ -160,6 +160,7 @@ export default {
     },
     editItem(row) {
       this.$refs.formRef.clearValidate()
+      this.$refs.drawThreeRef.clearCanvas()
       this.reset()
       if (!row) {
         this.isEdit = false
