@@ -40,13 +40,9 @@
       <div class="anno-btn bim-button bim-button myfont" title="剪切" :class="[isClipboard && 'active']">
         <div class="myfont icon-clipboard" @click="clipboardHandler"></div>
       </div>
-      <div class="anno-btn bim-button bim-button myfont">
+      <!-- <div class="anno-btn bim-button bim-button myfont">
         <div id="" class="iconfont icon-delete" @click="clearCanvas"></div>
-        <!-- <svg-icon
-          iconClass="delete"
-          class="anno-btn bim-button bim-button myfont iconjiantou"
-          @click="clearCanvas"></svg-icon> -->
-      </div>
+      </div> -->
     </div>
 
     <!-- 画布容器 -->
