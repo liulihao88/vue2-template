@@ -1,6 +1,6 @@
 <template>
   <div>
-    <absolute-box :customStyle="{ right: 0, top: 'calc(50% + 10px)', height: 'calc(50vh - 10px)' }" :title="title" v-show="isShow">
+    <absolute-box :customStyle="{ right: 0, top: 'calc(50% + 10px)', height: 'calc(50vh - 10px)' }" :title="title" v-if="isShow">
       <template #right>
         <el-button
           type="text"
@@ -161,8 +161,8 @@ export default {
     },
     editItem(row) {
       this.isShow = true
-      this.$refs.formRef.clearValidate()
-      this.$refs.drawThreeRef.clearCanvas()
+      this.$refs.formRef?.clearValidate()
+      this.$refs.drawThreeRef?.clearCanvas()
       this.reset()
       if (!row) {
         this.isEdit = false
