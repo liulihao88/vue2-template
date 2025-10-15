@@ -656,6 +656,7 @@
   margin-top: 12px;
 }
 
+
 @font-face {
   font-family: 'iconfont';
   src:
@@ -2068,8 +2069,9 @@
 }
 
 .icon-clipboard:before {
-  content: "\e6f5";
+  content: "\e68f";
 }
+
 
 .icon-revert:before {
   content: "\e6f3";

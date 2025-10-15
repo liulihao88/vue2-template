@@ -37,7 +37,7 @@
         <div id="" class="iconfont icon-next" :class="{ 'next-disabled': !canRedo }" @click="redo"></div>
         <!-- <svg-icon iconClass="iconnext" :class="{ 'next-disabled': !canRedo }" @click="redo"></svg-icon> -->
       </div>
-      <div class="anno-btn bim-button bim-button myfont" title="剪切" :class="[isClipboard && 'active']">
+      <div class="anno-btn bim-button bim-button myfont" title="截图" :class="[isClipboard && 'active']">
         <div class="myfont icon-clipboard" @click="clipboardHandler"></div>
       </div>
       <!-- <div class="anno-btn bim-button bim-button myfont">

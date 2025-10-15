@@ -6,11 +6,18 @@
   "description": "",
   "glyphs": [
     {
-      "icon_id": "1790488",
-      "name": "剪切",
-      "font_class": "clipboard",
-      "unicode": "e6f5",
-      "unicode_decimal": 59125
+      "icon_id": "27779871",
+      "name": "ic／截图／矩形截图",
+      "font_class": "jietu2",
+      "unicode": "e633",
+      "unicode_decimal": 58931
+    },
+    {
+      "icon_id": "11810530",
+      "name": "截图",
+      "font_class": "jietu3",
+      "unicode": "e68f",
+      "unicode_decimal": 59023
     },
     {
       "icon_id": "688120",
