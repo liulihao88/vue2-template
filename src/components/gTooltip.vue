@@ -88,14 +88,11 @@ export default {
       }
       // 通过 this.$refs 来访问模板中 ref="contentRef" 的元素
       const tag = this.$refs.contentRef
-      console.log(`39 tag`, tag)
       if (!tag) return
 
       // 在 methods 中，可以通过 this 直接访问 props 和 data
       const parentWidth = tag.parentNode.offsetWidth
-      console.log(`86 parentWidth`, parentWidth)
       const contentWidth = tag.offsetWidth
-      console.log(`44 contentWidth`, contentWidth)
 
       // 更新 data 中的 isDisabled
       this.isDisabled = contentWidth <= parentWidth

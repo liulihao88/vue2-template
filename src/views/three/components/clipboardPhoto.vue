@@ -53,7 +53,7 @@ export default {
     },
     // **新增：取消选区**
     cancelSelection() {
-      this.$mitt.emit('can-draw', true)
+      this.$mitt.emit('mCanDraw', true)
       this.isSelecting = false
       this.selectionStart = { x: 0, y: 0 }
       this.selectionEnd = { x: 0, y: 0 }
@@ -76,7 +76,7 @@ export default {
 
     // **新增：开始选区模式**
     startSelection() {
-      this.$mitt.emit('can-draw', false)
+      this.$mitt.emit('mCanDraw', false)
       this.isSelecting = true
 
       // 移除原有的控制器交互（避免冲突）
@@ -101,8 +101,8 @@ export default {
       const rect = this.renderer.domElement.getBoundingClientRect()
 
       this.selectionStart = {
-        x: (e.clientX - rect.left), // 修正坐标
-        y: (e.clientY - rect.top),
+        x: e.clientX - rect.left, // 修正坐标
+        y: e.clientY - rect.top,
       }
       this.selectionEnd = { ...this.selectionStart }
     },
@@ -192,14 +192,14 @@ export default {
       // 4. 从 Konva Canvas 绘制前景层
       // 此时，knovaCanvas.content.children[0] 的物理尺寸也已经正确设置为 [容器CSS宽度 ] x [容器CSS高度 ]
       // 这里的 drawImage 逻辑现在和 Three.js 是完全对称的，因此可以正确工作
-      console.log(`98 this.localKnovaCanvasRef`, this.localKnovaCanvasRef);
+      console.log(`98 this.localKnovaCanvasRef`, this.localKnovaCanvasRef)
       if (
         this.localKnovaCanvasRef &&
         this.localKnovaCanvasRef.content &&
         this.localKnovaCanvasRef.content.children[0]
       ) {
         const konvaCanvasElement = this.localKnovaCanvasRef.content.children[0]
-        console.log(`92 konvaCanvasElement`, konvaCanvasElement);
+        console.log(`92 konvaCanvasElement`, konvaCanvasElement)
         finalCtx.drawImage(
           konvaCanvasElement,
           sourceOffsetX,

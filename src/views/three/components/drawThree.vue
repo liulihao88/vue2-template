@@ -135,7 +135,7 @@ export default {
     },
   },
   created() {
-    this.$mitt.on('can-draw', this.stopOrStartDraw)
+    this.$mitt.on('mCanDraw', this.stopOrStartDraw)
   },
   mounted() {
     this.initStage()

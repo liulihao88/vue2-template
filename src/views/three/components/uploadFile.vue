@@ -1,6 +1,9 @@
 <template>
   <div>
-    <absolute-box :customStyle="{ right: 0, top: 'calc(50% + 10px)', height: 'calc(50vh - 10px)' }" :title="title" v-if="isShow">
+    <absolute-box
+      :customStyle="{ right: 0, top: 'calc(50% + 10px)', height: 'calc(50vh - 10px)' }"
+      :title="title"
+      v-if="isShow">
       <template #right>
         <el-button
           type="text"
@@ -21,7 +24,7 @@
         <el-button type="text" @click="deleteItem" icon="el-icon-delete" v-if="isEdit && canEdit">删除</el-button>
         <el-button type="text" @click="cancelEdit" icon="el-icon-close" v-if="isEdit && canEdit">取消</el-button>
       </template>
-      <DrawThree ref="drawThreeRef"></DrawThree>
+      <DrawThree ref="drawThreeRef" v-if="compShowDraw"></DrawThree>
       <el-form
         ref="formRef"
         :model="form"
@@ -124,6 +127,11 @@ export default {
       } else {
         return '新增审查'
       }
+    },
+    compShowDraw() {
+      let isShowDrawByLogic = !this.isEdit || this.canEdit
+      this.$mitt.emit('mShowDraw', isShowDrawByLogic)
+      return isShowDrawByLogic
     },
   },
   watch: {},
