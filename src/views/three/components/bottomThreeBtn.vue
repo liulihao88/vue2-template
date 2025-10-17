@@ -107,15 +107,15 @@ export default {
     toggleVar(variable) {
       let cloneData = clone(this.sActiveArr)
       if (cloneData.includes(variable)) {
-        cloneData = cloneData.filter((v) => v !== variable)
+        cloneData = []
       } else {
-        cloneData = [...cloneData, variable]
+        cloneData = [variable]
       }
-      if (variable === 'review') {
-        cloneData = cloneData.filter((v) => {
-          return v !== 'mouse' && v !== 'statistics'
-        })
-      }
+      // if (variable === 'review') {
+      //   cloneData = cloneData.filter((v) => {
+      //     return v !== 'mouse' && v !== 'statistics'
+      //   })
+      // }
       this.$emit('toggleClick', cloneData)
     },
   },
@@ -162,7 +162,7 @@ export default {
       background-color: rgb(196, 196, 196) !important;
       color: rgb(0, 0, 0) !important;
     }
-    .not-allowed{
+    .not-allowed {
       cursor: not-allowed;
     }
   }

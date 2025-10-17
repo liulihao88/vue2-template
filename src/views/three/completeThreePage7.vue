@@ -42,26 +42,28 @@
                 @node-select="handleNodeSelect" />
             </div>
           </absolute-box>
-          <absolute-box
+          <g-cus-dialog
             :customStyle="{
               left: '301px',
               top: 'calc(0% + 56px)',
               height: 'calc(50vh - 56px)',
             }"
+            @close="closeCusDialog('statistics')"
             title="模型信息"
-            v-if="isShowStatistics">
+            v-show="isShowStatistics">
             <div v-for="(part, i) in partLists" :key="part.id" class="part-item" w>
               <div>{{ part.name }}: {{ materialMeshMap.get(part.id).length }}个</div>
             </div>
-          </absolute-box>
-          <absolute-box
+          </g-cus-dialog>
+          <g-cus-dialog
+            @close="closeCusDialog('mouse')"
             :customStyle="{
               left: '301px',
               top: 'calc(50% + 10px)',
               height: 'calc(50vh - 10px)',
             }"
             title="鼠标捕获"
-            v-if="isShowMouse">
+            v-show="isShowMouse">
             <div>
               <div>当前坐标</div>
               <div style="margin-top: 8px" v-if="hoverCoords.visible">
@@ -70,7 +72,7 @@
                 <span style="margin-right: 8px">z: {{ hoverCoords.z }}</span>
               </div>
             </div>
-          </absolute-box>
+          </g-cus-dialog>
 
           <ElementAttribute :attribute="elementAttributeData"></ElementAttribute>
           <template v-if="isShowReview">
@@ -238,6 +240,10 @@ export default {
         this.isShowMouse = false
       }
       this.activeArr = arr
+    },
+    closeCusDialog(type) {
+      this.activeArr = this.activeArr.filter((v) => v !== type)
+      this.toggleClick(this.activeArr)
     },
     async initDracoLoader() {
       if (process.env.NODE_ENV === 'development') {
