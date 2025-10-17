@@ -1,16 +1,14 @@
 <template>
-  <div>
-    <div ref="panel" id="bimi_panel_1760519153199" :style="{ ...customStyle }" class="bim-panel">
-      <div id="bimi_panel_close" class="bim-panel-close" @click="close"></div>
-      <div ref="header" id="bimi_panel_title" class="bim-panel-title">{{ title }}</div>
-      <!--主体-->
-      <div class="bim-panel-body">
-        <el-scrollbar>
-          <slot></slot>
-        </el-scrollbar>
-      </div>
-      <div ref="resizeHandle" class="bim-resize"></div>
+  <div ref="panel" id="bimi_panel_1760519153199" :style="{ ...customStyle }" class="bim-panel">
+    <div id="bimi_panel_close" class="bim-panel-close" @click="close"></div>
+    <div ref="header" id="bimi_panel_title" class="bim-panel-title">{{ title }}</div>
+    <!--主体-->
+    <div class="bim-panel-body">
+      <el-scrollbar>
+        <slot></slot>
+      </el-scrollbar>
     </div>
+    <div ref="resizeHandle" class="bim-resize"></div>
   </div>
 </template>
 
@@ -57,13 +55,28 @@ export default {
     this.removeResizeEvents()
   },
   methods: {
-    close(){
+    close() {
       this.$emit('close')
     },
     // --- 拖拽功能相关方法 ---
     initDragEvents() {
       const header = this.$refs.header
       header.addEventListener('mousedown', this.onMouseDownForDrag)
+    },
+    parseCssValue(cssValueString) {
+      // 移除所有空白字符
+      const value = cssValueString.trim()
+      // 尝试将字符串转换为数字
+      const number = parseFloat(value)
+      // 如果转换结果是 NaN，或者字符串以数字开头但后面跟着非数字字符（如 '50px', '50%'）
+      // 那么我们就认为它是一个有效的带单位的值，并返回这个数字。
+      // 否则，如果整个字符串都无法转换为数字（如 'auto'），则返回 0。
+      if (!isNaN(number)) {
+        return number
+      }
+
+      // 处理 'auto' 等关键字或无效值
+      return 0
     },
     removeDragEvents() {
       document.removeEventListener('mousemove', this.onMouseMove)
@@ -74,10 +87,15 @@ export default {
       e.stopPropagation()
       this.isDragging = true
       this.dragStartX = e.clientX
-      console.log(`94 e.clientX`, e.clientX);
+      console.log(`94 e.clientX`, e.clientX)
       this.dragStartY = e.clientY
-      this.panelStartX = parseFloat(this.$refs.panel.style.left) || 0
-      this.panelStartY = parseFloat(this.$refs.panel.style.top) || 0
+      const computedStyle = window.getComputedStyle(this.$refs.panel)
+
+      // 使用我们的辅助函数来安全地解析 left 和 top 值
+      this.panelStartX = this.parseCssValue(computedStyle.left)
+      console.log(`06  this.panelStartX `, this.panelStartX)
+      this.panelStartY = this.parseCssValue(computedStyle.top)
+      console.log(`15 this.panelStartY`, this.panelStartY)
 
       document.addEventListener('mousemove', this.onMouseMove)
       // 修改2: 绑定独立的拖拽结束函数
@@ -86,8 +104,11 @@ export default {
     onMouseMove(e) {
       if (!this.isDragging) return
       const deltaX = e.clientX - this.dragStartX
+      console.log(`55 deltaX`, deltaX)
       const deltaY = e.clientY - this.dragStartY
+      console.log(`75 deltaY`, deltaY)
       const newLeft = this.panelStartX + deltaX
+      console.log(`39 newLeft`, newLeft)
       const newTop = this.panelStartY + deltaY
       this.$refs.panel.style.left = `${newLeft}px`
       this.$refs.panel.style.top = `${newTop}px`
@@ -143,9 +164,11 @@ export default {
 <!-- <style> 部分保持不变 -->
 <style scoped lang="scss">
 .bim-panel {
-  width: 200px;
-  height: 100px;
+  width: 400px;
+  height: 200px;
   color: #fff;
+  left: calc(50% - 200px);
+  top: calc(50% - 200px);
   position: absolute;
   overflow: hidden;
   -webkit-user-select: none;

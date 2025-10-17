@@ -42,28 +42,12 @@
                 @node-select="handleNodeSelect" />
             </div>
           </absolute-box>
-          <g-cus-dialog
-            :customStyle="{
-              left: '301px',
-              top: 'calc(0% + 56px)',
-              height: 'calc(50vh - 56px)',
-            }"
-            @close="closeCusDialog('statistics')"
-            title="模型信息"
-            v-show="isShowStatistics">
+          <g-cus-dialog @close="closeCusDialog('statistics')" title="模型信息" v-show="isShowStatistics">
             <div v-for="(part, i) in partLists" :key="part.id" class="part-item" w>
               <div>{{ part.name }}: {{ materialMeshMap.get(part.id).length }}个</div>
             </div>
           </g-cus-dialog>
-          <g-cus-dialog
-            @close="closeCusDialog('mouse')"
-            :customStyle="{
-              left: '301px',
-              top: 'calc(50% + 10px)',
-              height: 'calc(50vh - 10px)',
-            }"
-            title="鼠标捕获"
-            v-show="isShowMouse">
+          <g-cus-dialog @close="closeCusDialog('mouse')" title="鼠标捕获" v-show="isShowMouse">
             <div>
               <div>当前坐标</div>
               <div style="margin-top: 8px" v-if="hoverCoords.visible">
