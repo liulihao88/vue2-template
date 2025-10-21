@@ -1,12 +1,8 @@
 <template>
   <div class="model-viewer">
     <div class="upload-area">
-      <el-button class="open-glb" type="primary" size="small" @click="triggerFileInput">打开 GLB 文件</el-button>
-      <!-- <el-button class="open-glb to-left" type="primary" size="small" @click="setTopView">切换俯视图</el-button>
-      <el-input-number v-model="testDuration.x" class="open-glb to-left1" />
-      <el-input-number v-model="testDuration.y" class="open-glb to-left2" />
-      <el-input-number v-model="testDuration.z" class="open-glb to-left3" /> -->
-      <input ref="fileInput" type="file" accept=".glb" @change="handleFileUpload" style="display: none" />
+      <!-- <el-button class="open-glb" type="primary" size="small" @click="triggerFileInput">打开 GLB 文件</el-button> -->
+      <!-- <input ref="fileInput" type="file" accept=".glb" @change="handleFileUpload" style="display: none" /> -->
     </div>
 
     <el-dialog

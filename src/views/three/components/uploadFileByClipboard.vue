@@ -16,7 +16,7 @@
 
 <script>
 export default {
-  name: 'GUploadFile',
+  name: 'UploadFileByClipboard',
   components: {},
   props: {
     value: {
