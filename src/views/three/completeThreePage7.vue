@@ -80,8 +80,6 @@
 </template>
 
 <script>
-import { clone } from '@/utils/gFunc'
-import Vue from 'vue'
 import * as THREE from 'three'
 import UploadFile from './components/uploadFile.vue'
 import ElementAttribute from './components/elementAttribute.vue'

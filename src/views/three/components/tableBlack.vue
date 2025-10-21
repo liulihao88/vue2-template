@@ -53,7 +53,7 @@
 
 <script>
 import AbsoluteBox from './absoluteBox.vue'
-import { clone } from '@/utils/gFunc'
+import { clone } from '../localUtils.js'
 import threePagination from './threePagination.vue'
 import Tooltip from './tooltip.vue'
 export default {

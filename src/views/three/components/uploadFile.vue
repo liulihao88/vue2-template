@@ -87,7 +87,7 @@
 <script>
 import AbsoluteBox from './absoluteBox.vue'
 import DrawThree from './drawThree.vue'
-import { clone } from '@/utils/gFunc.js'
+import { clone } from '../localUtils.js'
 import UploadFileByClipboard from './uploadFileByClipboard.vue'
 export default {
   name: 'T4',

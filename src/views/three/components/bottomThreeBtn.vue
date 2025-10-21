@@ -39,8 +39,7 @@
 </template>
 
 <script>
-import Immediate from '../immediate.vue'
-import { clone } from '@/utils/gFunc.js'
+import { clone } from '../localUtils.js'
 export default {
   name: 'T3',
   components: {},
