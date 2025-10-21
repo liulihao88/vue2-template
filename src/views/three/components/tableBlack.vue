@@ -27,8 +27,7 @@
           <div class="list-page__info">
             <!-- 审查类别 (上方) -->
             <h2 class="list-page__standardId">
-              <g-tooltip :content="item.standardId" style="width: 100%"></g-tooltip>
-              <!-- {{ item.standardId }} -->
+              <Tooltip :content="item.standardId" style="width: 100%"></Tooltip>
             </h2>
 
             <!-- 审查批注内容 (下方) -->
@@ -56,10 +55,12 @@
 import AbsoluteBox from './absoluteBox.vue'
 import { clone } from '@/utils/gFunc'
 import threePagination from './threePagination.vue'
+import Tooltip from './tooltip.vue'
 export default {
   components: {
     AbsoluteBox,
     threePagination,
+    Tooltip,
   },
   data() {
     return {
