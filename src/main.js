@@ -52,7 +52,6 @@ import Avue from '@smallwei/avue'
 Vue.use(Avue)
 
 import mitt from 'mitt'
-console.log(`52 mitt`, mitt);
 Vue.prototype.$mitt = mitt()
 
 new Vue({

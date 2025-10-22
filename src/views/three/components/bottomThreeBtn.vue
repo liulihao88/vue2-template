@@ -41,7 +41,7 @@
 <script>
 import { clone } from '../localUtils.js'
 export default {
-  name: 'T3',
+  name: 'BottomThreeBtn',
   components: {},
   props: {
     activeArr: {

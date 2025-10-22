@@ -9,16 +9,16 @@ export default {
   props: {
     scene: {
       type: '',
-      required: true,
+      required: true
     },
     renderer: {
       type: '',
-      required: true,
+      required: true
     },
     container: {
       type: '',
-      required: true,
-    },
+      required: true
+    }
   },
   data() {
     return {
@@ -27,38 +27,27 @@ export default {
       isSelecting: false,
       selectionStart: { x: 0, y: 0 },
       selectionEnd: { x: 0, y: 0 },
-      localKnovaCanvasRef: null,
+      selectionBox: ''
     }
   },
   computed: {},
   watch: {},
-  created() {
-    // 在组件创建后，立即监听事件
-    console.log(`82 this.$mitt`, this.$mitt)
-    this.$mitt.on('knova-canvas-ready', this.handleKnovaCanvasReady)
-  },
+  created() {},
   mounted() {},
   beforeDestroy() {
-    window.removeEventListener('resize', this.onWindowResize)
     window.removeEventListener('mousedown', this.onMouseDown) // 清理事件
     window.removeEventListener('mousemove', this.onMouseMove)
     window.removeEventListener('mouseup', this.onMouseUp)
-    this.$mitt.off('knova-canvas-ready', this.handleKnovaCanvasReady)
   },
   methods: {
-    // 定义事件处理函数
-    handleKnovaCanvasReady(canvasElement) {
-      this.localKnovaCanvasRef = canvasElement
-    },
     // **新增：取消选区**
     cancelSelection() {
-      this.$mitt.emit('mCanDraw', true)
       this.isSelecting = false
       this.selectionStart = { x: 0, y: 0 }
       this.selectionEnd = { x: 0, y: 0 }
 
       // 恢复控制器
-      if (this.controls) this.controls.enabled = true
+      this.$emit('toggleControls', true)
 
       // 移除选区框
       if (this.selectionBox && this.selectionBox.parentNode) {
@@ -75,11 +64,10 @@ export default {
 
     // **新增：开始选区模式**
     startSelection() {
-      this.$mitt.emit('mCanDraw', false)
       this.isSelecting = true
 
       // 移除原有的控制器交互（避免冲突）
-      if (this.controls) this.controls.enabled = false
+      this.$emit('toggleControls', false)
 
       // 初始化选区框（一个2D矩形）
       this.selectionBox = document.createElement('div')
@@ -96,14 +84,14 @@ export default {
     // **新增：鼠标按下（开始选择）**
     onMouseDown(e) {
       if (!this.isSelecting) return
-      this.$emit('toggleControls', false)
+
       const rect = this.renderer.domElement.getBoundingClientRect()
+      const dpr = window.devicePixelRatio || 1 // 关键修复
 
       this.selectionStart = {
-        x: e.clientX - rect.left, // 修正坐标
-        y: e.clientY - rect.top,
+        x: (e.clientX - rect.left) * dpr, // 修正坐标
+        y: (e.clientY - rect.top) * dpr
       }
-      this.selectionEnd = { ...this.selectionStart }
     },
 
     // **新增：鼠标移动（更新选区框）**
@@ -113,7 +101,7 @@ export default {
       const rect = this.renderer.domElement.getBoundingClientRect()
       this.selectionEnd = {
         x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
+        y: e.clientY - rect.top
       }
 
       // 更新选区框位置和大小
@@ -136,7 +124,8 @@ export default {
 
     // **新增：鼠标抬起（完成选择，截图）**
     onMouseUp() {
-      if (!this.isSelecting || !this.selectionStart.x || !this.selectionEnd.x) return
+      if (!this.isSelecting || !this.selectionStart.x || !this.selectionEnd.x)
+        return
 
       // 获取选区坐标（规范化）
       const x = Math.min(this.selectionStart.x, this.selectionEnd.x)
@@ -159,81 +148,48 @@ export default {
     },
     // **新增：截取选中区域并下载**
     captureSelection(x, y, width, height) {
-      // 注意：x, y, width, height 是基于 CSS 像素的选区尺寸
-      // 在使用它们进行 drawImage 前，需要转换为所有画布共同的“物理像素”坐标系
-      // 1. 创建最终混合的 Canvas
-      // 其物理尺寸应该是选区的物理尺寸
-      const finalCanvas = document.createElement('canvas')
-      finalCanvas.width = width
-      finalCanvas.height = height
-      const finalCtx = finalCanvas.getContext('2d')
-      if (!finalCtx) return
-      // 2. 定义绘制源时所需的物理坐标和尺寸
-      // 源物理坐标 = 选区 CSS 坐标
-      const sourceOffsetX = x
-      const sourceOffsetY = y
-      // 源物理尺寸 = 选区 CSS 尺寸
-      const sourceWidth = width
-      const sourceHeight = height
-      // 3. 从 Three.js Canvas 绘制背景层
-      // 此时，this.renderer.domElement 的物理尺寸已经是 [容器CSS宽度 ] x [容器CSS高度 ]
-      finalCtx.drawImage(
+      const dpr = window.devicePixelRatio || 1
+
+      // 1. 创建临时Canvas（大小按实际像素计算）
+      const canvas = document.createElement('canvas')
+      canvas.width = width * dpr
+      canvas.height = height * dpr
+
+      // 2. 修正选区坐标（乘以DPR）
+      const ctx = canvas.getContext('2d')
+      ctx.drawImage(
         this.renderer.domElement,
-        sourceOffsetX,
-        sourceOffsetY,
-        sourceWidth,
-        sourceHeight,
+        x * dpr,
+        y * dpr, // 源起点
+        width * dpr,
+        height * dpr, // 源宽高
         0,
-        0, // 绘制到 finalCanvas 的 (0,0) 位置
-        finalCanvas.width,
-        finalCanvas.height, // 使用 finalCanvas 的物理尺寸进行拉伸
+        0, // 目标起点
+        width * dpr,
+        height * dpr // 目标宽高
       )
-      // 4. 从 Konva Canvas 绘制前景层
-      // 此时，knovaCanvas.content.children[0] 的物理尺寸也已经正确设置为 [容器CSS宽度 ] x [容器CSS高度 ]
-      // 这里的 drawImage 逻辑现在和 Three.js 是完全对称的，因此可以正确工作
-      console.log(`98 this.localKnovaCanvasRef`, this.localKnovaCanvasRef)
-      if (
-        this.localKnovaCanvasRef &&
-        this.localKnovaCanvasRef.content &&
-        this.localKnovaCanvasRef.content.children[0]
-      ) {
-        const konvaCanvasElement = this.localKnovaCanvasRef.content.children[0]
-        console.log(`92 konvaCanvasElement`, konvaCanvasElement)
-        finalCtx.drawImage(
-          konvaCanvasElement,
-          sourceOffsetX,
-          sourceOffsetY,
-          sourceWidth,
-          sourceHeight,
-          0,
-          0,
-          finalCanvas.width,
-          finalCanvas.height,
-        )
-      }
-      // 4. 下载混合后的最终画布
-      finalCanvas.toBlob((blob) => {
+
+      // 3. 下载（调整为实际尺寸）
+      canvas.toBlob(blob => {
         const url = URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = 'threejs-knova-screenshot.png'
-        document.body.appendChild(a)
+        a.download = 'threejs-screenshot.png'
         a.click()
-        document.body.removeChild(a)
         URL.revokeObjectURL(url)
       }, 'image/png')
-      // (测试用) 显示最终混合图片
+
+      // 测试图片能否显示
       const testImg = new Image()
-      testImg.src = finalCanvas.toDataURL()
+      testImg.src = canvas.toDataURL()
       testImg.style.position = 'fixed'
-      testImg.style.top = '10px'
-      testImg.style.left = '10px'
-      testImg.style.border = '3px solid purple'
-      testImg.style.zIndex = '10001'
+      testImg.style.top = '0'
+      testImg.style.left = '0'
+      testImg.style.zIndex = '10000'
       document.body.appendChild(testImg)
-      setTimeout(() => testImg.remove(), 5000)
-    },
-  },
+      setTimeout(() => testImg.remove(), 3000)
+    }
+  }
 }
 </script>
 <style scoped lang="scss"></style>
