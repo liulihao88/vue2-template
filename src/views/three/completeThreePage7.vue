@@ -1,10 +1,5 @@
 <template>
   <div class="model-viewer">
-    <div class="upload-area">
-      <!-- <el-button class="open-glb" type="primary" size="small" @click="triggerFileInput">打开 GLB 文件</el-button> -->
-      <!-- <input ref="fileInput" type="file" accept=".glb" @change="handleFileUpload" style="display: none" /> -->
-    </div>
-
     <el-dialog
       :visible.sync="modelLoaded"
       :title="hoverCoordsTitle"
@@ -118,6 +113,7 @@ export default {
   },
   data() {
     return {
+      needRender: false,
       modelLoaded: true,
       scene: null,
       camera: null,
@@ -298,6 +294,24 @@ export default {
 
       this.controls = new OrbitControls(this.camera, this.renderer.domElement)
       this.controls.enableDamping = true
+      // this.controls.addEventListener('change', () => {
+      //   // 控制器导致相机变化, 需要重绘
+      //   if (this.renderer && this.scene && this.camera) {
+      //     this.needRender = true
+      //   }
+      // })
+
+      const originalUpdate = this.controls.update
+      this.controls.update = () => {
+        // 先调用 update 原本的功能，更新相机
+        originalUpdate.call(this.controls)
+        // 然后设置我们的渲染标志
+        if (this.renderer && this.scene && this.camera) {
+          // 注意，这里我们直接调用 renderer.render，而不是设置标志位了
+          // 因为 OrbitControls 的更新已经是一个动画循环，我们只需要在它更新后渲染一次即可
+          this.renderer.render(this.scene, this.camera)
+        }
+      }
 
       // 切换到 mousedown
       this.renderer.domElement.addEventListener('mousedown', this.onMouseDownHandler, { passive: true })
@@ -317,7 +331,7 @@ export default {
         loader.setDRACOLoader(dracoLoader)
       }
       loader.load(
-        '/2.glb',
+        '/3.glb',
         (gltf) => {
           this.partLists = []
           this.isLoaded = true
@@ -496,6 +510,10 @@ export default {
         mesh.material = this.highlightMaterial
         this.highlightedObjects.add(mesh)
       })
+
+      if (this.renderer && this.scene && this.camera) {
+        this.needRender = true
+      }
     },
 
     highlightNode(node) {
@@ -586,12 +604,10 @@ export default {
               }
               this.findClosestBySelector(nodeElement)
               // res.style.display = 'block'
-              setTimeout(() => {
-                nodeElement.scrollIntoView({
-                  behavior: 'smooth',
-                  block: 'center',
-                })
-              }, 200)
+              nodeElement.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+              })
               this.$nextTick(() => {})
             })
           }
@@ -690,12 +706,11 @@ export default {
     },
 
     animate() {
-      requestAnimationFrame(this.animate)
-      if (this.renderer && this.scene && this.camera) {
+      if (this.needRender) {
         this.renderer.render(this.scene, this.camera)
+        this.needRender = false
       }
-
-      // Pulsing animation for highlighted objects
+      requestAnimationFrame(this.animate)
       if (this.highlightedObjects.size > 0 && this.highlightMaterial) {
         const pulse = 0.5 + 0.3 * Math.sin(Date.now() * 0.005)
         this.highlightMaterial.opacity = pulse
