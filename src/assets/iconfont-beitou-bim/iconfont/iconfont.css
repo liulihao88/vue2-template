@@ -1,0 +1,75 @@
+@font-face {
+  font-family: "iconfont-beitou"; /* Project id 5039355 */
+  src: url('iconfont.woff2?t=1761101106274') format('woff2'),
+       url('iconfont.woff?t=1761101106274') format('woff'),
+       url('iconfont.ttf?t=1761101106274') format('truetype');
+}
+
+.iconfont-beitou {
+  font-family: "iconfont-beitou" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-arr-bottom-left:before {
+  content: "\e601" !important;
+}
+
+.icon-xingzhuang-tuoyuanxing:before {
+  content: "\eb99";
+}
+
+.icon-wenzi:before {
+  content: "\e69b";
+}
+
+.icon-ltr:before {
+  content: "\e600";
+}
+
+.icon-juxing:before {
+  content: "\e620";
+}
+
+.icon-xihuan:before {
+  content: "\e60a";
+}
+
+.icon-jietu2:before {
+  content: "\e633";
+}
+
+.icon-jietu3:before {
+  content: "\e68f";
+}
+
+.icon-outquanping:before {
+  content: "\e79d";
+}
+
+.icon-next:before {
+  content: "\e9ce";
+}
+
+.icon-prev:before {
+  content: "\e9cd";
+}
+
+.icon-review:before {
+  content: "\e6f3";
+}
+
+.icon-color:before {
+  content: "\e881";
+}
+
+.icon-delete:before {
+  content: "\ec7b";
+}
+
+.icon-check:before {
+  content: "\e751";
+}
+

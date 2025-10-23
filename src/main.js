@@ -11,8 +11,8 @@ import '@/styles/index.scss' // global css
 import App from './App'
 import store from './store'
 import router from './router'
-import './assets/iconfont/iconfont.css'
-import './assets/bim.ui.css'
+import './assets/iconfont-beitou-bim/iconfont/iconfont.css'
+import './assets/iconfont-beitou-bim/bim.ui.css'
 
 import '@/icons' // icon
 import '@/permission' // permission control

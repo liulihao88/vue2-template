@@ -1,53 +1,75 @@
 <template>
-  <div class="editor-container">
+  <div class="editor-container-draw-three">
     <!-- 工具栏 -->
     <div class="toolbar">
       <div
         v-for="tool in tools"
         :key="tool.name"
         size="small"
-        class="anno-btn bim-button bim-button myfont"
+        class="anno-btn bim-button bim-button iconfont-beitou"
         :class="[currentTool === tool.name && 'active', tool.className]"
         :title="tool.label"
-        @click="setTool(tool.name)"></div>
+        @click="setTool(tool.name)"
+      ></div>
 
       <!-- 颜色选择 -->
-      <div class="anno-btn bim-button bim-button myfont color-picker" title="选择颜色">
-        <input type="color" v-model="strokeColor" @change="updateCurrentColor" v-if="!isClipboard" />
+      <div
+        class="anno-btn bim-button bim-button iconfont-beitou color-picker"
+        title="选择颜色"
+      >
+        <input
+          type="color"
+          v-model="strokeColor"
+          @change="updateCurrentColor"
+          v-if="!isClipboard"
+        />
         <div class="replace-color" v-else>
-          <div class="replace-color-inner" :style="{ background: strokeColor }"></div>
+          <div
+            class="replace-color-inner"
+            :style="{ background: strokeColor }"
+          ></div>
         </div>
       </div>
 
-      <div class="anno-btn bim-button bim-button myfont" title="上一步" :class="[canUndo && 'active']">
+      <div
+        class="anno-btn bim-button bim-button iconfont-beitou"
+        title="上一步"
+        :class="[canUndo && 'active']"
+      >
         <div
           id=""
-          class="iconfont icon-prev"
+          class="iconfont-beitou icon-prev"
           :class="{ 'prev-disabled': !canUndo }"
           :disabled="!canUndo"
-          @click="undo"></div>
-        <!-- <svg-icon
-          iconClass="iconprev"
-          :class="{ 'prev-disabled': !canUndo }"
-          :disabled="!canUndo"
-          @click="undo"></svg-icon> -->
+          @click="undo"
+        ></div>
       </div>
-      <div class="anno-btn bim-button bim-button myfont" title="下一步" :class="[canRedo && 'active']">
-        <div id="" class="iconfont icon-next" :class="{ 'next-disabled': !canRedo }" @click="redo"></div>
-        <!-- <svg-icon iconClass="iconnext" :class="{ 'next-disabled': !canRedo }" @click="redo"></svg-icon> -->
+      <div
+        class="anno-btn bim-button iconfont-beitou"
+        title="下一步"
+        :class="[canRedo && 'active']"
+      >
+        <div
+          id=""
+          class="iconfont-beitou icon-next"
+          :class="{ 'next-disabled': !canRedo }"
+          @click="redo"
+        ></div>
       </div>
-      <div class="anno-btn bim-button bim-button myfont" title="截图" :class="[isClipboard && 'active']">
-        <div class="myfont icon-clipboard" @click="clipboardHandler"></div>
+      <div
+        class="anno-btn bim-button iconfont-beitou"
+        title="截图"
+        :class="[isClipboard && 'active']"
+      >
+        <div
+          class="iconfont-beitou icon-clipboard"
+          @click="clipboardHandler"
+        ></div>
       </div>
-      <!-- <div class="anno-btn bim-button bim-button myfont">
-        <div id="" class="iconfont icon-delete" @click="clearCanvas"></div>
-      </div> -->
     </div>
 
     <!-- 画布容器 -->
-    <div ref="containerRef" class="full-screen-overlay">
-      <!-- <canvas ref="konvaCanvas" ></canvas> -->
-    </div>
+    <div ref="containerRef" class="full-screen-overlay"></div>
 
     <!-- 文字输入框 -->
     <div
@@ -59,8 +81,9 @@
         width: inputWidth + 'px',
         'font-family': textStyle.fontFamily,
         'font-size': textStyle.fontSize + 'px',
-        color: textStyle.fill,
-      }">
+        color: textStyle.fill
+      }"
+    >
       <textarea
         ref="textInput"
         v-model="textContent"
@@ -69,7 +92,8 @@
         @keydown.enter.shift.prevent="confirmText"
         @keydown.esc="cancelText"
         @blur="confirmText"
-        @keydown="handleTextKeyDown"></textarea>
+        @keydown="handleTextKeyDown"
+      ></textarea>
     </div>
   </div>
 </template>
@@ -84,8 +108,12 @@ export default {
       tools: [
         { name: 'arrow', label: '箭头', className: 'iconjiantou' },
         { name: 'rect', label: '矩形', className: 'iconjuxingkuang' },
-        { name: 'circle', label: '圆形', className: 'iconyuan' },
-        { name: 'text', label: '文字', className: 'iconwenzi' },
+        {
+          name: 'circle',
+          label: '圆形',
+          className: 'icon-xingzhuang-tuoyuanxing'
+        },
+        { name: 'text', label: '文字', className: 'iconwenzi' }
       ],
       currentTool: '',
       stage: null,
@@ -99,7 +127,7 @@ export default {
       textStyle: {
         fontSize: 16,
         fontFamily: 'Arial',
-        fill: '#000000',
+        fill: '#000000'
       },
       measureCtx: null,
       editingNode: null,
@@ -123,7 +151,7 @@ export default {
       textInsertStageY: 0, // 新增
       isInteracting: true,
       resizeObserver: null, // <--- 新增
-      isClipboard: false,
+      isClipboard: false
     }
   },
   computed: {
@@ -131,8 +159,11 @@ export default {
       return this.currentHistoryIndex > 0
     },
     canRedo() {
-      return this.currentHistoryIndex !== -1 && this.currentHistoryIndex < this.history.length - 1
-    },
+      return (
+        this.currentHistoryIndex !== -1 &&
+        this.currentHistoryIndex < this.history.length - 1
+      )
+    }
   },
   created() {
     this.$mitt.on('mCanDraw', this.stopOrStartDraw)
@@ -155,6 +186,7 @@ export default {
     if (this.resizeObserver) {
       this.resizeObserver.disconnect()
     }
+    this.$mitt.off('mittClipboard')
   },
   methods: {
     clipboardHandler() {
@@ -185,12 +217,12 @@ export default {
           width: width,
           height: height,
           draggable: false,
-          pixelRatio: 1.0,
+          pixelRatio: 1.0
         })
 
         this.layer = new Konva.Layer({
           pixelRatio: 1.0,
-          draggable: false,
+          draggable: false
         })
         this.layer.getCanvas().setPixelRatio(1.0)
 
@@ -247,7 +279,7 @@ export default {
 
     // 获取当前选中的节点
     getSelectedNode() {
-      const selectedNodes = this.layer.find((node) => node.getAttr('isSelected'))
+      const selectedNodes = this.layer.find(node => node.getAttr('isSelected'))
       return selectedNodes.length > 0 ? selectedNodes[0] : null
     },
 
@@ -257,7 +289,7 @@ export default {
     configureShapeEvents(node) {
       // 通用点击选择逻辑
       node.on('click tap', () => {
-        this.layer.getChildren().forEach((n) => {
+        this.layer.getChildren().forEach(n => {
           n.strokeWidth(n === node ? 4 : 2)
           n.setAttr('isSelected', n === node)
         })
@@ -296,10 +328,12 @@ export default {
             )
             break
           case 'rect':
-            isValidShape = Math.abs(this.tempShape.width() * this.tempShape.height()) > 10
+            isValidShape =
+              Math.abs(this.tempShape.width() * this.tempShape.height()) > 10
             break
           case 'circle':
-            isValidShape = this.tempShape.radiusX() > 5 && this.tempShape.radiusY() > 5
+            isValidShape =
+              this.tempShape.radiusX() > 5 && this.tempShape.radiusY() > 5
             break
         }
 
@@ -335,7 +369,10 @@ export default {
         // 保存要编辑的文本
         this.editingNode = textNode
         // 计算最终点击位置（用于定位输入框）
-        const finalClickPos = this.calculateTextInsertPosition(textPos, textNode)
+        const finalClickPos = this.calculateTextInsertPosition(
+          textPos,
+          textNode
+        )
         this.openTextInput(finalClickPos.x, finalClickPos.y, textNode.text())
         return
       }
@@ -355,12 +392,12 @@ export default {
       const textNode = new Konva.Text({
         text: text,
         fontSize: this.textStyle.fontSize,
-        fontFamily: this.textStyle.fontFamily,
+        fontFamily: this.textStyle.fontFamily
       })
       const textHeight = textNode.height()
       return {
         x: x - textNode.width() / 2, // 文字中心对齐x坐标
-        y: y - textHeight / 2, // 文字顶部中心对齐y坐标 (点击位置在文字顶部中间)
+        y: y - textHeight / 2 // 文字顶部中心对齐y坐标 (点击位置在文字顶部中间)
       }
     },
 
@@ -381,13 +418,14 @@ export default {
       // 输入框的位置是基于整个视口的，使用getBoundingClientRect获取画布左上角的视口坐标
       this.textInputPos = {
         x: containerRect.left + x,
-        y: containerRect.top + y,
+        y: containerRect.top + y
       }
 
       // 设置初始内容
       this.textContent = existingText
       // 基于文本内容预估一个初始宽度
-      const estimatedWidth = existingText.length * this.textStyle.fontSize * 0.6 + 20
+      const estimatedWidth =
+        existingText.length * this.textStyle.fontSize * 0.6 + 20
       this.inputWidth = Math.max(100, estimatedWidth)
 
       this.showTextInput = true
@@ -416,7 +454,7 @@ export default {
       const maxWidth = this.stage.width() - this.textInputPos.x - 10
       this.inputWidth = Math.min(
         Math.max(textWidth + 20, 100), // 最小100px
-        maxWidth,
+        maxWidth
       )
 
       // 调整高度（无滚动条）
@@ -446,7 +484,11 @@ export default {
           this.editingNode = null
         }
 
-        this.createTextNode(this.textInputPos.x, this.textInputPos.y, this.textContent)
+        this.createTextNode(
+          this.textInputPos.x,
+          this.textInputPos.y,
+          this.textContent
+        )
       }
 
       this.cancelText()
@@ -476,21 +518,25 @@ export default {
         fontSize: this.textStyle.fontSize,
         fontFamily: this.textStyle.fontFamily,
         fill: this.strokeColor,
-        name: 'text',
+        name: 'text'
       })
 
       // 双击编辑
       textNode.on('dblclick', () => {
-        const pos = this.calculateTextInsertPosition(textNode.x(), textNode.y(), textNode.text())
+        const pos = this.calculateTextInsertPosition(
+          textNode.x(),
+          textNode.y(),
+          textNode.text()
+        )
         this.editingNode = textNode
         this.openTextInput(pos.x, pos.y, textNode.text())
         // 编辑时先不删除旧节点，等确认后再删，避免闪烁
       })
 
       // 选中效果
-      textNode.on('click tap', (e) => {
+      textNode.on('click tap', e => {
         e.cancelBubble = true // 阻止事件冒泡到画布
-        this.layer.getChildren().forEach((node) => {
+        this.layer.getChildren().forEach(node => {
           node.strokeWidth(2)
           node.setAttr('isSelected', false)
         })
@@ -556,7 +602,7 @@ export default {
      */
     serializeStage() {
       const shapes = []
-      this.layer.getChildren().forEach((node) => {
+      this.layer.getChildren().forEach(node => {
         // 基本属性
         const shape = {
           id: node.id(),
@@ -572,8 +618,8 @@ export default {
             strokeWidth: node.strokeWidth(),
             fill: node.fill?.(),
             draggable: node.draggable(),
-            isSelected: node.getAttr('isSelected'),
-          },
+            isSelected: node.getAttr('isSelected')
+          }
         }
 
         // 特殊处理文本节点
@@ -590,8 +636,8 @@ export default {
         shapes,
         stageSize: {
           width: this.stage.width(),
-          height: this.stage.height(),
-        },
+          height: this.stage.height()
+        }
       }
     },
 
@@ -627,7 +673,7 @@ export default {
         this.layer.destroyChildren()
 
         // 4. 重建所有形状（不使用Node.create）
-        historyData.shapes.forEach((shapeData) => {
+        historyData.shapes.forEach(shapeData => {
           this.recreateShape(shapeData)
         })
 
@@ -658,7 +704,7 @@ export default {
             strokeWidth: shapeData.attrs.strokeWidth,
             fill: shapeData.attrs.fill,
             draggable: shapeData.attrs.draggable,
-            id: shapeData.id,
+            id: shapeData.id
           })
           break
 
@@ -672,7 +718,7 @@ export default {
             strokeWidth: shapeData.attrs.strokeWidth,
             fill: shapeData.attrs.fill,
             draggable: shapeData.attrs.draggable,
-            id: shapeData.id,
+            id: shapeData.id
           })
           break
 
@@ -685,7 +731,7 @@ export default {
             strokeWidth: shapeData.attrs.strokeWidth,
             fill: shapeData.attrs.fill,
             draggable: shapeData.attrs.draggable,
-            id: shapeData.id,
+            id: shapeData.id
           })
           break
 
@@ -698,7 +744,7 @@ export default {
             fontFamily: shapeData.attrs.fontFamily,
             fill: shapeData.attrs.fill,
             draggable: shapeData.attrs.draggable,
-            id: shapeData.id,
+            id: shapeData.id
           })
           break
 
@@ -706,7 +752,7 @@ export default {
           // 默认创建Group作为兜底
           shape = new Konva.Group({
             id: shapeData.id,
-            draggable: shapeData.attrs.draggable,
+            draggable: shapeData.attrs.draggable
           })
       }
 
@@ -801,7 +847,7 @@ export default {
             points: [pos.x, pos.y, pos.x, pos.y],
             stroke: this.strokeColor,
             strokeWidth: 3,
-            name: 'arrow',
+            name: 'arrow'
           })
           break
 
@@ -813,7 +859,7 @@ export default {
             height: 0,
             stroke: this.strokeColor,
             strokeWidth: 2,
-            name: 'rect',
+            name: 'rect'
           })
           break
 
@@ -824,7 +870,7 @@ export default {
             radius: 0,
             stroke: this.strokeColor,
             strokeWidth: 2,
-            name: 'circle',
+            name: 'circle'
           })
           break
       }
@@ -832,11 +878,11 @@ export default {
       if (this.tempShape) {
         // 添加拖拽选择功能
         this.tempShape.draggable(false)
-        this.tempShape.on('click tap', (e) => {
+        this.tempShape.on('click tap', e => {
           // 取消其他节点的选中状态
           this.layer
-            .find((node) => node.name())
-            .forEach((node) => {
+            .find(node => node.name())
+            .forEach(node => {
               if (node !== e.target) {
                 node.strokeWidth(2)
               }
@@ -844,7 +890,7 @@ export default {
 
           // 高亮选中的节点
           e.target.strokeWidth(4)
-          this.layer.batchDraw()
+          // this.layer.batchDraw()
         })
 
         this.layer.add(this.tempShape)
@@ -861,7 +907,12 @@ export default {
       // 根据工具类型更新形状
       switch (this.currentTool) {
         case 'arrow':
-          this.tempShape.points([this.startPos.x, this.startPos.y, pos.x, pos.y])
+          this.tempShape.points([
+            this.startPos.x,
+            this.startPos.y,
+            pos.x,
+            pos.y
+          ])
           break
 
         case 'rect':
@@ -890,8 +941,6 @@ export default {
           this.tempShape.radius(Math.sqrt(dx * dx + dy * dy))
           break
       }
-
-      this.layer.batchDraw()
     },
 
     handleMouseUp() {
@@ -901,7 +950,8 @@ export default {
           (this.currentTool === 'arrow' &&
             (this.tempShape.points()[0] !== this.tempShape.points()[2] ||
               this.tempShape.points()[1] !== this.tempShape.points()[3])) ||
-          (this.currentTool === 'rect' && this.tempShape.width() * this.tempShape.height() > 0) ||
+          (this.currentTool === 'rect' &&
+            this.tempShape.width() * this.tempShape.height() > 0) ||
           (this.currentTool === 'circle' && this.tempShape.radius() > 0)
         ) {
           this.saveHistory()
@@ -950,7 +1000,7 @@ export default {
         text: 'M', // 使用 'M' 作为基准，因为它通常是字体中最高的字符
         fontSize: this.textStyle.fontSize,
         fontFamily: this.textStyle.fontFamily,
-        lineHeight: 1.2, // 关键！设置行高，让文字看起来是“居中”放置的
+        lineHeight: 1.2 // 关键！设置行高，让文字看起来是“居中”放置的
       })
 
       // 2. 计算我们期望的插入偏移
@@ -965,18 +1015,18 @@ export default {
       const containerAbsPos = this.stage.container().getBoundingClientRect()
       const containerStagePos = {
         x: containerAbsPos.left - window.pageXOffset,
-        y: containerAbsPos.top - window.pageYOffset,
+        y: containerAbsPos.top - window.pageYOffset
       }
 
       const textTopOnStage = {
         x: stageX,
-        y: stageY - this.textStyle.fontSize * 0.2, // 向上移动虚拟文本，使其中心对齐点击
+        y: stageY - this.textStyle.fontSize * 0.2 // 向上移动虚拟文本，使其中心对齐点击
       }
 
       // 4. 计算输入框相对于视口的最终位置
       this.textInputPos = {
         x: containerStagePos.x + textTopOnStage.x,
-        y: containerStagePos.y + textTopOnStage.y - yOffset,
+        y: containerStagePos.y + textTopOnStage.y - yOffset
       }
 
       // 5. 设置初始宽度并显示输入框
@@ -1093,13 +1143,13 @@ export default {
         fill: this.strokeColor,
         name: 'text',
         // **关键**：这里设置了视觉行高，让所有文字都“居中”在 (x, y) 点
-        lineHeight: 1.2,
+        lineHeight: 1.2
       })
 
       // ... (事件绑定代码保持不变) ...
-      textNode.on('click tap', (e) => {
+      textNode.on('click tap', e => {
         e.cancelBubble = true
-        this.layer.getChildren().forEach((node) => {
+        this.layer.getChildren().forEach(node => {
           if (node !== textNode && node.getAttr('isSelected')) {
             node.strokeWidth(2)
             node.setAttr('isSelected', false)
@@ -1167,7 +1217,7 @@ export default {
         return
       }
       // 2. 创建 ResizeObserver 实例
-      this.resizeObserver = new ResizeObserver((entries) => {
+      this.resizeObserver = new ResizeObserver(entries => {
         // entries 是一个数组，包含所有被监听元素的变化信息
         for (let entry of entries) {
           // 优化：只在内容尺寸发生变化时处理，忽略边框/内边距等变化
@@ -1193,7 +1243,7 @@ export default {
       this.stage.height(newHeight)
       // 2. 更新所有历史记录中的尺寸，这至关重要！
       // 如果不更新，撤销/重做时会把 Stage 尺寸恢复成旧的
-      this.history.forEach((snapshot) => {
+      this.history.forEach(snapshot => {
         snapshot.stageSize.width = newWidth
         snapshot.stageSize.height = newHeight
       })
@@ -1201,7 +1251,7 @@ export default {
       const scaleX = newWidth / oldWidth
       const scaleY = newHeight / oldHeight
 
-      this.layer.getChildren().forEach((node) => {
+      this.layer.getChildren().forEach(node => {
         // 调整位置
         node.x(node.x() * scaleX)
         node.y(node.y() * scaleY)
@@ -1228,13 +1278,13 @@ export default {
       this.layer.batchDraw()
       // 5. 保存一个新的历史状态，以记录这次缩放
       this.saveHistory()
-    },
-  },
+    }
+  }
 }
 </script>
 
 <style scoped>
-.editor-container {
+.editor-container-draw-three {
   font-family: Arial, sans-serif;
   max-width: 1200px;
   margin: 0 auto;
