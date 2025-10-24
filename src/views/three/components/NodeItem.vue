@@ -65,7 +65,8 @@ export default {
       return this.selectedId === this.node.uuid
     },
     displayName() {
-      if (this.node.name) return this.node.name
+      // □600*600*20 去掉□
+      if (this.node.name) return this.node.name.replace('□', '')
       if (this.node.isMesh) return `${this.node.type}_${this.node.uuid.slice(0, 4)}`
       return `${this.node.type}_${this.node.uuid.slice(0, 4)}`
     },

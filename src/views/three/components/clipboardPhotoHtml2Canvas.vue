@@ -194,7 +194,6 @@ export default {
 
         // 将我们合成的 canvas 转换为 URL 用于下载和显示
         const finalImageUrl = canvasKonva.toDataURL('image/png')
-        console.log(`82 finalImageUrl`, finalImageUrl)
         const finalImageElement = document.createElement('img')
         finalImageElement.src = finalImageUrl
         finalImageElement.style.position = 'fixed'

@@ -1,13 +1,17 @@
 <template>
   <div>
     <div class="myfont icon-clipboard"></div>
+    <UploadFileByClipboard></UploadFileByClipboard>
   </div>
 </template>
 
 <script>
+import UploadFileByClipboard from "@/views/three/components/uploadFileByClipboard.vue";
 export default {
   name: 'T1',
-  components: {},
+  components: {
+    UploadFileByClipboard
+  },
   props: {},
   data() {
     return {}

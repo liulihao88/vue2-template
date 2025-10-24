@@ -6,7 +6,7 @@
           <table class="gridtable">
             <tr>
               <td>name</td>
-              <td>{{ sAttribute.name }}</td>
+              <td>{{ parseName(sAttribute.name) }}</td>
             </tr>
             <tr>
               <td>ElementID</td>
@@ -20,7 +20,7 @@
         <el-collapse-item :title="v.GroupName" :name="v.GroupName">
           <table class="gridtable">
             <tr v-for="(val, idx) in v.Parameters" :key="idx">
-              <td>{{ val.name }}</td>
+              <td>{{ parseName(val.name) }}</td>
               <td>{{ val.value }}</td>
             </tr>
           </table>
@@ -129,7 +129,12 @@ export default {
   },
   created() {},
   mounted() {},
-  methods: {},
+  methods: {
+    parseName(name) {
+      if (!name) return ''
+      return name.replace('□', '')
+    },
+  },
 }
 </script>
 <style scoped lang="scss">

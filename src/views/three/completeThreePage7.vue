@@ -10,12 +10,14 @@
       <div ref="allContainerRef">
         <div ref="sceneContainer" class="scene-container" v-if="modelLoaded"></div>
         <template v-if="modelLoaded">
-          <el-progress
+          <!-- <el-progress
+
             :percentage="percentage"
             v-if="!isLoaded"
             class="progress-box"
             color="#333"
-            :style-width="20"></el-progress>
+            :style-width="20"></el-progress> -->
+          <i type="primary" v-if="!isLoaded" class="progress-box el-icon-loading"></i>
           <absolute-box
             :customStyle="{
               left: 0,
@@ -109,6 +111,15 @@ export default {
       const drawThreeComp = uploadFileComp.$refs.drawThreeRef
       if (!drawThreeComp) return null
       return drawThreeComp.$refs.containerRef
+    },
+  },
+  watch: {
+    isShowMouse(bool) {
+      if (bool) {
+        this.renderer.domElement.addEventListener('mousemove', this.getMouseXYZ, { passive: true })
+      } else {
+        this.renderer.domElement.addEventListener('mousemove', this.getMouseXYZ, { passive: true })
+      }
     },
   },
   data() {
@@ -315,8 +326,7 @@ export default {
 
       // 切换到 mousedown
       this.renderer.domElement.addEventListener('mousedown', this.onMouseDownHandler, { passive: true })
-      // 添加 mousemove 来检测是否开始拖动
-      this.renderer.domElement.addEventListener('mousemove', this.onMouseMoveHandler, { passive: true })
+
       // 使用 window 监听 mouseup，确保万无一失
       window.addEventListener('mouseup', this.onMouseUpHandler, { passive: true })
       window.addEventListener('resize', this.onWindowResize)
@@ -331,7 +341,8 @@ export default {
         loader.setDRACOLoader(dracoLoader)
       }
       loader.load(
-        '/3.glb',
+        '/2.glb',
+        // '/3.glb',
         (gltf) => {
           this.partLists = []
           this.isLoaded = true
@@ -736,10 +747,11 @@ export default {
     onMouseDownHandler(event) {
       // 标记为“尚未拖动”
       this.isCurrentlyDragging = false
+      // 添加 mousemove 来检测是否开始拖动
+      this.renderer.domElement.addEventListener('mousemove', this.onMouseMoveHandler, { passive: true })
     },
     // 鼠标移动时，检查并标记为“正在拖动”
     onMouseMoveHandler(event) {
-      this.getMouseXYZ()
       // 如果 isCurrentlyDragging 已经是 true，就没必要再检查了
       if (this.isCurrentlyDragging) {
         return
@@ -760,8 +772,10 @@ export default {
         this.lastMousePos = { x: event.clientX, y: event.clientY } // 更新位置
       }
     },
+
     getMouseXYZ() {
       const rect = this.renderer.domElement.getBoundingClientRect()
+      console.log(`98 rect`, rect)
       this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
       this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
       // 2. 更新光线投射器，使其从相机出发，穿过鼠标点
@@ -794,6 +808,7 @@ export default {
     },
     // 鼠标松开时，根据 isCurrentlyDragging 标志决定是否触发点击
     onMouseUpHandler(event) {
+      console.log(`38 event`, event)
       if (this.$refs.uploadFileRef?.isShowDraw) {
         return
       }
@@ -824,6 +839,7 @@ export default {
       if (this.renderer) {
         this.renderer.domElement.removeEventListener('mousedown', this.onMouseDownHandler)
         this.renderer.domElement.removeEventListener('mousemove', this.onMouseMoveHandler)
+        this.renderer.domElement.removeEventListener('mousemove', this.getMouseXYZ)
       }
       window.removeEventListener('mouseup', this.onMouseUpHandler)
       window.removeEventListener('resize', this.onWindowResize)
@@ -935,8 +951,8 @@ export default {
   position: absolute;
   top: 50%;
   left: 50%;
+  font-size: 40px;
   z-index: 1;
-  width: 200px;
 }
 .part-item {
   height: 30px;
