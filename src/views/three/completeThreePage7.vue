@@ -118,7 +118,8 @@ export default {
       if (bool) {
         this.renderer.domElement.addEventListener('mousemove', this.getMouseXYZ, { passive: true })
       } else {
-        this.renderer.domElement.addEventListener('mousemove', this.getMouseXYZ, { passive: true })
+        this.renderer.domElement.removeEventListener('mousemove', this.getMouseXYZ, { passive: true })
+        this.hoverCoords.visible = false
       }
     },
   },
@@ -341,8 +342,8 @@ export default {
         loader.setDRACOLoader(dracoLoader)
       }
       loader.load(
-        '/2.glb',
-        // '/3.glb',
+        // '/2.glb',
+        '/3.glb',
         (gltf) => {
           this.partLists = []
           this.isLoaded = true
@@ -480,21 +481,21 @@ export default {
     },
     // 更新findMeshes方法
     findMeshes(node, result) {
-      // 查找模型中的对应物体
-      this.model.traverse((obj) => {
-        if (obj.uuid === node.uuid) {
-          if (obj.isMesh) {
-            result.push(obj)
+      // nodeMap 存储了所有节点对象，我们可以直接用 node.uuid 查找 Three.js 对象
+      const threeObject = this.scene.getObjectByProperty('uuid', node.uuid)
+      if (!threeObject) {
+        return // 没找到，返回
+      }
+      if (threeObject.isMesh) {
+        result.push(threeObject)
+      } else if (threeObject.children && threeObject.children.length > 0) {
+        threeObject.children.forEach((child) => {
+          if (child.isMesh) {
+            result.push(child)
           }
-          // 如果是组/空节点，收集所有子mesh
-          else {
-            obj.children.forEach((child) => {
-              if (child.isMesh) result.push(child)
-            })
-          }
-        }
-      })
-      // 递归查找子节点
+        })
+      }
+      // 递归查找子节点，这部分逻辑是合理的
       if (node.children && node.children.length > 0) {
         node.children.forEach((childNode) => {
           this.findMeshes(childNode, result)
@@ -781,10 +782,12 @@ export default {
       // 2. 更新光线投射器，使其从相机出发，穿过鼠标点
       this.raycaster.setFromCamera(this.mouse, this.camera)
       // 3. 选择要进行碰撞检测的对象
-      // 为了性能，最好只让需要交互的物体参与检测。
-      // 例如，如果你的场景很大，可以先找出所有参与交互的 mesh。
-      // 如果模型结构不复杂，直接检测整个场景也可以。
-      const intersects = this.raycaster.intersectObjects(this.scene.children, true)
+      let allInteractableMeshes = []
+      for (let meshes of this.materialMeshMap.values()) {
+        allInteractableMeshes = allInteractableMeshes.concat(meshes)
+      }
+      // b. 使用这个优化后的数组进行检测
+      const intersects = this.raycaster.intersectObjects(allInteractableMeshes, false) // true 改为 false，因为我们提供的是最底层的 Mesh 数组
       // 4. 分析结果
       if (intersects.length > 0) {
         // 获取第一个（也就是最近的）交点信息
