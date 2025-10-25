@@ -67,6 +67,7 @@ module.exports = {
         bundler: 'webpack',
       }),
     )
+
     // it can improve the speed of the first screen, it is recommended to turn on preload
     config.plugin('preload').tap(() => [
       {
@@ -83,6 +84,7 @@ module.exports = {
 
     // set svg-sprite-loader
     config.module.rule('svg').exclude.add(resolve('src/icons')).end()
+
     config.module
       .rule('icons')
       .test(/\.svg$/)
@@ -92,6 +94,17 @@ module.exports = {
       .loader('svg-sprite-loader')
       .options({
         symbolId: 'icon-[name]',
+      })
+      .end()
+    config.module
+      .rule('worker')
+      .test(/\.worker\.js$/)
+      .use('worker-loader')
+      .loader('worker-loader')
+      .options({
+        // 这是创建 Worker 时的名字
+        inline: 'fallback',
+        filename: 'workers/[name].js',
       })
       .end()
 

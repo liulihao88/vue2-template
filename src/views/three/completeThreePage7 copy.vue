@@ -88,7 +88,6 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import ClipboardPhoto from './components/clipboardPhotoHtml2Canvas.vue'
 import absoluteBox from './components/absoluteBox.vue'
 import NodeItem from './components/NodeItem.vue' // New component for rendering tree nodes
-import ModelParserWorker from './workers/modelParser.worker.js'
 
 export default {
   name: 'ModelViewer',
@@ -126,7 +125,6 @@ export default {
   },
   data() {
     return {
-      worker: null,
       needRender: false,
       modelLoaded: true,
       scene: null,
@@ -169,7 +167,6 @@ export default {
       raycaster: new THREE.Raycaster(),
       mouse: new THREE.Vector2(),
       materialMeshMap: new Map(), // 材质ID => 对应的Mesh数组
-      allInteractiveMeshes: [],
       isShowMouse: false,
     }
   },
@@ -192,16 +189,7 @@ export default {
     await this.loadModel()
   },
   beforeDestroy() {
-    if (this.worker) {
-      this.worker.terminate()
-      this.worker = null
-    }
     this.cleanupScene()
-    //！！！非常重要！！！
-    if (this.worker) {
-      this.worker.terminate() // 关闭 Worker，释放资源
-      this.worker = null
-    }
   },
   methods: {
     mittClipboard() {
@@ -356,7 +344,7 @@ export default {
       loader.load(
         // '/2.glb',
         '/3.glb',
-        async (gltf) => {
+        (gltf) => {
           this.partLists = []
           this.isLoaded = true
           this.sceneNodes = []
@@ -367,23 +355,12 @@ export default {
           this.model = gltf.scene
           this.scene.add(this.model)
 
-          this.model = gltf.scene
-          this.scene.add(this.model)
-          // --- Worker 集成 ---
-          // 确保只在浏览器环境中运行
-          if (typeof Worker !== 'undefined') {
-            // 动态导入已经返回了 Promise
-            this.worker = new ModelParserWorker()
+          // Build node tree structure
+          this.buildNodeTree(this.model.children[0])
 
-            // 设置 Worker 消息监听器
-            this.worker.onmessage = this.handleWorkerMessage
-            // 发送模型数据给 Worker
-            this.worker.postMessage({ model: this.model.toJSON() })
-            // this.worker.postMessage({ model: {name: 'amdy'} })
-          } else {
-            console.warn('Web Workers not supported, falling back to main thread processing.')
-            this.fallbackToMainThreadProcessing()
-          }
+          // Prepare for interaction
+          this.prepareModelForInteraction(this.model)
+          this.fitCameraToModel()
         }, // 加载进度回调
         (xhr) => {
           this.percentage = parseInt((xhr.loaded / xhr.total) * 100)
@@ -394,54 +371,6 @@ export default {
           console.error('模型加载过程中发生错误:', error)
         },
       )
-    },
-    fallbackToMainThreadProcessing() {
-      // 如果 Worker 不可用或加载失败，降级到主线程处理
-      console.warn('Falling back to main thread processing - may lag.')
-      this.buildNodeTree(this.model)
-      this.allInteractiveMeshes = this.findAllMeshes(this.model) // 自己实现一个查找函数
-      this.fitCameraToModel()
-      this.isLoaded = true
-    },
-    findAllMeshes(object, meshes = []) {
-      if (object.isMesh) {
-        meshes.push(object)
-      }
-      for (const child of object.children) {
-        this.findAllMeshes(child, meshes)
-      }
-      return meshes
-    },
-    // --- Worker 事件处理 ---
-    handleWorkerMessage(e) {
-      console.log(`89 e.data`, e.data)
-      console.log(`15 e`, e)
-      console.log('Main: Received data from Worker.')
-      const { sceneNodes, nodeMap, meshNodeMap, allInteractiveMeshes, materialMeshMap, custom } = e.data
-      console.log(`83 custom`, custom)
-      console.log(`07 materialMeshMap`, materialMeshMap)
-      console.log(`17 allInteractiveMeshes`, allInteractiveMeshes)
-      console.log(`88 meshNodeMap`, meshNodeMap)
-      console.log(`33 nodeMap`, nodeMap)
-      console.log(`38 sceneNodes`, sceneNodes)
-      // 更新组件状态
-      this.sceneNodes = sceneNodes
-      this.nodeMap = new Map(nodeMap)
-      this.meshNodeMap = new Map(meshNodeMap)
-      this.allInteractiveMeshes = allInteractiveMeshes // 极其重要的优化！
-      this.materialMeshMap = new Map(materialMeshMap)
-      // 此时，树结构数据已准备好，可以适配相机或进行其他初始化
-      this.fitCameraToModel()
-      this.isLoaded = true
-    },
-    fallbackToMainThreadTreeBuilding(model) {
-      // 这是你的原始逻辑，作为备用方案
-      console.warn('Building tree on main thread. This may cause lag.')
-      // ... 原 buildNodeTree, prepareModelForInteraction 等逻辑
-      this.prepareModelForInteraction(model)
-      this.buildNodeTree(model)
-      this.fitCameraToModel()
-      this.isLoaded = true
     },
 
     buildNodeTree(object, parentNode = null, depth = 0) {
@@ -660,9 +589,8 @@ export default {
 
       // Raycast to find intersections
       this.raycaster.setFromCamera(this.mouse, this.camera)
-      // const intersects = this.raycaster.intersectObject(this.model, true)
+      const intersects = this.raycaster.intersectObject(this.model, true)
 
-      const intersects = this.raycaster.intersectObjects(this.allInteractiveMeshes)
       if (intersects.length > 0) {
         const clickedObject = intersects[0].object
 
