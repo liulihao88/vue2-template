@@ -1,5 +1,10 @@
 <template>
   <div class="model-viewer">
+    <div class="upload-area">
+      <!-- <el-button class="open-glb" type="primary" size="small" @click="triggerFileInput">打开 GLB 文件</el-button> -->
+      <!-- <input ref="fileInput" type="file" accept=".glb" @change="handleFileUpload" style="display: none" /> -->
+    </div>
+
     <el-dialog
       :visible.sync="modelLoaded"
       :title="hoverCoordsTitle"
@@ -10,14 +15,12 @@
       <div ref="allContainerRef">
         <div ref="sceneContainer" class="scene-container" v-if="modelLoaded"></div>
         <template v-if="modelLoaded">
-          <!-- <el-progress
-
+          <el-progress
             :percentage="percentage"
             v-if="!isLoaded"
             class="progress-box"
             color="#333"
-            :style-width="20"></el-progress> -->
-          <i type="primary" v-if="!isLoaded" class="progress-box el-icon-loading"></i>
+            :style-width="20"></el-progress>
           <absolute-box
             :customStyle="{
               left: 0,
@@ -25,22 +28,24 @@
               height: 'calc(50vh - 56px)',
             }"
             title="全部构件">
-            <div class="node-tree">
+            =={{ sendNodes.length }}??
+            <div class="node-tree" v-if="sendNodes.length > 0">
               <node-item
-                v-for="node in sceneNodes"
+                v-for="node in sendNodes"
                 :key="node.uuid"
                 :node="node"
                 :depth="0"
                 :selected-id="selectedNodeId"
                 @node-select="handleNodeSelect" />
+              <IoloadMore style="height: 10px" @loadSuccess="loadSuccess" :pageSize="pageSize"></IoloadMore>
             </div>
           </absolute-box>
-          <g-cus-dialog @close="closeCusDialog('statistics')" title="模型信息" v-show="isShowStatistics">
+          <cus-dialog @close="closeCusDialog('statistics')" title="模型信息" v-show="isShowStatistics">
             <div v-for="(part, i) in partLists" :key="part.id" class="part-item" w>
               <div>{{ part.name }}: {{ materialMeshMap.get(part.id).length }}个</div>
             </div>
-          </g-cus-dialog>
-          <g-cus-dialog @close="closeCusDialog('mouse')" title="鼠标捕获" v-show="isShowMouse">
+          </cus-dialog>
+          <cus-dialog @close="closeCusDialog('mouse')" title="鼠标捕获" v-show="isShowMouse">
             <div>
               <div>当前坐标</div>
               <div style="margin-top: 8px" v-if="hoverCoords.visible">
@@ -49,7 +54,7 @@
                 <span style="margin-right: 8px">z: {{ hoverCoords.z }}</span>
               </div>
             </div>
-          </g-cus-dialog>
+          </cus-dialog>
 
           <ElementAttribute :attribute="elementAttributeData"></ElementAttribute>
           <template v-if="isShowReview">
@@ -88,7 +93,8 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import ClipboardPhoto from './components/clipboardPhotoHtml2Canvas.vue'
 import absoluteBox from './components/absoluteBox.vue'
 import NodeItem from './components/NodeItem.vue' // New component for rendering tree nodes
-import ModelParserWorker from './workers/modelParser.worker.js'
+import CusDialog from './components/cusDialog.vue'
+import IoloadMore from './components/ioloadMore.vue'
 
 export default {
   name: 'ModelViewer',
@@ -100,6 +106,8 @@ export default {
     UploadFile,
     absoluteBox,
     NodeItem,
+    CusDialog,
+    IoloadMore,
   },
   computed: {
     hoverCoordsTitle() {
@@ -115,19 +123,16 @@ export default {
     },
   },
   watch: {
-    isShowMouse(bool) {
-      if (bool) {
-        this.renderer.domElement.addEventListener('mousemove', this.getMouseXYZ, { passive: true })
-      } else {
-        this.renderer.domElement.removeEventListener('mousemove', this.getMouseXYZ, { passive: true })
-        this.hoverCoords.visible = false
+    sceneNodes(val) {
+      console.log(`27 val`, val)
+      if (val && val.length > 0) {
+        this.sendNodes = val[0].children.slice(0, this.pageSize)
       }
     },
   },
   data() {
     return {
-      worker: null,
-      needRender: false,
+      pageSize: 30,
       modelLoaded: true,
       scene: null,
       camera: null,
@@ -143,7 +148,6 @@ export default {
       mouse: new THREE.Vector2(),
 
       // Node tree data
-      sceneNodes: [],
       selectedNode: null,
       selectedNodeId: null,
       highlightedObjects: new Set(),
@@ -169,8 +173,9 @@ export default {
       raycaster: new THREE.Raycaster(),
       mouse: new THREE.Vector2(),
       materialMeshMap: new Map(), // 材质ID => 对应的Mesh数组
-      allInteractiveMeshes: [],
       isShowMouse: false,
+      sceneNodes: [],
+      sendNodes: [],
     }
   },
   created() {
@@ -192,18 +197,17 @@ export default {
     await this.loadModel()
   },
   beforeDestroy() {
-    if (this.worker) {
-      this.worker.terminate()
-      this.worker = null
-    }
     this.cleanupScene()
-    //！！！非常重要！！！
-    if (this.worker) {
-      this.worker.terminate() // 关闭 Worker，释放资源
-      this.worker = null
-    }
   },
   methods: {
+    loadSuccess(pageNumber) {
+      console.log(`05 pageNumber`, pageNumber)
+      console.log(`21 this.sendNodes`, this.sendNodes)
+      this.sendNodes = this.sendNodes.concat(
+        this.sceneNodes[0].children.slice((pageNumber - 1) * this.pageSize, pageNumber * this.pageSize),
+      )
+      console.log(`84 this.sendNodes`, this.sendNodes)
+    },
     mittClipboard() {
       this.$refs.clipboardPhotoRef.startSelection()
     },
@@ -256,21 +260,6 @@ export default {
       this.$refs.fileInput.click()
     },
 
-    async handleFileUpload(event) {
-      const file = event.target.files[0]
-      if (!file) return
-
-      try {
-        this.modelLoaded = true
-        await this.$nextTick()
-        const arrayBuffer = await this.readFileAsArrayBuffer(file)
-        await this.initScene()
-        await this.loadModel(arrayBuffer)
-      } catch (error) {
-        console.error('加载模型出错:', error)
-        alert('模型加载失败: ' + error.message)
-      }
-    },
 
     readFileAsArrayBuffer(file) {
       return new Promise((resolve, reject) => {
@@ -318,28 +307,11 @@ export default {
 
       this.controls = new OrbitControls(this.camera, this.renderer.domElement)
       this.controls.enableDamping = true
-      // this.controls.addEventListener('change', () => {
-      //   // 控制器导致相机变化, 需要重绘
-      //   if (this.renderer && this.scene && this.camera) {
-      //     this.needRender = true
-      //   }
-      // })
-
-      const originalUpdate = this.controls.update
-      this.controls.update = () => {
-        // 先调用 update 原本的功能，更新相机
-        originalUpdate.call(this.controls)
-        // 然后设置我们的渲染标志
-        if (this.renderer && this.scene && this.camera) {
-          // 注意，这里我们直接调用 renderer.render，而不是设置标志位了
-          // 因为 OrbitControls 的更新已经是一个动画循环，我们只需要在它更新后渲染一次即可
-          this.renderer.render(this.scene, this.camera)
-        }
-      }
 
       // 切换到 mousedown
       this.renderer.domElement.addEventListener('mousedown', this.onMouseDownHandler, { passive: true })
-
+      // 添加 mousemove 来检测是否开始拖动
+      this.renderer.domElement.addEventListener('mousemove', this.onMouseMoveHandler, { passive: true })
       // 使用 window 监听 mouseup，确保万无一失
       window.addEventListener('mouseup', this.onMouseUpHandler, { passive: true })
       window.addEventListener('resize', this.onWindowResize)
@@ -356,7 +328,7 @@ export default {
       loader.load(
         // '/2.glb',
         '/3.glb',
-        async (gltf) => {
+        (gltf) => {
           this.partLists = []
           this.isLoaded = true
           this.sceneNodes = []
@@ -367,23 +339,13 @@ export default {
           this.model = gltf.scene
           this.scene.add(this.model)
 
-          this.model = gltf.scene
-          this.scene.add(this.model)
-          // --- Worker 集成 ---
-          // 确保只在浏览器环境中运行
-          if (typeof Worker !== 'undefined') {
-            // 动态导入已经返回了 Promise
-            this.worker = new ModelParserWorker()
+          // Build node tree structure
+          this.buildNodeTree(this.model.children[0])
+          console.log(`34 this.model.children[0]`, this.model.children[0])
 
-            // 设置 Worker 消息监听器
-            this.worker.onmessage = this.handleWorkerMessage
-            // 发送模型数据给 Worker
-            this.worker.postMessage({ model: this.model.toJSON() })
-            // this.worker.postMessage({ model: {name: 'amdy'} })
-          } else {
-            console.warn('Web Workers not supported, falling back to main thread processing.')
-            this.fallbackToMainThreadProcessing()
-          }
+          // Prepare for interaction
+          this.prepareModelForInteraction(this.model)
+          this.fitCameraToModel()
         }, // 加载进度回调
         (xhr) => {
           this.percentage = parseInt((xhr.loaded / xhr.total) * 100)
@@ -394,54 +356,6 @@ export default {
           console.error('模型加载过程中发生错误:', error)
         },
       )
-    },
-    fallbackToMainThreadProcessing() {
-      // 如果 Worker 不可用或加载失败，降级到主线程处理
-      console.warn('Falling back to main thread processing - may lag.')
-      this.buildNodeTree(this.model)
-      this.allInteractiveMeshes = this.findAllMeshes(this.model) // 自己实现一个查找函数
-      this.fitCameraToModel()
-      this.isLoaded = true
-    },
-    findAllMeshes(object, meshes = []) {
-      if (object.isMesh) {
-        meshes.push(object)
-      }
-      for (const child of object.children) {
-        this.findAllMeshes(child, meshes)
-      }
-      return meshes
-    },
-    // --- Worker 事件处理 ---
-    handleWorkerMessage(e) {
-      console.log(`89 e.data`, e.data)
-      console.log(`15 e`, e)
-      console.log('Main: Received data from Worker.')
-      const { sceneNodes, nodeMap, meshNodeMap, allInteractiveMeshes, materialMeshMap, custom } = e.data
-      console.log(`83 custom`, custom)
-      console.log(`07 materialMeshMap`, materialMeshMap)
-      console.log(`17 allInteractiveMeshes`, allInteractiveMeshes)
-      console.log(`88 meshNodeMap`, meshNodeMap)
-      console.log(`33 nodeMap`, nodeMap)
-      console.log(`38 sceneNodes`, sceneNodes)
-      // 更新组件状态
-      this.sceneNodes = sceneNodes
-      this.nodeMap = new Map(nodeMap)
-      this.meshNodeMap = new Map(meshNodeMap)
-      this.allInteractiveMeshes = allInteractiveMeshes // 极其重要的优化！
-      this.materialMeshMap = new Map(materialMeshMap)
-      // 此时，树结构数据已准备好，可以适配相机或进行其他初始化
-      this.fitCameraToModel()
-      this.isLoaded = true
-    },
-    fallbackToMainThreadTreeBuilding(model) {
-      // 这是你的原始逻辑，作为备用方案
-      console.warn('Building tree on main thread. This may cause lag.')
-      // ... 原 buildNodeTree, prepareModelForInteraction 等逻辑
-      this.prepareModelForInteraction(model)
-      this.buildNodeTree(model)
-      this.fitCameraToModel()
-      this.isLoaded = true
     },
 
     buildNodeTree(object, parentNode = null, depth = 0) {
@@ -552,21 +466,21 @@ export default {
     },
     // 更新findMeshes方法
     findMeshes(node, result) {
-      // nodeMap 存储了所有节点对象，我们可以直接用 node.uuid 查找 Three.js 对象
-      const threeObject = this.scene.getObjectByProperty('uuid', node.uuid)
-      if (!threeObject) {
-        return // 没找到，返回
-      }
-      if (threeObject.isMesh) {
-        result.push(threeObject)
-      } else if (threeObject.children && threeObject.children.length > 0) {
-        threeObject.children.forEach((child) => {
-          if (child.isMesh) {
-            result.push(child)
+      // 查找模型中的对应物体
+      this.model.traverse((obj) => {
+        if (obj.uuid === node.uuid) {
+          if (obj.isMesh) {
+            result.push(obj)
           }
-        })
-      }
-      // 递归查找子节点，这部分逻辑是合理的
+          // 如果是组/空节点，收集所有子mesh
+          else {
+            obj.children.forEach((child) => {
+              if (child.isMesh) result.push(child)
+            })
+          }
+        }
+      })
+      // 递归查找子节点
       if (node.children && node.children.length > 0) {
         node.children.forEach((childNode) => {
           this.findMeshes(childNode, result)
@@ -593,10 +507,6 @@ export default {
         mesh.material = this.highlightMaterial
         this.highlightedObjects.add(mesh)
       })
-
-      if (this.renderer && this.scene && this.camera) {
-        this.needRender = true
-      }
     },
 
     highlightNode(node) {
@@ -660,9 +570,8 @@ export default {
 
       // Raycast to find intersections
       this.raycaster.setFromCamera(this.mouse, this.camera)
-      // const intersects = this.raycaster.intersectObject(this.model, true)
+      const intersects = this.raycaster.intersectObject(this.model, true)
 
-      const intersects = this.raycaster.intersectObjects(this.allInteractiveMeshes)
       if (intersects.length > 0) {
         const clickedObject = intersects[0].object
 
@@ -688,10 +597,12 @@ export default {
               }
               this.findClosestBySelector(nodeElement)
               // res.style.display = 'block'
-              nodeElement.scrollIntoView({
-                behavior: 'smooth',
-                block: 'center',
-              })
+              setTimeout(() => {
+                nodeElement.scrollIntoView({
+                  behavior: 'smooth',
+                  block: 'center',
+                })
+              }, 200)
               this.$nextTick(() => {})
             })
           }
@@ -790,11 +701,12 @@ export default {
     },
 
     animate() {
-      if (this.needRender) {
-        this.renderer.render(this.scene, this.camera)
-        this.needRender = false
-      }
       requestAnimationFrame(this.animate)
+      if (this.renderer && this.scene && this.camera) {
+        this.renderer.render(this.scene, this.camera)
+      }
+
+      // Pulsing animation for highlighted objects
       if (this.highlightedObjects.size > 0 && this.highlightMaterial) {
         const pulse = 0.5 + 0.3 * Math.sin(Date.now() * 0.005)
         this.highlightMaterial.opacity = pulse
@@ -820,11 +732,10 @@ export default {
     onMouseDownHandler(event) {
       // 标记为“尚未拖动”
       this.isCurrentlyDragging = false
-      // 添加 mousemove 来检测是否开始拖动
-      this.renderer.domElement.addEventListener('mousemove', this.onMouseMoveHandler, { passive: true })
     },
     // 鼠标移动时，检查并标记为“正在拖动”
     onMouseMoveHandler(event) {
+      this.getMouseXYZ()
       // 如果 isCurrentlyDragging 已经是 true，就没必要再检查了
       if (this.isCurrentlyDragging) {
         return
@@ -845,21 +756,17 @@ export default {
         this.lastMousePos = { x: event.clientX, y: event.clientY } // 更新位置
       }
     },
-
     getMouseXYZ() {
       const rect = this.renderer.domElement.getBoundingClientRect()
-      console.log(`98 rect`, rect)
       this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
       this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
       // 2. 更新光线投射器，使其从相机出发，穿过鼠标点
       this.raycaster.setFromCamera(this.mouse, this.camera)
       // 3. 选择要进行碰撞检测的对象
-      let allInteractableMeshes = []
-      for (let meshes of this.materialMeshMap.values()) {
-        allInteractableMeshes = allInteractableMeshes.concat(meshes)
-      }
-      // b. 使用这个优化后的数组进行检测
-      const intersects = this.raycaster.intersectObjects(allInteractableMeshes, false) // true 改为 false，因为我们提供的是最底层的 Mesh 数组
+      // 为了性能，最好只让需要交互的物体参与检测。
+      // 例如，如果你的场景很大，可以先找出所有参与交互的 mesh。
+      // 如果模型结构不复杂，直接检测整个场景也可以。
+      const intersects = this.raycaster.intersectObjects(this.scene.children, true)
       // 4. 分析结果
       if (intersects.length > 0) {
         // 获取第一个（也就是最近的）交点信息
@@ -883,7 +790,6 @@ export default {
     },
     // 鼠标松开时，根据 isCurrentlyDragging 标志决定是否触发点击
     onMouseUpHandler(event) {
-      console.log(`38 event`, event)
       if (this.$refs.uploadFileRef?.isShowDraw) {
         return
       }
@@ -914,7 +820,6 @@ export default {
       if (this.renderer) {
         this.renderer.domElement.removeEventListener('mousedown', this.onMouseDownHandler)
         this.renderer.domElement.removeEventListener('mousemove', this.onMouseMoveHandler)
-        this.renderer.domElement.removeEventListener('mousemove', this.getMouseXYZ)
       }
       window.removeEventListener('mouseup', this.onMouseUpHandler)
       window.removeEventListener('resize', this.onWindowResize)
@@ -1026,8 +931,8 @@ export default {
   position: absolute;
   top: 50%;
   left: 50%;
-  font-size: 40px;
   z-index: 1;
+  width: 200px;
 }
 .part-item {
   height: 30px;

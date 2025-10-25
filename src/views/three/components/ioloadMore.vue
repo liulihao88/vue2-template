@@ -34,6 +34,7 @@ export default {
   },
   methods: {
     loadMore(entries) {
+      console.log(`12 entries`, entries)
       if (entries[0].intersectionRatio <= 0) return
       this.pageNumber++
       this.$emit('loadSuccess', this.pageNumber)

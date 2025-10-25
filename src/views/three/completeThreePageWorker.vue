@@ -25,6 +25,7 @@
               height: 'calc(50vh - 56px)',
             }"
             title="全部构件">
+            ==={{ sceneNodes.length }}???
             <div class="node-tree">
               <node-item
                 v-for="node in sceneNodes"
@@ -375,11 +376,11 @@ export default {
             // 动态导入已经返回了 Promise
             this.worker = new ModelParserWorker()
 
-            // 设置 Worker 消息监听器
-            this.worker.onmessage = this.handleWorkerMessage
             // 发送模型数据给 Worker
             this.worker.postMessage({ model: this.model.toJSON() })
-            // this.worker.postMessage({ model: {name: 'amdy'} })
+            this.worker.postMessage({ model: { name: 'amdy' } })
+            // 设置 Worker 消息监听器
+            this.worker.onmessage = this.handleWorkerMessage
           } else {
             console.warn('Web Workers not supported, falling back to main thread processing.')
             this.fallbackToMainThreadProcessing()
@@ -433,6 +434,7 @@ export default {
       // 此时，树结构数据已准备好，可以适配相机或进行其他初始化
       this.fitCameraToModel()
       this.isLoaded = true
+      this.$forceUpdate()
     },
     fallbackToMainThreadTreeBuilding(model) {
       // 这是你的原始逻辑，作为备用方案
