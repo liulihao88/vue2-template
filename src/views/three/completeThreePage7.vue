@@ -325,7 +325,6 @@ export default {
       this.percentage = 0
       const loader = new GLTFLoader()
       const dracoLoader = await this.initDracoLoader()
-      console.log(`66 dracoLoader`, dracoLoader)
       if (dracoLoader) {
         loader.setDRACOLoader(dracoLoader)
       }
@@ -760,7 +759,6 @@ export default {
       }
     },
     getMouseXYZ() {
-      console.log(`59 rect`, rect)
       const rect = this.renderer.domElement.getBoundingClientRect()
       this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
       this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
