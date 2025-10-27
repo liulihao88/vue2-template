@@ -498,17 +498,19 @@ export default {
           mesh.userData.originalMaterial = mesh.material
         }
 
-        if (!this.highlightMaterial) {
-          this.highlightMaterial = new THREE.MeshBasicMaterial({
-            color: 0x00ff00,
-            transparent: true,
-            opacity: 0.7,
-            wireframe: false,
-          })
-        }
-
-        mesh.material = this.highlightMaterial
-        this.highlightedObjects.add(mesh)
+        const staticHighlightMaterial = new THREE.MeshBasicMaterial({
+          color: 0x00ff00,
+          transparent: true,
+          opacity: 0.5, // 一个固定的透明度
+          wireframe: false,
+        })
+        meshes.forEach((mesh) => {
+          if (!mesh.userData.originalMaterial) {
+            mesh.userData.originalMaterial = mesh.material
+          }
+          mesh.material = staticHighlightMaterial // 使用同一个静态材质实例！
+          this.highlightedObjects.add(mesh)
+        })
       })
     },
 
@@ -589,25 +591,23 @@ export default {
         }
 
         if (mesh && mesh.isMesh) {
-          // Find the corresponding node in our tree
           const node = this.nodeMap.get(mesh.uuid) || this.meshNodeMap.get(mesh)
           if (node) {
             this.handleNodeSelect(node)
-            // 滚动到对应的树节点
-            this.$nextTick(() => {
-              const nodeElement = document.querySelector(`[data-node-id="${node.uuid}"]`)
-              if (nodeElement) {
-              }
-              this.findClosestBySelector(nodeElement)
-              // res.style.display = 'block'
-              setTimeout(() => {
-                nodeElement.scrollIntoView({
-                  behavior: 'smooth',
-                  block: 'center',
-                })
-              }, 200)
-              this.$nextTick(() => {})
-            })
+            // // 滚动到对应的树节点
+            // this.$nextTick(() => {
+            //   const nodeElement = document.querySelector(`[data-node-id="${node.uuid}"]`)
+            //   if (nodeElement) {
+            //   }
+            //   this.findClosestBySelector(nodeElement)
+            //   setTimeout(() => {
+            //     nodeElement.scrollIntoView({
+            //       behavior: 'smooth',
+            //       block: 'center',
+            //     })
+            //   }, 200)
+            //   this.$nextTick(() => {})
+            // })
           }
         }
       } else {
@@ -710,10 +710,10 @@ export default {
       }
 
       // Pulsing animation for highlighted objects
-      if (this.highlightedObjects.size > 0 && this.highlightMaterial) {
-        const pulse = 0.5 + 0.3 * Math.sin(Date.now() * 0.005)
-        this.highlightMaterial.opacity = pulse
-      }
+      // if (this.highlightedObjects.size > 0 && this.highlightMaterial) {
+      //   const pulse = 0.5 + 0.3 * Math.sin(Date.now() * 0.005)
+      //   this.highlightMaterial.opacity = pulse
+      // }
     },
     async resetModel(isFirst = false) {
       // 1. 恢复模型的初始位置/旋转/缩放
@@ -809,7 +809,6 @@ export default {
         let judgeIsSceneContainer = parent?.classList?.contains('scene-container')
         if (judgeIsSceneContainer) {
           this.onCanvasClick(event)
-          // 这就是你的原始点击事件处理逻辑，保持不变！
         }
       }
 
