@@ -1,43 +1,26 @@
 <template>
   <div>
-    <div ref="bottomRef" style="height: 10px"></div>
+    <div>t2</div>
+    <BaseUse></BaseUse>
   </div>
 </template>
 
 <script>
+import BaseUse from '@/views/three/baseUse.vue'
 export default {
-  name: 'T1',
-  components: {},
-  props: {
-    sceneNodes: {
-      type: Array,
-    },
-    pageSize: {
-      type: Number,
-    },
+  name: 'T2',
+  components: {
+    BaseUse,
   },
+  props: {},
   data() {
-    return {
-      item: [],
-      io: '',
-      pageNumber: 1,
-      parseNodes: [],
-    }
+    return {}
   },
   computed: {},
   watch: {},
-  created() {
-    this.io = new IntersectionObserver(this.loadMore)
-  },
-  mounted() {
-    this.io.observe(this.$refs.bottomRef)
-  },
-  methods: {
-    loadMore(entries) {
-      if (entries[0].intersectionRatio <= 0) return
-      this.pageNumber++
-      this.$emit('loadSuccess', this.pageNumber)
-    },
-  },
+  created() {},
+  mounted() {},
+  methods: {},
 }
 </script>
+<style scoped lang="scss"></style>
