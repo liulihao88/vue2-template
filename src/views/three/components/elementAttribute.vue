@@ -16,7 +16,7 @@
         </el-collapse-item>
       </el-collapse>
 
-      <el-collapse v-for="(v, i) in sAttribute.Parameters" :value="v.GroupName">
+      <el-collapse v-for="(v, i) in sAttribute.Parameters" :value="v.GroupName" :key="v.GroupName">
         <el-collapse-item :title="v.GroupName" :name="v.GroupName">
           <table class="gridtable">
             <tr v-for="(val, idx) in v.Parameters" :key="idx">

@@ -250,7 +250,9 @@ export default {
     async initDracoLoader() {
       if (process.env.NODE_ENV === 'development') {
         const dracoLoader = new DRACOLoader()
-        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/')
+        // dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/')
+        dracoLoader.setDecoderPath('/draco/')
+        dracoLoader.setDecoderConfig({ type: 'js' })
         return dracoLoader
       }
       return null
@@ -259,7 +261,6 @@ export default {
     triggerFileInput() {
       this.$refs.fileInput.click()
     },
-
 
     readFileAsArrayBuffer(file) {
       return new Promise((resolve, reject) => {
