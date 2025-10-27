@@ -238,8 +238,10 @@ export default {
       }
       if (arr.includes('mouse')) {
         this.isShowMouse = true
+        this.renderer.domElement.addEventListener('mousemove', this.getMouseXYZ, { passive: true })
       } else {
         this.isShowMouse = false
+        this.renderer.domElement.removeEventListener('mousemove', this.getMouseXYZ)
       }
       this.activeArr = arr
     },
@@ -323,6 +325,7 @@ export default {
       this.percentage = 0
       const loader = new GLTFLoader()
       const dracoLoader = await this.initDracoLoader()
+      console.log(`66 dracoLoader`, dracoLoader)
       if (dracoLoader) {
         loader.setDRACOLoader(dracoLoader)
       }
@@ -736,7 +739,6 @@ export default {
     },
     // 鼠标移动时，检查并标记为“正在拖动”
     onMouseMoveHandler(event) {
-      this.getMouseXYZ()
       // 如果 isCurrentlyDragging 已经是 true，就没必要再检查了
       if (this.isCurrentlyDragging) {
         return
@@ -758,6 +760,7 @@ export default {
       }
     },
     getMouseXYZ() {
+      console.log(`59 rect`, rect)
       const rect = this.renderer.domElement.getBoundingClientRect()
       this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
       this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
@@ -821,6 +824,7 @@ export default {
       if (this.renderer) {
         this.renderer.domElement.removeEventListener('mousedown', this.onMouseDownHandler)
         this.renderer.domElement.removeEventListener('mousemove', this.onMouseMoveHandler)
+        this.renderer.domElement.removeEventListener('mousemove', this.getMouseXYZ)
       }
       window.removeEventListener('mouseup', this.onMouseUpHandler)
       window.removeEventListener('resize', this.onWindowResize)
