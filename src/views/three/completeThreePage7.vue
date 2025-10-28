@@ -94,7 +94,7 @@ import ClipboardPhoto from './components/clipboardPhotoHtml2Canvas.vue'
 import absoluteBox from './components/absoluteBox.vue'
 import NodeItem from './components/NodeItem.vue' // New component for rendering tree nodes
 import CusDialog from './components/cusDialog.vue'
-import IoloadMore from './components/ioloadMore.vue'
+import IoloadMore from './components/ioLoadMore.vue'
 
 export default {
   name: 'ModelViewer',

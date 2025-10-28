@@ -6,7 +6,7 @@
 
 <script>
 export default {
-  name: 'T1',
+  name: 'IoLoadMore',
   components: {},
   props: {
     sceneNodes: {
