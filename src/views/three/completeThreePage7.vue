@@ -37,7 +37,7 @@
                 :depth="0"
                 :selected-id="selectedNodeId"
                 @node-select="handleNodeSelect" />
-              <IoloadMore style="height: 10px" @loadSuccess="loadSuccess" :pageSize="pageSize"></IoloadMore>
+              <IoLoadMore style="height: 10px" @loadSuccess="loadSuccess" :pageSize="pageSize"></IoLoadMore>
             </div>
           </absolute-box>
           <cus-dialog @close="closeCusDialog('statistics')" title="模型信息" v-show="isShowStatistics">
@@ -94,7 +94,7 @@ import ClipboardPhoto from './components/clipboardPhotoHtml2Canvas.vue'
 import absoluteBox from './components/absoluteBox.vue'
 import NodeItem from './components/NodeItem.vue' // New component for rendering tree nodes
 import CusDialog from './components/cusDialog.vue'
-import IoloadMore from './components/ioLoadMore.vue'
+import IoLoadMore from './components/ioLoadMore.vue'
 
 export default {
   name: 'ModelViewer',
@@ -107,7 +107,7 @@ export default {
     absoluteBox,
     NodeItem,
     CusDialog,
-    IoloadMore,
+    IoLoadMore,
   },
   computed: {
     hoverCoordsTitle() {
