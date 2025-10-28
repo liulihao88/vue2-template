@@ -214,6 +214,14 @@ export const constantRoutes = [
     },
     children: [
       {
+        path: 'inputBlack',
+        name: 'inputBlack',
+        component: () => import('@/views/element/inputBlack'),
+        meta: {
+          title: 'el-input黑色主题',
+        },
+      },
+      {
         path: 'tableBlack',
         name: 'tableBlack',
         component: () => import('@/views/element/tableBlack'),

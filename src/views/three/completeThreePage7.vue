@@ -28,7 +28,16 @@
               height: 'calc(50vh - 56px)',
             }"
             title="全部构件">
-            =={{ sendNodes.length }}??
+            <template #right>
+              <el-input
+                placeholder="请输入内容"
+                v-model="input3"
+                class="input-with-select custom-dark-input"
+                size="small"
+                style="width: 180px">
+                <el-button slot="append" icon="el-icon-search"></el-button>
+              </el-input>
+            </template>
             <div class="node-tree" v-if="sendNodes.length > 0">
               <node-item
                 v-for="node in sendNodes"
@@ -942,4 +951,5 @@ export default {
   padding: 2px;
   color: #4fc3f7;
 }
+
 </style>
