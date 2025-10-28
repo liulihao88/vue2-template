@@ -47,7 +47,8 @@
         </div>
       </div>
     </div>
-    <threePagination></threePagination>
+    <threePagination :total="listData.length"></threePagination>
+    <!-- <threePagination :total="1234"></threePagination> -->
   </absolute-box>
 </template>
 

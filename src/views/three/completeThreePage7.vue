@@ -329,8 +329,8 @@ export default {
         loader.setDRACOLoader(dracoLoader)
       }
       loader.load(
-        // '/2.glb',
-        '/3.glb',
+        '/2.glb',
+        // '/3.glb',
         (gltf) => {
           this.partLists = []
           this.isLoaded = true

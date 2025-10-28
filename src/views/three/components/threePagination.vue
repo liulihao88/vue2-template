@@ -1,20 +1,26 @@
 <template>
   <div class="pagination-box">
+    <div class="total-box">共 {{ total }} 条</div>
     <el-pagination
       @current-change="handleCurrentChange"
       :current-page="currentPage"
       :page-sizes="[10]"
       :page-size="10"
-      layout="total, prev, pager, next"
-      :total="20"></el-pagination>
+      :total="total"
+      layout=" prev, pager, next"></el-pagination>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'T3',
+  name: 'ThreePagination',
   components: {},
-  props: {},
+  props: {
+    total: {
+      type: Number,
+      required: true,
+    },
+  },
   data() {
     return {
       currentPage: 2,
@@ -38,6 +44,18 @@ export default {
   height: 50px;
   overflow-x: auto;
   border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  .total-box {
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+  ::v-deep .el-pagination {
+    flex: 1;
+    overflow: auto;
+    text-align: right;
+  }
   ::v-deep .el-pagination__sizes {
     pointer-events: none; /* 阻止所有鼠标事件 */
     opacity: 0.6; /* 降低不透明度，使其看起来像被禁用了 */
