@@ -27,18 +27,25 @@
               top: 'calc(0% + 56px)',
               height: 'calc(50vh - 56px)',
             }"
+            :rightStyle="{
+              right: 0,
+            }"
             title="全部构件">
             <template #right>
-              <el-input
-                placeholder="请输入内容"
-                v-model="input3"
-                class="input-with-select custom-dark-input"
-                size="small"
-                style="width: 180px">
-                <el-button slot="append" icon="el-icon-search"></el-button>
-              </el-input>
+              {{ sendNodes.length }}=
+              <div class="input-black-box">
+                <el-input
+                  placeholder="请输入内容"
+                  v-model.trim="searchValue"
+                  size="small"
+                  style="width: 200px"
+                  @clear="handleSearch"
+                  :clearable="true">
+                  <el-button slot="append" icon="el-icon-search" @click="handleSearch"></el-button>
+                </el-input>
+              </div>
             </template>
-            <div class="node-tree" v-if="sendNodes.length > 0">
+            <div class="node-tree" ref="scrollWrapperRef" v-if="sendNodes.length > 0">
               <node-item
                 v-for="node in sendNodes"
                 :key="node.uuid"
@@ -46,8 +53,13 @@
                 :depth="0"
                 :selected-id="selectedNodeId"
                 @node-select="handleNodeSelect" />
-              <IoLoadMore style="height: 10px" @loadSuccess="loadSuccess" :pageSize="pageSize"></IoLoadMore>
+
+              <IoLoadMore style="height: 10px" @loadSuccess="loadSuccess" :pageSize="pageSize" ref="ioLoadMoreRef">
+                加载啊
+              </IoLoadMore>
+              <div v-if="emptyShow" class="no-more">暂无更多数据</div>
             </div>
+            <div v-else class="no-more no-data">暂无数据</div>
           </absolute-box>
           <cus-dialog @close="closeCusDialog('statistics')" title="模型信息" v-show="isShowStatistics">
             <div v-for="(part, i) in partLists" :key="part.id" class="part-item" w>
@@ -133,14 +145,18 @@ export default {
   },
   watch: {
     sceneNodes(val) {
-      console.log(`27 val`, val)
       if (val && val.length > 0) {
+        // 修改这里，确保设置的是 allSceneNodes
+        this.allSceneNodes = val.slice(0) // 保存原始树的根节点
+        // 初始的 sendNodes 还是取前 pageSize 个
         this.sendNodes = val[0].children.slice(0, this.pageSize)
       }
     },
   },
   data() {
     return {
+      searchValue: '',
+      emptyShow: false,
       pageSize: 30,
       modelLoaded: true,
       scene: null,
@@ -185,6 +201,8 @@ export default {
       isShowMouse: false,
       sceneNodes: [],
       sendNodes: [],
+      allSceneNodes: [],
+      filteredSceneNodes: {},
     }
   },
   created() {
@@ -209,13 +227,96 @@ export default {
     this.cleanupScene()
   },
   methods: {
-    loadSuccess(pageNumber) {
-      console.log(`05 pageNumber`, pageNumber)
-      console.log(`21 this.sendNodes`, this.sendNodes)
-      this.sendNodes = this.sendNodes.concat(
-        this.sceneNodes[0].children.slice((pageNumber - 1) * this.pageSize, pageNumber * this.pageSize),
-      )
-      console.log(`84 this.sendNodes`, this.sendNodes)
+    // 2. 新增 handleSearch 方法
+    handleSearch() {
+      this.$refs.ioLoadMoreRef?.reset?.()
+      if (this.$refs.scrollWrapperRef) {
+        // 使用 el-scrollbar 的 update 方法来刷新，然后设置 scrollTop
+        this.$refs.scrollWrapperRef.scrollTop = 0 // 也可以尝试这种方式
+      }
+      // 如果搜索框为空，显示所有节点
+      if (!this.searchValue) {
+        this.filteredSceneNodes = {}
+        this.sendNodes = this.allSceneNodes[0]?.children?.slice(0, this.pageSize) ?? []
+        return
+      }
+      this.filteredSceneNodes = {
+        [this.searchValue.toLowerCase()]: this.filterNodes(this.allSceneNodes, this.searchValue.toLowerCase()),
+      }
+      // 这里我们简单截取，符合你现有的分页逻辑
+      this.sendNodes =
+        this.filteredSceneNodes[this.searchValue.toLowerCase()][0]?.children?.slice(0, this.pageSize) ?? []
+
+      this.judgeEmptyShow()
+    },
+    judgeEmptyShow() {
+      let sNodesLength = this.sendNodes.length
+      let sValue = this.searchValue.toLowerCase()
+      console.log(`26 sValue`, sValue)
+      if (!sValue) {
+        this.emptyShow = false
+      }
+      let filteredLength = this.filteredSceneNodes[sValue]?.[0]?.children?.length
+      console.log(`88 filteredLength`, filteredLength)
+      if (sNodesLength === filteredLength) {
+        this.emptyShow = true
+      } else {
+        this.emptyShow = false
+      }
+    },
+    filterNodes(nodes, searchTerm) {
+      // nodes 是我们要过滤的节点数组
+      const result = []
+
+      for (const node of nodes) {
+        // 递归检查当前节点的所有子节点
+        const matchingChildren = this.filterNodes(node.children, searchTerm)
+
+        // 如果当前节点本身匹配，或者它有任何匹配的子节点，则保留该节点
+        if (node.name.toLowerCase().includes(searchTerm) || matchingChildren.length > 0) {
+          // 创建一个节点副本，避免修改原始数据
+          const nodeCopy = { ...node }
+          // 如果是保留了父节点但父节点本身不匹配，可以将它的 name 或其他信息标记一下，便于UI展示
+          // 例如: if (!node.name.toLowerCase().includes(searchTerm)) { nodeCopy.name = '...'; }
+
+          // 将匹配的子节点赋给副本
+          nodeCopy.children = matchingChildren
+          result.push(nodeCopy)
+        }
+      }
+
+      return result
+    },
+    async loadSuccess(sendPageNumber) {
+      let pageNumber = sendPageNumber
+      // handleSuccess()
+      if (this.searchValue) {
+        let getFilteredSceneNodes = this.filteredSceneNodes[this.searchValue.toLowerCase()]
+        if (!getFilteredSceneNodes) {
+          this.handleSearch()
+          pageNumber = 1
+          await this.$nextTick()
+        } else {
+          this.sendNodes = this.sendNodes.concat(
+            this.filteredSceneNodes[this.searchValue.toLowerCase()][0].children.slice(
+              (pageNumber - 1) * this.pageSize,
+              pageNumber * this.pageSize,
+            ),
+          )
+        }
+      } else {
+        if (Object.keys(this.filteredSceneNodes).length !== 0) {
+          this.$refs.ioLoadMoreRef?.reset?.()
+          this.handleSearch()
+          pageNumber = 1
+          await this.$nextTick()
+        } else {
+          this.sendNodes = this.sendNodes.concat(
+            this.allSceneNodes[0].children.slice((pageNumber - 1) * this.pageSize, pageNumber * this.pageSize),
+          )
+        }
+      }
+      this.judgeEmptyShow()
     },
     mittClipboard() {
       this.$refs.clipboardPhotoRef.startSelection()
@@ -393,6 +494,7 @@ export default {
         parentNode.children.push(node)
       } else {
         this.sceneNodes.push(node)
+        this.allSceneNodes = this.sceneNodes
       }
       // Recursively process children
       if (object.children && object.children.length > 0) {
@@ -951,5 +1053,37 @@ export default {
   padding: 2px;
   color: #4fc3f7;
 }
-
+.input-black-box ::v-deep .el-input {
+  .el-input__inner {
+    background-color: #000;
+    border-color: #3b4453;
+    height: 25px;
+    line-height: 25px;
+    color: #fff;
+    border-right: none;
+  }
+  .el-input__icon {
+    line-height: 25px;
+  }
+}
+.input-black-box ::v-deep .el-input-group__append {
+  background-color: #000;
+  border-color: #3b4453;
+  /* border-left: none; */
+  border-left: none;
+  i {
+    color: #fff;
+  }
+}
+.no-more {
+  text-align: center;
+  color: #909399;
+  font-size: 14px;
+}
+.no-data {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
 </style>

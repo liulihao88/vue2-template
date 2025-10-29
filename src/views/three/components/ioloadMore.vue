@@ -21,7 +21,6 @@ export default {
       item: [],
       io: '',
       pageNumber: 1,
-      parseNodes: [],
     }
   },
   computed: {},
@@ -33,10 +32,15 @@ export default {
     this.io.observe(this.$refs.bottomRef)
   },
   methods: {
+    reset() {
+
+      this.pageNumber = 1
+      console.log(`1115 36行 three/components/ioloadMore.vue reset `, this.pageNumber)
+    },
     loadMore(entries) {
-      console.log(`12 entries`, entries)
       if (entries[0].intersectionRatio <= 0) return
-      this.pageNumber++
+      this.pageNumber = this.pageNumber + 1
+      console.log(`59 this.pageNumber`, this.pageNumber)
       this.$emit('loadSuccess', this.pageNumber)
     },
   },

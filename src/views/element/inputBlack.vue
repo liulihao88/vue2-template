@@ -1,5 +1,5 @@
 <template>
-  <div class="box">
+  <div class="input-black-box">
     <el-input
       placeholder="请输入内容"
       v-model="a"
@@ -30,17 +30,17 @@ export default {
 }
 </script>
 <style scoped lang="scss">
-.box {
+.input-black-box {
   padding: 24px;
 }
-::v-deep .el-input {
+.input-black-box ::v-deep .el-input {
   .el-input__inner {
     background-color: #000;
     border-color: #000;
     color: #fff;
   }
 }
-::v-deep .el-input-group__append {
+.input-black-box ::v-deep .el-input-group__append {
   background-color: #000;
   border-color: #000 #000 #000 #fff;
   border-left: 1px solid #fff;

@@ -1,10 +1,6 @@
 <template>
   <div>
-    <div class="myfont icon-clipboard"></div>
-    <div v-for="(v, i) in item" :key="i">
-      <div>{{ v }}</div>
-    </div>
-    <div ref="bottomRef" style="height: 10px"></div>
+    <el-empty description="没数据" style="height: 20px; width: 20px"></el-empty>
   </div>
 </template>
 
@@ -14,35 +10,13 @@ export default {
   components: {},
   props: {},
   data() {
-    return {
-      item: [],
-      io: '',
-      num: 60,
-      page: 1,
-    }
+    return {}
   },
   computed: {},
   watch: {},
-  created() {
-    this.init()
-    this.io = new IntersectionObserver(this.loadMore)
-  },
-  mounted() {
-    this.io.observe(this.$refs.bottomRef)
-  },
-  methods: {
-    init() {
-      for (let i = this.num * this.page - 60; i < this.num * this.page; i++) {
-        this.item.push(i)
-      }
-      this.page++
-    },
-    loadMore(entries) {
-      console.log(`97 entries`, entries)
-      console.log(`97 entries[0]`, entries[0])
-      if (entries[0].intersectionRatio <= 0) return
-      this.init()
-    },
-  },
+  created() {},
+  mounted() {},
+  methods: {},
 }
 </script>
+<style scoped lang="scss"></style>

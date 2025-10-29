@@ -8,7 +8,7 @@
           </el-tooltip>
         </div>
       </section>
-      <section ref="controlsRef" class="lm_controls">
+      <section ref="controlsRef" class="lm_controls" :style="{ ...rightStyle }">
         <slot name="right"></slot>
       </section>
     </section>
@@ -29,6 +29,10 @@ export default {
       default: '',
     },
     customStyle: {
+      type: Object,
+      default: () => ({}),
+    },
+    rightStyle: {
       type: Object,
       default: () => ({}),
     },
@@ -58,10 +62,10 @@ export default {
       if (!this.$refs.titleRef || !this.$refs.controlsRef) return
       const headerWidth = this.$el.clientWidth
       const controlsWidth = this.$refs.controlsRef.clientWidth
-      const paddingRight = 20 // .lm_controls 的 right: 20px
-      const buffer = 20 // 额外缓冲空间
+      const paddingRight = 10 // .lm_controls 的 right: 20px
+      const buffer = 10 // 额外缓冲空间
 
-      this.titleMaxWidth = headerWidth - controlsWidth - paddingRight - buffer - 30
+      this.titleMaxWidth = headerWidth - controlsWidth - paddingRight - buffer
 
       const titleEl = this.$refs.titleRef
       this.showTooltip = titleEl.scrollWidth > titleEl.offsetWidth
