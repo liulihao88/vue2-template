@@ -245,6 +245,14 @@ export const constantRoutes = [
           title: 'el-dialog黑色主题',
         },
       },
+      {
+        path: 'mergeElementComponent',
+        name: 'mergeElementComponent',
+        component: () => import('@/views/element/mergeElementComponent'),
+        meta: {
+          title: 'element-ui的组件合并使用',
+        },
+      },
     ],
   },
   {

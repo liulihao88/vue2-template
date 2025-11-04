@@ -1,10 +1,10 @@
 <template>
   <div class="demo-image__preview">
     <el-image
-      style="width: 100px; height: 100px; opacity: 1"
+      style="width: 100px; height: 100px"
       :src="url"
       :preview-src-list="srcList"
-      @click="init"
+      @click="opacityToOne"
       custom-class="abcd"
       class="abcd"></el-image>
   </div>
@@ -12,7 +12,7 @@
 
 <script>
 export default {
-  name: 'T1',
+  name: 'CHangeImageOpacity',
   components: {},
   props: {},
   data() {
@@ -31,11 +31,24 @@ export default {
     // this.init()
   },
   methods: {
+    /**
+     * @description 方案1, 使用js
+     *
+     * @description 方案2, 全局修改, 全局使用公共class
+     *
+     */
+    // .el-image-viewer__wrapper {
+    //   .el-image-viewer__mask {
+    //     opacity: 1 !important;
+    //     background-color: #000; /* 同时也可以修改其他样式 */
+    //   }
+    // }
     opacityToOne() {
       // $nextTick 是 Vue 提供的，用来在下次 DOM 更新循环结束之后执行延迟回调
       this.$nextTick(() => {
         // 在 body 中查找被动态创建的遮罩层
         const mask = document.body.querySelector('.el-image-viewer__mask')
+        console.log(`26 mask`, mask)
         if (mask) {
           // 直接操作 DOM 的 style 属性，它的优先级是最高的，可以覆盖所有 CSS 规则
           mask.style.opacity = '1.0'
@@ -45,10 +58,4 @@ export default {
   },
 }
 </script>
-<style scoped lang="scss">
-/* :deep() 会告诉 Vue：括号里的选择器不要加上 [data-v-xxxxx] 属性，让它可以去修改子组件或第三方组件的样式 */
-::v-deep .el-image-viewer__mask {
-  opacity: 1 !important;
-  background-color: #000; /* 同时也可以修改其他样式 */
-}
-</style>
+<style scoped lang="scss"></style>
