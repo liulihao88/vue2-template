@@ -604,24 +604,18 @@ export default {
     highlightMeshes(meshes) {
       this.clearHighlight()
 
+      const staticHighlightMaterial = new THREE.MeshBasicMaterial({
+        color: 0x00ff00,
+        transparent: true,
+        opacity: 0.5, // 一个固定的透明度
+        wireframe: false,
+      })
       meshes.forEach((mesh) => {
         if (!mesh.userData.originalMaterial) {
           mesh.userData.originalMaterial = mesh.material
         }
-
-        const staticHighlightMaterial = new THREE.MeshBasicMaterial({
-          color: 0x00ff00,
-          transparent: true,
-          opacity: 0.5, // 一个固定的透明度
-          wireframe: false,
-        })
-        meshes.forEach((mesh) => {
-          if (!mesh.userData.originalMaterial) {
-            mesh.userData.originalMaterial = mesh.material
-          }
-          mesh.material = staticHighlightMaterial // 使用同一个静态材质实例！
-          this.highlightedObjects.add(mesh)
-        })
+        mesh.material = staticHighlightMaterial // 使用同一个静态材质实例！
+        this.highlightedObjects.add(mesh)
       })
     },
 
