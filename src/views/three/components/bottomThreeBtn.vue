@@ -130,7 +130,7 @@ export default {
 </script>
 <style scoped lang="scss">
 .toolbar {
-  bottom: 80px;
+  bottom: 20px;
   position: absolute;
   text-align: center;
   width: 100%;

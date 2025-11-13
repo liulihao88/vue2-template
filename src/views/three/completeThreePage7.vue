@@ -4,6 +4,7 @@
       <!-- <el-button class="open-glb" type="primary" size="small" @click="triggerFileInput">打开 GLB 文件</el-button> -->
       <!-- <input ref="fileInput" type="file" accept=".glb" @change="handleFileUpload" style="display: none" /> -->
     </div>
+    <GlbSelect v-model="selectUrl" @change="selectChange"></GlbSelect>
 
     <el-dialog
       :visible.sync="modelLoaded"
@@ -116,6 +117,7 @@ import absoluteBox from './components/absoluteBox.vue'
 import NodeItem from './components/NodeItem.vue' // New component for rendering tree nodes
 import CusDialog from './components/cusDialog.vue'
 import IoLoadMore from './components/ioLoadMore.vue'
+import GlbSelect from './components/glbSelect.vue'
 
 export default {
   name: 'ModelViewer',
@@ -129,6 +131,7 @@ export default {
     NodeItem,
     CusDialog,
     IoLoadMore,
+    GlbSelect,
   },
   computed: {
     hoverCoordsTitle() {
@@ -204,6 +207,7 @@ export default {
       allSceneNodes: [],
       filteredSceneNodes: {},
       highlightMaterial: null,
+      selectUrl: '3.glb',
     }
   },
   created() {
@@ -234,6 +238,9 @@ export default {
     this.cleanupScene()
   },
   methods: {
+    selectChange() {
+      this.loadModel()
+    },
     reduceQuality() {
       // 动态降低质量以提高性能
       this.renderer.antialias = true // 启用抗锯齿 设为false为禁用抗锯齿
@@ -455,11 +462,31 @@ export default {
       if (dracoLoader) {
         loader.setDRACOLoader(dracoLoader)
       }
+      if (this.model && this.scene) {
+        // 从场景中移除
+        this.scene.remove(this.model)
+        // 遍历旧模型的所有子对象，并释放几何体和材质
+        this.model.traverse((child) => {
+          if (child.isMesh) {
+            // 释放几何体
+            child.geometry?.dispose()
+            // 释放材质
+            if (child.material) {
+              if (Array.isArray(child.material)) {
+                child.material.forEach((m) => m.dispose())
+              } else {
+                child.material.dispose()
+              }
+            }
+          }
+        })
+        this.model = null // 将旧模型引用置为 null
+      }
       loader.load(
-        // '/2.glb',
+        this.selectUrl,
         // '/3.glb',
         // '/4.glb',
-        '/6.glb',
+        // '/6.glb',
         (gltf) => {
           // 简化几何体
           // gltf.scene.traverse((child) => {
@@ -815,23 +842,30 @@ export default {
     },
 
     fitCameraToModel() {
-      // a. 获取模型的边界框
-      this.camera.position.set(0, 2, 5) // 将相机放在 x=0, y=1, z=5 的位置
+      if (!this.model) return
+
+      // 获取模型的包围盒
       const box = new THREE.Box3().setFromObject(this.model)
       const center = box.getCenter(new THREE.Vector3())
       const size = box.getSize(new THREE.Vector3())
 
+      // 计算合适的距离
       const maxDim = Math.max(size.x, size.y, size.z)
-      const targetScale = 4.0 / maxDim
+      const fov = this.camera.fov * (Math.PI / 180)
+      let distance = Math.abs(maxDim / 2 / Math.tan(fov / 2))
+      distance *= 1.5 // 增加边距
 
-      // c. 计算缩放比例
-      // 我们希望模型最大为 4 个单位，可以根据需要调整这个 '4.0'
-      this.model.scale.multiplyScalar(targetScale)
-      // d. 将模型居中 (使其中心位于世界坐标原点)
-      this.model.position.sub(center.multiplyScalar(targetScale))
-      // --- 核心逻辑结束 ---
-      // 将处理好的模型添加到场景中
+      // 45度俯视角度
+      const angle = 45 * (Math.PI / 180) // 转换为弧度
+      const height = distance * Math.sin(angle) // Y轴高度
+      const depth = distance * Math.cos(angle) // Z轴距离
 
+      // 设置相机位置（从斜上方观察）
+      this.camera.position.set(0, height, depth)
+      this.camera.lookAt(center.x, center.y, center.z)
+      this.camera.up.set(0, 1, 0) // 标准的上方向
+
+      // 更新控制器
       if (this.controls) {
         this.controls.target.copy(center)
         this.controls.update()
@@ -844,13 +878,6 @@ export default {
         this.camera.updateProjectionMatrix()
         this.renderer.setSize(this.$refs.sceneContainer.clientWidth, this.$refs.sceneContainer.clientHeight)
       }
-    },
-
-    setTopView() {
-      const { x, y, z } = this.testDuration
-      this.camera.position.set(x, y, z)
-      this.camera.lookAt(0, 0, 0)
-      this.controls.update()
     },
 
     animate() {
