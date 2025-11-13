@@ -203,6 +203,7 @@ export default {
       sendNodes: [],
       allSceneNodes: [],
       filteredSceneNodes: {},
+      highlightMaterial: null,
     }
   },
   created() {
@@ -212,6 +213,12 @@ export default {
     this.renderer = new THREE.WebGLRenderer({
       antialias: true,
       preserveDrawingBuffer: true,
+      powerPreference: 'high-performance', // 添加此选项
+      stencil: false,
+      depth: true,
+      // 添加以下属性提升清晰度
+      alpha: true,
+      logarithmicDepthBuffer: true, // 对于大场景有助于深度精度
     })
     this.animate()
 
@@ -227,6 +234,18 @@ export default {
     this.cleanupScene()
   },
   methods: {
+    reduceQuality() {
+      // 动态降低质量以提高性能
+      this.renderer.antialias = true // 启用抗锯齿 设为false为禁用抗锯齿
+      this.renderer.shadowMap.enabled = false // 禁用阴影（如果不需要的话）
+      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)) // 限制像素比率
+      this.controls.enableDamping = false // 禁用阻尼效果
+      this.controls.dampingFactor = 0 // 禁用阻尼效果
+      this.controls.rotateSpeed = 1.0 // 适当调整旋转速度
+      this.controls.zoomSpeed = 1.2
+      this.controls.panSpeed = 0.8
+      this.camera.frustumCulled = true // 启用视锥体剔除
+    },
     // 2. 新增 handleSearch 方法
     handleSearch() {
       this.$refs.ioLoadMoreRef?.reset?.()
@@ -414,12 +433,9 @@ export default {
       this.scene.add(directionalLight)
 
       this.renderer.setSize(container.clientWidth, container.clientHeight)
-      this.renderer.shadowMap.enabled = true
       container.appendChild(this.renderer.domElement)
-      this.renderer.setPixelRatio(1.0)
 
       this.controls = new OrbitControls(this.camera, this.renderer.domElement)
-      this.controls.enableDamping = true
 
       // 切换到 mousedown
       this.renderer.domElement.addEventListener('mousedown', this.onMouseDownHandler, { passive: true })
@@ -428,6 +444,7 @@ export default {
       // 使用 window 监听 mouseup，确保万无一失
       window.addEventListener('mouseup', this.onMouseUpHandler, { passive: true })
       window.addEventListener('resize', this.onWindowResize)
+      this.reduceQuality()
     },
 
     async loadModel() {
@@ -439,9 +456,24 @@ export default {
         loader.setDRACOLoader(dracoLoader)
       }
       loader.load(
-        '/2.glb',
+        // '/2.glb',
         // '/3.glb',
+        // '/4.glb',
+        '/6.glb',
         (gltf) => {
+          // 简化几何体
+          // gltf.scene.traverse((child) => {
+          //   if (child.isMesh) {
+          //     console.log(`54 THREE`, THREE)
+          //     // 合并顶点以减少内存占用
+          //     child.geometry = THREE.BufferGeometryUtils.mergeVertices(child.geometry)
+
+          //     // 计算法线（如果缺失）
+          //     if (!child.geometry.attributes.normal) {
+          //       child.geometry.computeVertexNormals()
+          //     }
+          //   }
+          // })
           this.partLists = []
           this.isLoaded = true
           this.sceneNodes = []
@@ -601,20 +633,31 @@ export default {
         })
       }
     },
+
+    createHighlightMaterial() {
+      if (!this.highlightMaterial) {
+        this.highlightMaterial = new THREE.MeshBasicMaterial({
+          color: 0x00ff00,
+          transparent: true,
+          opacity: 0.7,
+          wireframe: false,
+          depthTest: true,
+          depthWrite: true,
+          side: THREE.DoubleSide, // 双面渲染确保可见性
+        })
+      }
+      return this.highlightMaterial
+    },
     highlightMeshes(meshes) {
       this.clearHighlight()
 
-      const staticHighlightMaterial = new THREE.MeshBasicMaterial({
-        color: 0x00ff00,
-        transparent: true,
-        opacity: 0.5, // 一个固定的透明度
-        wireframe: false,
-      })
+      const highlightMat = this.createHighlightMaterial()
+
       meshes.forEach((mesh) => {
         if (!mesh.userData.originalMaterial) {
           mesh.userData.originalMaterial = mesh.material
         }
-        mesh.material = staticHighlightMaterial // 使用同一个静态材质实例！
+        mesh.material = highlightMat // 使用同一个静态材质实例！
         this.highlightedObjects.add(mesh)
       })
     },
@@ -673,51 +716,53 @@ export default {
     onCanvasClick(event) {
       if (!this.model) return
 
-      // Calculate mouse position in normalized device coordinates
-      const rect = this.renderer.domElement.getBoundingClientRect()
-      this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
-      this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
-
-      // Raycast to find intersections
-      this.raycaster.setFromCamera(this.mouse, this.camera)
-      const intersects = this.raycaster.intersectObject(this.model, true)
-
-      if (intersects.length > 0) {
-        const clickedObject = intersects[0].object
-
-        // Find the nearest mesh (might be child of a group)
-        let mesh = clickedObject
-        while (mesh && !mesh.isMesh) {
-          if (mesh.parent) {
-            mesh = mesh.parent
-          } else {
-            break
-          }
-        }
-
-        if (mesh && mesh.isMesh) {
-          const node = this.nodeMap.get(mesh.uuid) || this.meshNodeMap.get(mesh)
-          if (node) {
-            this.handleNodeSelect(node)
-            // // 滚动到对应的树节点
-            // this.$nextTick(() => {
-            //   const nodeElement = document.querySelector(`[data-node-id="${node.uuid}"]`)
-            //   if (nodeElement) {
-            //   }
-            //   this.findClosestBySelector(nodeElement)
-            //   setTimeout(() => {
-            //     nodeElement.scrollIntoView({
-            //       behavior: 'smooth',
-            //       block: 'center',
-            //     })
-            //   }, 200)
-            //   this.$nextTick(() => {})
-            // })
-          }
-        }
-      } else {
-        this.clearHighlight()
+      // 节流处理，避免频繁点击检测
+      if (this.clickTimeout) {
+        clearTimeout(this.clickTimeout)
       }
+
+      this.clickTimeout = setTimeout(() => {
+        // 计算鼠标位置
+        const rect = this.renderer.domElement.getBoundingClientRect()
+        this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+        this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+
+        // 只检测可选择的对象
+        this.raycaster.setFromCamera(this.mouse, this.camera)
+
+        // 创建一个专门用于交互检测的对象数组，而不是遍历整个场景
+        const selectableObjects = []
+        this.model.traverse((obj) => {
+          if (obj.userData.selectable) {
+            selectableObjects.push(obj)
+          }
+        })
+
+        const intersects = this.raycaster.intersectObjects(selectableObjects, true)
+
+        if (intersects.length > 0) {
+          const clickedObject = intersects[0].object
+
+          // Find the nearest mesh (might be child of a group)
+          let mesh = clickedObject
+          while (mesh && !mesh.isMesh) {
+            if (mesh.parent) {
+              mesh = mesh.parent
+            } else {
+              break
+            }
+          }
+
+          if (mesh && mesh.isMesh) {
+            const node = this.nodeMap.get(mesh.uuid) || this.meshNodeMap.get(mesh)
+            if (node) {
+              this.handleNodeSelect(node)
+            }
+          }
+        } else {
+          this.clearHighlight()
+        }
+      }, 50) // 50ms节流
     },
 
     // 遍历祖先节点, 如果祖先节点没有展开, 那就展开
@@ -809,16 +854,25 @@ export default {
     },
 
     animate() {
-      requestAnimationFrame(this.animate)
-      if (this.renderer && this.scene && this.camera) {
-        this.renderer.render(this.scene, this.camera)
+      let lastTime = 0
+      const render = (time) => {
+        // 使用时间戳控制渲染频率，避免过度渲染
+        if (time - lastTime > 16) {
+          // 约60fps
+          if (this.controls && this.controls.enabled) {
+            this.controls.update()
+          }
+
+          if (this.renderer && this.scene && this.camera) {
+            this.renderer.render(this.scene, this.camera)
+          }
+          lastTime = time
+        }
+
+        requestAnimationFrame(render)
       }
 
-      // Pulsing animation for highlighted objects
-      // if (this.highlightedObjects.size > 0 && this.highlightMaterial) {
-      //   const pulse = 0.5 + 0.3 * Math.sin(Date.now() * 0.005)
-      //   this.highlightMaterial.opacity = pulse
-      // }
+      render()
     },
     async resetModel(isFirst = false) {
       // 1. 恢复模型的初始位置/旋转/缩放
@@ -1001,7 +1055,7 @@ export default {
   left: 300px;
   width: calc(100% - 600px);
   height: calc(100vh - 56px);
-  background: #000;
+  background: #000000;
 }
 
 .node-tree {
