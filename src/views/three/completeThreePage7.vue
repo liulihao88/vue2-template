@@ -246,7 +246,7 @@ export default {
       this.renderer.antialias = true // 启用抗锯齿 设为false为禁用抗锯齿
       this.renderer.shadowMap.enabled = false // 禁用阴影（如果不需要的话）
       this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)) // 限制像素比率
-      this.controls.enableDamping = false // 禁用阻尼效果
+    this.controls.enableDamping = false // 禁用阻尼效果
       this.controls.dampingFactor = 0 // 禁用阻尼效果
       this.controls.rotateSpeed = 1.0 // 适当调整旋转速度
       this.controls.zoomSpeed = 1.2
@@ -431,13 +431,25 @@ export default {
         1000,
       )
 
-      // Lighting
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
+      // 增强环境光
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1.0)
       this.scene.add(ambientLight)
 
-      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8)
-      directionalLight.position.set(10, 20, 0)
+      // 增强主方向光
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1.2) // 提高方向光强度
+      directionalLight.position.set(10, 20, 15) // 调整光源位置
+      directionalLight.castShadow = true
       this.scene.add(directionalLight)
+
+      // 添加辅助光源以减少阴影
+      const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.8)
+      directionalLight2.position.set(-10, -10, -10)
+      this.scene.add(directionalLight2)
+
+      // 添加顶部光源
+      const topLight = new THREE.DirectionalLight(0xffffff, 0.8)
+      topLight.position.set(0, 20, 0)
+      this.scene.add(topLight)
 
       this.renderer.setSize(container.clientWidth, container.clientHeight)
       container.appendChild(this.renderer.domElement)
