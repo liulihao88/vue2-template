@@ -13,7 +13,7 @@
       :close-on-click-modal="false"
       fullscreen
       custom-class="dark-theme-dialog">
-      <div ref="allContainerRef">
+      <div ref="allContainerRef" class="all-container">
         <div ref="sceneContainer" class="scene-container" v-if="modelLoaded"></div>
         <template v-if="modelLoaded">
           <el-progress
@@ -207,7 +207,8 @@ export default {
       allSceneNodes: [],
       filteredSceneNodes: {},
       highlightMaterial: null,
-      selectUrl: '3.glb',
+      // selectUrl: '3.glb',
+      selectUrl: '2.glb',
     }
   },
   created() {
@@ -245,8 +246,9 @@ export default {
       // 动态降低质量以提高性能
       this.renderer.antialias = true // 启用抗锯齿 设为false为禁用抗锯齿
       this.renderer.shadowMap.enabled = false // 禁用阴影（如果不需要的话）
-      this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)) // 限制像素比率
-    this.controls.enableDamping = false // 禁用阻尼效果
+      console.log(`46 window.devicePixelRatio`, window.devicePixelRatio)
+      this.renderer.setPixelRatio(1) // 限制像素比率
+      this.controls.enableDamping = false // 禁用阻尼效果
       this.controls.dampingFactor = 0 // 禁用阻尼效果
       this.controls.rotateSpeed = 1.0 // 适当调整旋转速度
       this.controls.zoomSpeed = 1.2
@@ -463,7 +465,7 @@ export default {
       // 使用 window 监听 mouseup，确保万无一失
       window.addEventListener('mouseup', this.onMouseUpHandler, { passive: true })
       window.addEventListener('resize', this.onWindowResize)
-      this.reduceQuality()
+      // this.reduceQuality()
     },
 
     async loadModel() {
@@ -1061,6 +1063,17 @@ export default {
 </script>
 
 <style scoped>
+/* 在现有样式中添加以下内容 */
+.all-container {
+  width: 100vw !important;
+  height: 100vh !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
 .open-glb {
   position: absolute;
   top: 10px;

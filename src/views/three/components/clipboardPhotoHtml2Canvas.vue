@@ -74,8 +74,8 @@ export default {
       if (!this.isSelecting) return
       e.preventDefault()
       this.selectionBox.style.display = 'block'
-      const x = e.clientX - this.targetRect.left
-      const y = e.clientY - this.targetRect.top
+      const x = e.clientX
+      const y = e.clientY
       this.selectionStart = { x, y }
       this.selectionEnd = { ...this.selectionStart }
       this.updateSelectionBox()
@@ -83,8 +83,8 @@ export default {
 
     onMouseMove(e) {
       if (!this.isSelecting || !this.selectionStart.x) return
-      const x = e.clientX - this.targetRect.left
-      const y = e.clientY - this.targetRect.top
+      const x = e.clientX
+      const y = e.clientY
       this.selectionEnd = { x, y }
       this.updateSelectionBox()
     },
@@ -93,7 +93,7 @@ export default {
       if (!this.isSelecting) return
 
       const x = Math.min(this.selectionStart.x, this.selectionEnd.x)
-      const y = Math.min(this.selectionStart.y, this.selectionEnd.y)
+      const y = Math.min(this.selectionStart.y, this.selectionEnd.y )
       const width = Math.abs(this.selectionEnd.x - this.selectionStart.x)
       const height = Math.abs(this.selectionEnd.y - this.selectionStart.y)
 
@@ -179,7 +179,7 @@ export default {
         // 4. 下载混合后的最终画布
         canvasKonva.toBlob((blob) => {
           const fileObject = new File([blob], '审核.png', { type: 'image/png' })
-          console.log(`02 fileObject`, fileObject);
+          console.log(`02 fileObject`, fileObject)
           console.log(`82 blob`, blob)
           const url = URL.createObjectURL(blob)
           // const a = document.createElement('a')

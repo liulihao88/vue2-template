@@ -15,7 +15,7 @@
           class="el-icon-plus avatar-uploader-icon inner"
           @click.stop="handleUpload"
           :class="{ 'not-allowed': disabled }"></i>
-        <el-image :src="imageUrl" fit="contain" :preview-src-list="[imageUrl]" @click.stop />
+        <el-image :src="imageUrl" fit="contain" :preview-src-list="[imageUrl]" @click.stop="opacityToOne" />
       </div>
       <i v-else class="el-icon-plus avatar-uploader-icon"></i>
     </el-upload>
@@ -57,6 +57,17 @@ export default {
   },
   mounted() {},
   methods: {
+    opacityToOne() {
+      // $nextTick 是 Vue 提供的，用来在下次 DOM 更新循环结束之后执行延迟回调
+      this.$nextTick(() => {
+        // 在 body 中查找被动态创建的遮罩层
+        const mask = document.body.querySelector('.el-image-viewer__mask')
+        if (mask) {
+          // 直接操作 DOM 的 style 属性，它的优先级是最高的，可以覆盖所有 CSS 规则
+          mask.style.opacity = '1.0'
+        }
+      })
+    },
     async handleDone(raw) {
       /*  if (raw) {
         const formData = new FormData()
