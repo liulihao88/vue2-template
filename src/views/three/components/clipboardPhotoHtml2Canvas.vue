@@ -1,6 +1,6 @@
 <template>
   <!-- 截图按钮 -->
-  <el-button @click="startSelection" type="primary" size="small">截图</el-button>
+  <!-- <el-button @click="startSelection" type="primary" size="small">截图</el-button> -->
 </template>
 
 <script>

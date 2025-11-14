@@ -1073,6 +1073,10 @@ export default {
   margin: 0 !important;
   padding: 0 !important;
   overflow: hidden;
+  pointer-events: none; /* 不拦截事件 */
+  > * {
+    pointer-events: auto; /* 子元素恢复事件处理 */
+  }
 }
 .open-glb {
   position: absolute;
